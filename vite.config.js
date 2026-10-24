@@ -2,6 +2,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import WebSocket from 'ws'
 
+// ============================================================
+// TTS PROXY (Dev only — Vercel production sử dụng api/tts.js)
+// ============================================================
+
 // Hàm escape các ký tự đặc biệt cho SSML XML
 function escapeSSML(str) {
   if (!str) return '';
