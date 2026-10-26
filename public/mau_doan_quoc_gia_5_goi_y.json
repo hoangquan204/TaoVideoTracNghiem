@@ -1,0 +1,117 @@
+[
+  {
+    "name": "🌎 Bộ 1: Đoán Các Quốc Gia Nổi Tiếng",
+    "topic": "🌎 ĐOÁN QUỐC GIA",
+    "fromFlag": "🌎",
+    "toFlag": "🚩",
+    "headerTitle": "ĐOÁN QUỐC GIA QUA 5 GỢI Ý",
+    "mode": "country-guess",
+    "questions": [
+      {
+        "country": "Nhật Bản",
+        "flag": "🇯🇵",
+        "mode": "country-guess",
+        "topic": "🌎 ĐOÁN QUỐC GIA",
+        "headerTitle": "ĐOÁN QUỐC GIA QUA 5 GỢI Ý",
+        "clues": [
+          { "step": 1, "icon": "🌏", "text": "Quốc gia này nằm ở khu vực Đông Á.", "image": "https://images.unsplash.com/photo-1540573133985-7789883c8255?w=800" },
+          { "step": 2, "icon": "🍣", "text": "Món ăn Sushi & Ramen cực kỳ nổi tiếng.", "image": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800" },
+          { "step": 3, "icon": "🗻", "text": "Có ngọn núi Phú Sĩ phủ tuyết trắng.", "image": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800" },
+          { "step": 4, "icon": "🌸", "text": "Được mệnh danh là Xứ sở Hoa Anh Đào.", "image": "https://images.unsplash.com/photo-1522383225653-ed111181a951?w=800" },
+          { "step": 5, "icon": "🗼", "text": "Thủ đô là Tokyo sầm uất & hiện đại.", "image": "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800" }
+        ],
+        "explanation": "Nhật Bản 🇯🇵 (Thủ đô Tokyo, Núi Phú Sĩ & Văn hóa Kimono)"
+      },
+      {
+        "country": "Nước Pháp",
+        "flag": "🇫🇷",
+        "mode": "country-guess",
+        "topic": "🌎 ĐOÁN QUỐC GIA",
+        "headerTitle": "ĐOÁN QUỐC GIA QUA 5 GỢI Ý",
+        "clues": [
+          { "step": 1, "icon": "🇪🇺", "text": "Quốc gia này nằm ở khu vực Tây Âu.", "image": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800" },
+          { "step": 2, "icon": "🥖", "text": "Nổi tiếng với bánh mì Bánh Sừng Bò & Rượu Vang.", "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800" },
+          { "step": 3, "icon": "🗼", "text": "Có Tháp Eiffel biểu tượng kỳ vĩ.", "image": "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800" },
+          { "step": 4, "icon": "⚽", "text": "Từng 2 lần vô địch World Cup bóng đá.", "image": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800" },
+          { "step": 5, "icon": "🎨", "text": "Thủ đô Paris - Kinh đô Ánh Sáng & Thời Trang.", "image": "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800" }
+        ],
+        "explanation": "Nước Pháp 🇫🇷 (Thủ đô Paris, Tháp Eiffel & Kinh đô thời trang)"
+      }
+    ]
+  },
+  {
+    "name": "🏝️ Bộ 2: Các Quốc Gia Châu Á",
+    "topic": "🌎 ĐOÁN QUỐC GIA",
+    "fromFlag": "🌏",
+    "toFlag": "🚩",
+    "headerTitle": "ĐOÁN QUỐC GIA QUA 5 GỢI Ý",
+    "mode": "country-guess",
+    "questions": [
+      {
+        "country": "Hàn Quốc",
+        "flag": "🇰🇷",
+        "mode": "country-guess",
+        "topic": "🌎 ĐOÁN QUỐC GIA",
+        "headerTitle": "ĐOÁN QUỐC GIA QUA 5 GỢI Ý",
+        "clues": [
+          { "step": 1, "icon": "🌏", "text": "Quốc gia này nằm ở Đông Á bên bán đảo.", "image": "https://images.unsplash.com/photo-1540563800-3a1f00e4ed98?w=800" },
+          { "step": 2, "icon": "🍜", "text": "Có món kim chi & ramyeon cực kỳ nổi tiếng.", "image": "https://images.unsplash.com/photo-1604908177453-7462950a6a3b?w=800" },
+          { "step": 3, "icon": "🎵", "text": "Là quê hương của âm nhạc K-pop sôi động.", "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800" },
+          { "step": 4, "icon": "📱", "text": "Nơi sản sinh ra Samsung & LG.", "image": "https://images.unsplash.com/photo-1569017388730-020b5f80a004?w=800" },
+          { "step": 5, "icon": "🏙️", "text": "Thủ đô Seoul hiện đại & sầm uất.", "image": "https://images.unsplash.com/photo-1617541086271-6b36d1a4b62a?w=800" }
+        ],
+        "explanation": "Hàn Quốc 🇰🇷 (Thủ đô Seoul, K-pop & Kimchi)"
+      }
+    ]
+  },
+  {
+    "name": "🌍 Bộ 3: Các Quốc Gia Châu Phi",
+    "topic": "🌎 ĐOÁN QUỐC GIA",
+    "fromFlag": "🌍",
+    "toFlag": "🚩",
+    "headerTitle": "ĐOÁN QUỐC GIA QUA 5 GỢI Ý",
+    "mode": "country-guess",
+    "questions": [
+      {
+        "country": "Ai Cập",
+        "flag": "🇪🇬",
+        "mode": "country-guess",
+        "topic": "🌎 ĐOÁN QUỐC GIA",
+        "headerTitle": "ĐOÁN QUỐC GIA QUA 5 GỢI Ý",
+        "clues": [
+          { "step": 1, "icon": "🌍", "text": "Quốc gia nằm ở vùng Bắc Phi.", "image": "https://images.unsplash.com/photo-1539768942893-daf53e448371?w=800" },
+          { "step": 2, "icon": "🏺", "text": "Nổi tiếng với nền văn minh cổ đại rực rỡ.", "image": "https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=800" },
+          { "step": 3, "icon": "⛩️", "text": "Có Kim Tự Tháp Giza - Kỳ quan thế giới.", "image": "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=800" },
+          { "step": 4, "icon": "🐪", "text": "Sa mạc Sahara và sông Nile chảy qua.", "image": "https://images.unsplash.com/photo-1531233680180-dd88a8b9e1f6?w=800" },
+          { "step": 5, "icon": "🏙️", "text": "Thủ đô Cairo - Thành phố đông dân nhất châu Phi.", "image": "https://images.unsplash.com/photo-1541841934009-1c6b3d7d9258?w=800" }
+        ],
+        "explanation": "Ai Cập 🇪🇬 (Thủ đô Cairo, Kim Tự Tháp & Sông Nile)"
+      }
+    ]
+  },
+  {
+    "name": "🌎 Bộ 4: Các Quốc Gia Châu Mỹ",
+    "topic": "🌎 ĐOÁN QUỐC GIA",
+    "fromFlag": "🌎",
+    "toFlag": "🚩",
+    "headerTitle": "ĐOÁN QUỐC GIA QUA 5 GỢI Ý",
+    "mode": "country-guess",
+    "questions": [
+      {
+        "country": "Brazil",
+        "flag": "🇧🇷",
+        "mode": "country-guess",
+        "topic": "🌎 ĐOÁN QUỐC GIA",
+        "headerTitle": "ĐOÁN QUỐC GIA QUA 5 GỢI Ý",
+        "clues": [
+          { "step": 1, "icon": "🌎", "text": "Quốc gia lớn nhất Nam Mỹ.", "image": "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800" },
+          { "step": 2, "icon": "☕", "text": "Là cường quốc xuất khẩu cà phê hàng đầu thế giới.", "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800" },
+          { "step": 3, "icon": "⚽", "text": "Đã 5 lần vô địch World Cup Bóng Đá.", "image": "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800" },
+          { "step": 4, "icon": "🌿", "text": "Có rừng nhiệt đới Amazon lớn nhất thế giới.", "image": "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800" },
+          { "step": 5, "icon": "🎭", "text": "Thủ đô Brasília và Lễ hội Carnival nổi tiếng.", "image": "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800" }
+        ],
+        "explanation": "Brazil 🇧🇷 (Thủ đô Brasília, Amazon & Carnival Rio)"
+      }
+    ]
+  }
+]

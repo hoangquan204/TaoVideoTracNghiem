@@ -55,10 +55,11 @@ export default function MCQForm({
     }
   };
 
-  const handleQuestionChange = (index, field, value) => {
+  // Cập nhật NHIỀU trường của 1 câu hỏi trong cùng một lần (tránh mất dữ liệu do state cũ)
+  const handleMultiFieldChange = (index, fields) => {
     const updatedSets = [...questionSets];
     const updatedQs = [...updatedSets[activeSetIndex].questions];
-    updatedQs[index] = { ...updatedQs[index], [field]: value };
+    updatedQs[index] = { ...updatedQs[index], ...fields };
     updatedSets[activeSetIndex] = {
       ...updatedSets[activeSetIndex],
       questions: updatedQs
@@ -67,11 +68,19 @@ export default function MCQForm({
     setSelectedPreset('custom');
   };
 
+  const handleQuestionChange = (index, field, value) => {
+    handleMultiFieldChange(index, { [field]: value });
+  };
+
   const handleSetNameChange = (name) => {
+    handleSetFieldChange('name', name);
+  };
+
+  const handleSetFieldChange = (field, value) => {
     const updatedSets = [...questionSets];
     updatedSets[activeSetIndex] = {
       ...updatedSets[activeSetIndex],
-      name: name
+      [field]: value
     };
     setQuestionSets(updatedSets);
   };
@@ -119,7 +128,6 @@ export default function MCQForm({
       explanation: 'Giải thích ngắn gọn cho đáp án đúng...'
     })));
 
-
     const updatedQs = [...currentQuestions, newQuestion];
     updatedSets[activeSetIndex] = {
       ...updatedSets[activeSetIndex],
@@ -153,46 +161,38 @@ export default function MCQForm({
       setTimeout(() => {
         try {
           const content = event.target.result;
-          const parsedSets = parseMultiMCQFile(content, file.name.toLowerCase());
+          const lowerName = file.name.toLowerCase();
+          const parsedSets = parseMultiMCQFile(content, lowerName);
           setQuestionSets(parsedSets);
           setSelectedPreset('file');
           setActiveSetIndex(0);
 
-          // Check if parsed sets is flags mode or country guess mode or player guess mode
           const firstSetMode = parsedSets[0]?.mode;
           const isPlayerUpload = firstSetMode === 'player-guess' ||
-            file.name.toLowerCase().includes('cau_thu') ||
-            file.name.toLowerCase().includes('player') ||
+            lowerName.includes('cau_thu') ||
+            lowerName.includes('player') ||
             parsedSets[0]?.questions?.some(q => q.mode === 'player-guess' || q.mode === 'player');
           const isFlagsUpload = firstSetMode === 'flags' ||
-            file.name.toLowerCase().includes('co') ||
-            file.name.toLowerCase().includes('flag') ||
+            /(^|[_\-\s.])co([_\-\s.]|$)/.test(lowerName) ||
+            lowerName.includes('flag') ||
             parsedSets[0]?.questions?.some(q => q.mode === 'flags' || String(q.image).includes('flagcdn'));
 
-          if (isPlayerUpload) {
-            if (setSettings) {
+          if (setSettings) {
+            if (isPlayerUpload) {
               setSettings(prev => ({ ...prev, readAnswer: false, theme: 'player-guess', voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 3 }));
-            }
-          } else if (isFlagsUpload) {
-            if (setSettings) {
+            } else if (isFlagsUpload) {
               setSettings(prev => ({ ...prev, readAnswer: false, theme: 'flags', voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 3 }));
-            }
-          } else if (firstSetMode === 'landmark-guess') {
-            if (setSettings) {
+            } else if (firstSetMode === 'landmark-guess') {
               setSettings(prev => ({ ...prev, readAnswer: false, theme: 'landmark-guess', voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 3 }));
-            }
-          } else if (firstSetMode === 'food-guess') {
-            if (setSettings) {
+            } else if (firstSetMode === 'food-guess') {
               setSettings(prev => ({ ...prev, readAnswer: false, theme: 'food-guess', voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 3 }));
-            }
-          } else if (firstSetMode === 'country-guess') {
-            if (setSettings) {
+            } else if (firstSetMode === 'country-guess') {
               setSettings(prev => ({ ...prev, readAnswer: false, theme: 'country-guess', voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 15 }));
             }
           }
 
           setIsLoadingFile(false);
-          alert(`🎉 Đã nhập thành công 4 Bộ câu hỏi từ file "${file.name}"!`);
+          alert(`🎉 Đã nhập thành công ${parsedSets.length} Bộ câu hỏi từ file "${file.name}"!`);
         } catch (err) {
           setIsLoadingFile(false);
           alert(`❌ Lỗi đọc file: ${err.message}`);
@@ -226,42 +226,8 @@ export default function MCQForm({
   };
 
   const handleDownloadJSONSample = () => handleDownloadSampleFile('mau_4_bo_cau_hoi_trac_nghiem.json');
-  const handleDownloadCSVSample = () => handleDownloadSampleFile('mau_4_bo_cau_hoi_trac_nghiem.csv');
 
   const activePresetObj = MCQ_PRESETS.find(p => p.id === selectedPreset);
-
-  const handleToggleSetMode = (mode) => {
-    if (setSettings) {
-      if (mode === 'flags') {
-        setSettings(prev => ({ ...prev, readAnswer: false, theme: mode, voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 3 }));
-      } else if (mode === 'player-guess') {
-        setSettings(prev => ({ ...prev, readAnswer: false, theme: mode, voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 3 }));
-      } else if (mode === 'landmark-guess') {
-        setSettings(prev => ({ ...prev, readAnswer: false, theme: mode, voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 3 }));
-      } else if (mode === 'food-guess') {
-        setSettings(prev => ({ ...prev, readAnswer: false, theme: mode, voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 3 }));
-      } else if (mode === 'vocab-b1-tiktok') {
-        setSettings(prev => ({ ...prev, readAnswer: true, theme: mode, voiceLang: 'vi-VN-HoaiMyNeural', guessTime: 3 }));
-      } else if (mode === 'word-guess') {
-        setSettings(prev => ({ ...prev, voiceLang: 'en-US-AnaNeural', guessTime: 3 }));
-      }
-    }
-    const updatedSets = [...questionSets];
-    const activeSet = updatedSets[activeSetIndex];
-    const updatedQs = activeSet.questions.map(q => ({
-      ...q,
-      mode: mode,
-      word: q.word || q.player || (mode === 'word-guess' || mode === 'food-guess' || mode === 'landmark-guess' || mode === 'player-guess' ? (q.optionA || '') : '')
-    }));
-
-    updatedSets[activeSetIndex] = {
-      ...activeSet,
-      mode: mode,
-      questions: updatedQs
-    };
-    setQuestionSets(updatedSets);
-    setSelectedPreset('custom');
-  };
 
   const currentSetMode = questionSets[activeSetIndex]?.mode || 'vocab-b1-tiktok';
   const isPlayerGuessMode = currentSetMode === 'player-guess' ||
@@ -276,9 +242,6 @@ export default function MCQForm({
   const isFoodGuessMode = currentSetMode === 'food-guess' ||
     selectedPreset === 'food-guess' ||
     (currentQuestions.length > 0 && currentQuestions[0]?.mode === 'food-guess');
-  const isFlagsMode = currentSetMode === 'flags' ||
-    selectedPreset === 'flags' ||
-    (currentQuestions.length > 0 && currentQuestions[0]?.mode === 'flags');
 
   return (
     <div className="card form-card">
@@ -287,7 +250,7 @@ export default function MCQForm({
           <HelpCircle className="icon-gold" size={20} />
           1. Nhập Dữ Liệu 4 Bộ Câu Hỏi Trắc Nghiệm / Từ Vựng / Đoán Cầu Thủ / Đố Cờ / Đoán Món / Đoán Địa Điểm
         </h2>
-        <span className="count-badge">4 Bộ x {currentQuestions.length} Câu hỏi</span>
+        <span className="count-badge">{questionSets.length} Bộ x {currentQuestions.length} Câu hỏi</span>
       </div>
 
       {isLoadingFile && (
@@ -297,7 +260,7 @@ export default function MCQForm({
         </div>
       )}
 
-      {/* 4 Question Sets Selector Bar */}
+      {/* Question Sets Selector Bar */}
       <div className="set-selector-bar">
         <label className="section-label">
           <Layers size={16} /> Chọn Bộ Câu Hỏi Để Xem / Chỉnh Sửa:
@@ -322,7 +285,7 @@ export default function MCQForm({
         </div>
       </div>
 
-      {/* File Import & Sample File Toolbar (Dành riêng cho dạng Video đang chọn trên Navbar) */}
+      {/* File Import & Sample File Toolbar */}
       <div className="preset-section">
         <div className="toolbar-header">
           <div className="toolbar-left-info">
@@ -331,7 +294,7 @@ export default function MCQForm({
               File Mẫu JSON cho dạng <strong>{activePresetObj?.name || 'Trắc nghiệm'}</strong>:
             </span>
           </div>
-          
+
           <div className="file-actions">
             <input
               type="file"
@@ -374,7 +337,7 @@ export default function MCQForm({
         </div>
       </div>
 
-      {/* Set Configuration Card: Name, Topic Badge, Flags & Mode Switcher */}
+      {/* Set Configuration Card */}
       <div className="set-config-card">
         <div className="config-row-primary">
           <div className="config-field">
@@ -393,11 +356,7 @@ export default function MCQForm({
             <input
               type="text"
               value={questionSets[activeSetIndex]?.topic || 'TỪ VỰNG B1'}
-              onChange={(e) => {
-                const updatedSets = [...questionSets];
-                updatedSets[activeSetIndex] = { ...updatedSets[activeSetIndex], topic: e.target.value };
-                setQuestionSets(updatedSets);
-              }}
+              onChange={(e) => handleSetFieldChange('topic', e.target.value)}
               placeholder="TỪ VỰNG B1"
             />
           </div>
@@ -409,11 +368,7 @@ export default function MCQForm({
             <input
               type="text"
               value={questionSets[activeSetIndex]?.headerTitle || 'TỪ NÀO CÓ NGHĨA LÀ'}
-              onChange={(e) => {
-                const updatedSets = [...questionSets];
-                updatedSets[activeSetIndex] = { ...updatedSets[activeSetIndex], headerTitle: e.target.value };
-                setQuestionSets(updatedSets);
-              }}
+              onChange={(e) => handleSetFieldChange('headerTitle', e.target.value)}
               placeholder="TỪ NÀO CÓ NGHĨA LÀ"
             />
           </div>
@@ -424,11 +379,7 @@ export default function MCQForm({
               <input
                 type="text"
                 value={questionSets[activeSetIndex]?.fromFlag || '🇻🇳'}
-                onChange={(e) => {
-                  const updatedSets = [...questionSets];
-                  updatedSets[activeSetIndex] = { ...updatedSets[activeSetIndex], fromFlag: e.target.value };
-                  setQuestionSets(updatedSets);
-                }}
+                onChange={(e) => handleSetFieldChange('fromFlag', e.target.value)}
               />
             </div>
 
@@ -437,59 +388,9 @@ export default function MCQForm({
               <input
                 type="text"
                 value={questionSets[activeSetIndex]?.toFlag || '🇺🇸'}
-                onChange={(e) => {
-                  const updatedSets = [...questionSets];
-                  updatedSets[activeSetIndex] = { ...updatedSets[activeSetIndex], toFlag: e.target.value };
-                  setQuestionSets(updatedSets);
-                }}
+                onChange={(e) => handleSetFieldChange('toFlag', e.target.value)}
               />
             </div>
-          </div>
-        </div>
-
-        <div className="config-row-mode">
-          <label className="mode-selection-label">
-            ✨ Chế Độ Hiển Thị Video (Mode):
-          </label>
-          <div className="mode-toggle-group">
-            <button
-              type="button"
-              className={`mode-toggle-btn btn-player-guess ${isPlayerGuessMode ? 'active' : ''}`}
-              onClick={() => handleToggleSetMode('player-guess')}
-              style={{ background: isPlayerGuessMode ? 'linear-gradient(135deg, #10B981, #065F46)' : '', color: isPlayerGuessMode ? '#FFF' : '' }}
-            >
-              ⚽ Nhìn Ảnh Đoán Cầu Thủ (3s Ô Chữ)
-            </button>
-            <button
-              type="button"
-              className={`mode-toggle-btn btn-landmark-guess ${isLandmarkGuessMode ? 'active' : ''}`}
-              onClick={() => handleToggleSetMode('landmark-guess')}
-              style={{ background: isLandmarkGuessMode ? 'linear-gradient(135deg, #0284C7, #1E1B4B)' : '', color: isLandmarkGuessMode ? '#FFF' : '' }}
-            >
-              🏰 Nhìn Ảnh Đoán Địa Điểm (3s Ô Chữ)
-            </button>
-            <button
-              type="button"
-              className={`mode-toggle-btn btn-food-guess ${isFoodGuessMode ? 'active' : ''}`}
-              onClick={() => handleToggleSetMode('food-guess')}
-              style={{ background: isFoodGuessMode ? 'linear-gradient(135deg, #FF7043, #E65100)' : '', color: isFoodGuessMode ? '#FFF' : '' }}
-            >
-              🍳 Nhìn Hình Đoán Món Ăn (3s - 4 Đáp Án ABCD)
-            </button>
-            <button
-              type="button"
-              className={`mode-toggle-btn btn-mcq-b1 ${!isWordGuessMode && !isFoodGuessMode && !isLandmarkGuessMode && !isPlayerGuessMode ? 'active' : ''}`}
-              onClick={() => handleToggleSetMode('vocab-b1-tiktok')}
-            >
-              🎯 Trắc Nghiệm TikTok B1 (4 Đáp Án)
-            </button>
-            <button
-              type="button"
-              className={`mode-toggle-btn btn-word-guess ${isWordGuessMode ? 'active' : ''}`}
-              onClick={() => handleToggleSetMode('word-guess')}
-            >
-              🔤 Nhìn Ảnh Đoán Từ Vựng (Gạch _ _ _ _)
-            </button>
           </div>
         </div>
       </div>
@@ -520,7 +421,7 @@ export default function MCQForm({
                 <label>Nội dung câu hỏi / Tiêu đề đố:</label>
                 <input
                   type="text"
-                  value={item.question}
+                  value={item.question || ''}
                   onChange={(e) => handleQuestionChange(idx, 'question', e.target.value)}
                   placeholder={isPlayerGuessMode ? "Ví dụ: Đây là cầu thủ nào?" : (isFoodGuessMode ? "Ví dụ: Đây là món gì?" : (isWordGuessMode ? "Ví dụ: What is the name of this animal in English?" : "Ví dụ: Thành phố nào là thủ đô của Việt Nam?"))}
                   maxLength={120}
@@ -540,7 +441,6 @@ export default function MCQForm({
 
               {isPlayerGuessMode ? (
                 <>
-                  {/* Player Guess Name */}
                   <div className="input-group full-width">
                     <label className="option-label label-a" style={{ color: '#10B981', fontWeight: 'bold' }}>
                       ⚽ Tên Cầu Thủ (Đáp Án Ô Chữ):
@@ -550,9 +450,7 @@ export default function MCQForm({
                       value={item.word || item.player || item.optionA || ''}
                       onChange={(e) => {
                         const val = e.target.value;
-                        handleQuestionChange(idx, 'word', val);
-                        handleQuestionChange(idx, 'player', val);
-                        handleQuestionChange(idx, 'optionA', val);
+                        handleMultiFieldChange(idx, { word: val, player: val, optionA: val });
                       }}
                       placeholder="Ví dụ: Cristiano Ronaldo, Lionel Messi, Kylian Mbappe..."
                       maxLength={50}
@@ -560,7 +458,6 @@ export default function MCQForm({
                     />
                   </div>
 
-                  {/* Explanation / Player Details */}
                   <div className="input-group full-width">
                     <label>💡 Thông Tin & Thành Tích Cầu Thủ (Hiện khi mở đáp án):</label>
                     <input
@@ -574,7 +471,6 @@ export default function MCQForm({
                 </>
               ) : isLandmarkGuessMode ? (
                 <>
-                  {/* Landmark Guess Name */}
                   <div className="input-group full-width">
                     <label className="option-label label-a" style={{ color: '#0EA5E9', fontWeight: 'bold' }}>
                       🏰 Tên Địa Điểm / Kỳ Quan (Đáp Án Ô Chữ):
@@ -584,9 +480,7 @@ export default function MCQForm({
                       value={item.word || item.landmark || item.optionA || ''}
                       onChange={(e) => {
                         const val = e.target.value;
-                        handleQuestionChange(idx, 'word', val);
-                        handleQuestionChange(idx, 'landmark', val);
-                        handleQuestionChange(idx, 'optionA', val);
+                        handleMultiFieldChange(idx, { word: val, landmark: val, optionA: val });
                       }}
                       placeholder="Ví dụ: Tháp Eiffel, Vạn Lý Trường Thành, Kim Tự Tháp Giza..."
                       maxLength={50}
@@ -594,7 +488,6 @@ export default function MCQForm({
                     />
                   </div>
 
-                  {/* Explanation / Landmark Description */}
                   <div className="input-group full-width">
                     <label>💡 Thông Tin & Sự Thật Thú Vị Về Địa Điểm (Hiện khi mở đáp án):</label>
                     <input
@@ -608,7 +501,6 @@ export default function MCQForm({
                 </>
               ) : isFoodGuessMode ? (
                 <>
-                  {/* Food Guess Dish Name */}
                   <div className="input-group full-width">
                     <label className="option-label label-a" style={{ color: '#FF7043', fontWeight: 'bold' }}>
                       🍳 Tên Món Ăn (Đáp Án Ô Chữ):
@@ -618,8 +510,7 @@ export default function MCQForm({
                       value={item.word || item.optionA || ''}
                       onChange={(e) => {
                         const val = e.target.value;
-                        handleQuestionChange(idx, 'word', val);
-                        handleQuestionChange(idx, 'optionA', val);
+                        handleMultiFieldChange(idx, { word: val, optionA: val });
                       }}
                       placeholder="Ví dụ: Phở Bò, Bánh Mì, Cơm Tấm, Sushi..."
                       maxLength={50}
@@ -627,7 +518,6 @@ export default function MCQForm({
                     />
                   </div>
 
-                  {/* Explanation / Dish Description */}
                   <div className="input-group full-width">
                     <label>💡 Ghi Chú & Đặc Sản Món Ăn (Hiện khi mở đáp án):</label>
                     <input
@@ -641,7 +531,6 @@ export default function MCQForm({
                 </>
               ) : isWordGuessMode ? (
                 <>
-                  {/* Word Guess Target Word */}
                   <div className="input-group">
                     <label className="option-label label-a" style={{ color: 'var(--accent-gold, #FFDE59)' }}>
                       🔤 Từ Vựng Tiếng Anh (Đáp Án):
@@ -651,8 +540,7 @@ export default function MCQForm({
                       value={item.word || item.optionA || ''}
                       onChange={(e) => {
                         const val = e.target.value.toUpperCase();
-                        handleQuestionChange(idx, 'word', val);
-                        handleQuestionChange(idx, 'optionA', val);
+                        handleMultiFieldChange(idx, { word: val, optionA: val });
                       }}
                       placeholder="Ví dụ: ELEPHANT"
                       maxLength={40}
@@ -660,7 +548,6 @@ export default function MCQForm({
                     />
                   </div>
 
-                  {/* IPA Pronunciation */}
                   <div className="input-group">
                     <label className="option-label label-b">🔊 Phiên Âm IPA (Tùy chọn):</label>
                     <input
@@ -672,7 +559,6 @@ export default function MCQForm({
                     />
                   </div>
 
-                  {/* Explanation / Vietnamese Meaning */}
                   <div className="input-group full-width">
                     <label>💡 Nghĩa Tiếng Việt & Giải Thích Chi Tiết:</label>
                     <input
@@ -686,55 +572,50 @@ export default function MCQForm({
                 </>
               ) : (
                 <>
-                  {/* Option A */}
                   <div className="input-group">
                     <label className="option-label label-a">Đáp án A:</label>
                     <input
                       type="text"
-                      value={item.optionA}
+                      value={item.optionA || ''}
                       onChange={(e) => handleQuestionChange(idx, 'optionA', e.target.value)}
                       placeholder="Ví dụ: TP. Hồ Chí Minh"
                       maxLength={60}
                     />
                   </div>
 
-                  {/* Option B */}
                   <div className="input-group">
                     <label className="option-label label-b">Đáp án B:</label>
                     <input
                       type="text"
-                      value={item.optionB}
+                      value={item.optionB || ''}
                       onChange={(e) => handleQuestionChange(idx, 'optionB', e.target.value)}
                       placeholder="Ví dụ: Hà Nội"
                       maxLength={60}
                     />
                   </div>
 
-                  {/* Option C */}
                   <div className="input-group">
                     <label className="option-label label-c">Đáp án C:</label>
                     <input
                       type="text"
-                      value={item.optionC}
+                      value={item.optionC || ''}
                       onChange={(e) => handleQuestionChange(idx, 'optionC', e.target.value)}
                       placeholder="Ví dụ: Đà Nẵng"
                       maxLength={60}
                     />
                   </div>
 
-                  {/* Option D */}
                   <div className="input-group">
                     <label className="option-label label-d">Đáp án D:</label>
                     <input
                       type="text"
-                      value={item.optionD}
+                      value={item.optionD || ''}
                       onChange={(e) => handleQuestionChange(idx, 'optionD', e.target.value)}
                       placeholder="Ví dụ: Cần Thơ"
                       maxLength={60}
                     />
                   </div>
 
-                  {/* Correct Option Selector */}
                   <div className="input-group full-width correct-option-group">
                     <label className="correct-label">
                       <CheckCircle2 size={16} className="icon-green" /> Chọn đáp án CHÍNH XÁC:
@@ -753,7 +634,6 @@ export default function MCQForm({
                     </div>
                   </div>
 
-                  {/* Explanation / Hint */}
                   <div className="input-group full-width">
                     <label>Giải thích / Gợi ý khi mở đáp án:</label>
                     <input

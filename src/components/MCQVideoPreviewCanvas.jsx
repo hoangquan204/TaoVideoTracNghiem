@@ -150,6 +150,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
+  const [videoOrientation, setVideoOrientation] = useState('vertical'); // 'vertical' | 'landscape'
+  const landscapeCanvasRef = useRef(null); // 1920x1080 landscape canvas
 
   // References for animation state & export cancellation
   const animFrameIdRef = useRef(null);
@@ -2617,6 +2619,418 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.restore();
   };
 
+  // ============================================================
+  // ĐỊA LÝ & VĂN HÓA VIỆT NAM – Canvas frame mới (nền ảnh thật, không lớp phủ xanh lá)
+  // ============================================================
+  const drawDiaLyVietNamCanvasFrame = (ctx, qObj, qIdx, totalQ, stage, timeInQ, stageProgress, currentSet = null) => {
+    const q = qObj || {};
+    const targetSet = currentSet || activeSet || {};
+    const globalT = performance.now() / 1000;
+    const W = 1080, H = 1920;
+    const isReveal = stage === 'reveal';
+    const guessTime = settings?.guessTime || 3;
+
+    // ---- 1. BACKGROUND: Ảnh thật full-screen (không overlay xanh) ----
+    const defaultBg = 'https://images.unsplash.com/photo-1528127269322-539801943592?w=1080&q=80';
+    const bgUrl = q.image || q.bg || q.background || defaultBg;
+    const bgImg = getLoadedImage(bgUrl) || getLoadedImage(defaultBg);
+
+    if (bgImg) {
+      drawFitImage(ctx, bgImg, 0, 0, W, H, { progress: stageProgress, qIdx, kenBurns: settings?.imageMotion === true });
+    } else {
+      // Fallback gradient đỏ-vàng cờ Việt Nam
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+      bgGrad.addColorStop(0, '#B91C1C');
+      bgGrad.addColorStop(0.5, '#991B1B');
+      bgGrad.addColorStop(1, '#7F1D1D');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // Vignette tối nhẹ ở 4 cạnh để text đọc rõ hơn
+    const vignette = ctx.createRadialGradient(W / 2, H / 2, H * 0.2, W / 2, H / 2, H * 0.85);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, W, H);
+
+    // Dải tối phía trên (header area)
+    const topFade = ctx.createLinearGradient(0, 0, 0, 340);
+    topFade.addColorStop(0, 'rgba(0,0,0,0.72)');
+    topFade.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = topFade;
+    ctx.fillRect(0, 0, W, 340);
+
+    // Dải tối phía dưới (answer cards + footer area)
+    const botFade = ctx.createLinearGradient(0, H - 700, 0, H);
+    botFade.addColorStop(0, 'rgba(0,0,0,0)');
+    botFade.addColorStop(1, 'rgba(0,0,0,0.88)');
+    ctx.fillStyle = botFade;
+    ctx.fillRect(0, H - 700, W, 700);
+
+    // ---- 2. TOP HEADER BADGE ----
+    const topic = (q.topic || targetSet.topic || 'ĐỊA LÝ & VĂN HÓA VN').toUpperCase();
+    const total = Math.max(1, totalQ);
+    const counter = `${qIdx + 1}/${total}`;
+
+    ctx.save();
+    // Badge nền đỏ cờ Việt Nam
+    const badgeGrad = ctx.createLinearGradient(60, 70, 60 + 400, 70 + 72);
+    badgeGrad.addColorStop(0, '#DC2626');
+    badgeGrad.addColorStop(1, '#991B1B');
+    ctx.fillStyle = badgeGrad;
+    drawRoundRect(ctx, 60, 70, 380, 72, 20);
+    ctx.fill();
+
+    // Viền vàng badge
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#FBBF24';
+    ctx.stroke();
+
+    // Icon sao vàng nhỏ
+    ctx.fillStyle = '#FDE68A';
+    ctx.font = `bold 28px ${FONT_FAMILY}`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⭐', 76, 106);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = getFitFont(ctx, topic, '800', FONT_FAMILY, 290, 28, 16);
+    ctx.fillText(topic, 116, 108);
+
+    // Số câu bên phải
+    ctx.font = `900 42px ${FONT_FAMILY}`;
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#FDE68A';
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 8;
+    ctx.fillText(counter, 1020, 108);
+    ctx.shadowBlur = 0;
+
+    // Thanh tiến trình phân đoạn
+    const segGap = 10;
+    const segW = (960 - segGap * (total - 1)) / total;
+    for (let i = 0; i < total; i++) {
+      ctx.fillStyle = i < qIdx ? '#DC2626' : (i === qIdx ? '#FDE68A' : 'rgba(255,255,255,0.25)');
+      drawRoundRect(ctx, 60 + i * (segW + segGap), 168, Math.max(4, segW), 10, 5);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // ---- 3. CIRCULAR COUNTDOWN RING ----
+    const ringX = 540, ringY = 370, ringR = 86;
+    const remainFrac = stage === 'read' ? 1 : (stage === 'guess' ? Math.max(0, 1 - stageProgress) : 0);
+    const remainSec = stage === 'guess' ? Math.max(0, Math.ceil(guessTime * (1 - stageProgress))) : (stage === 'read' ? Math.ceil(guessTime) : 0);
+    const urgent = stage === 'guess' && remainSec <= 1;
+
+    ctx.save();
+    // Nền tròn mờ
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 25;
+    ctx.beginPath();
+    ctx.arc(ringX, ringY, ringR + 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Arc nền (xám)
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(ringX, ringY, ringR, -Math.PI / 2, Math.PI * 2 - Math.PI / 2);
+    ctx.stroke();
+
+    // Arc đếm ngược (đỏ/vàng nếu gấp)
+    if (remainFrac > 0) {
+      const arcGrad = ctx.createLinearGradient(ringX - ringR, ringY - ringR, ringX + ringR, ringY + ringR);
+      if (urgent) {
+        arcGrad.addColorStop(0, '#EF4444');
+        arcGrad.addColorStop(1, '#DC2626');
+      } else {
+        arcGrad.addColorStop(0, '#FBBF24');
+        arcGrad.addColorStop(1, '#F59E0B');
+      }
+      ctx.strokeStyle = arcGrad;
+      ctx.lineWidth = 10;
+      ctx.shadowColor = urgent ? 'rgba(239,68,68,0.7)' : 'rgba(251,191,36,0.7)';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, ringR, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * remainFrac);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    // Số giây
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `900 ${stage === 'reveal' ? '44px' : '62px'} ${FONT_FAMILY}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    if (stage === 'reveal') {
+      ctx.fillStyle = '#FDE68A';
+      ctx.font = `900 48px ${FONT_FAMILY}`;
+      ctx.fillText('✓', ringX, ringY);
+    } else {
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
+      ctx.shadowBlur = 8;
+      ctx.fillText(remainSec, ringX, ringY + 2);
+      ctx.shadowBlur = 0;
+    }
+    ctx.restore();
+
+    // ---- 4. HEADER TITLE (Tiêu đề phụ) ----
+    const headerTitle = q.headerTitle || targetSet.headerTitle || 'CHỌN ĐÁP ÁN ĐÚNG';
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    drawRoundRect(ctx, 160, 490, 760, 68, 18);
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = getFitFont(ctx, headerTitle, '800', FONT_FAMILY, 700, 32, 20);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(headerTitle, 540, 526);
+    ctx.restore();
+
+    // ---- 5. QUESTION TEXT ----
+    const questionText = q.question || '';
+    ctx.save();
+
+    // Nền câu hỏi - pill trắng mờ đục
+    const qCardY = 600, qCardH = 210;
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+    ctx.shadowBlur = 20;
+    drawRoundRect(ctx, 55, qCardY, 970, qCardH, 28);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = 6;
+    drawWrappedText(ctx, questionText, 540, qCardY + 22, 890, 38, '800', FONT_FAMILY, 3, {
+      minY: qCardY + 16,
+      maxHeight: qCardH - 30,
+      minFontSize: 24
+    });
+    ctx.shadowBlur = 0;
+    ctx.restore();
+
+    // ---- 6. ANSWER OPTIONS (A, B, C, D) ----
+    const rawOptions = [];
+    if (q.optionA) rawOptions.push({ key: 'A', text: q.optionA });
+    if (q.optionB) rawOptions.push({ key: 'B', text: q.optionB });
+    if (q.optionC) rawOptions.push({ key: 'C', text: q.optionC });
+    if (q.optionD) rawOptions.push({ key: 'D', text: q.optionD });
+    const options = rawOptions.length > 0 ? rawOptions : [
+      { key: 'A', text: 'Đáp án A' },
+      { key: 'B', text: 'Đáp án B' },
+      { key: 'C', text: 'Đáp án C' },
+      { key: 'D', text: 'Đáp án D' }
+    ];
+
+    const correctKey = (q.correctOption || 'A').toUpperCase();
+    const optionCount = options.length;
+    const cardW = 468;
+    const cardH = 124;
+    const cardGap = 20;
+    const cols = 2;
+    const gridW = cols * cardW + (cols - 1) * cardGap;
+    const gridStartX = (W - gridW) / 2;
+    const gridStartY = 850;
+    const revealElapsedForCards = stage === 'reveal' ? stageProgress * 2.0 : 0;
+    const correctBounce = easeOutBack(Math.min(1, revealElapsedForCards / 0.35));
+
+    options.forEach((opt, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const posX = gridStartX + col * (cardW + cardGap);
+      const posY = gridStartY + row * (cardH + cardGap);
+      const isCorrect = opt.key === correctKey;
+      const isHighlighted = isReveal && isCorrect;
+      const isDimmed = isReveal && !isCorrect;
+
+      const cardDelay = i * 0.07;
+      const cardEntranceRaw = Math.max(0, Math.min(1, (timeInQ - cardDelay) / 0.3));
+      const cardEntrance = easeOutCubic(cardEntranceRaw);
+      const slideOffsetY = (stage === 'guess' || stage === 'read') ? (1 - cardEntrance) * 30 : 0;
+
+      ctx.save();
+      ctx.translate(0, slideOffsetY);
+
+      if (isHighlighted) {
+        const bounceScale = 0.97 + correctBounce * 0.03;
+        ctx.translate(posX + cardW / 2, posY + cardH / 2);
+        ctx.scale(bounceScale, bounceScale);
+        ctx.translate(-(posX + cardW / 2), -(posY + cardH / 2));
+
+        // Glow pulse
+        const pulseT = (revealElapsedForCards * 1.2) % 1;
+        ctx.save();
+        ctx.globalAlpha = (1 - pulseT) * 0.55;
+        ctx.strokeStyle = '#FDE68A';
+        ctx.lineWidth = 9;
+        drawRoundRect(ctx, posX - pulseT * 12, posY - pulseT * 8, cardW + pulseT * 24, cardH + pulseT * 16, 20);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Card background
+      if (isHighlighted) {
+        // Nền vàng nổi bật khi đúng
+        const hlGrad = ctx.createLinearGradient(posX, posY, posX + cardW, posY + cardH);
+        hlGrad.addColorStop(0, '#FFFBEB');
+        hlGrad.addColorStop(1, '#FEF3C7');
+        ctx.fillStyle = hlGrad;
+        ctx.shadowColor = 'rgba(251,191,36,0.6)';
+        ctx.shadowBlur = 24;
+        ctx.shadowOffsetY = 6;
+      } else if (isDimmed) {
+        ctx.fillStyle = 'rgba(30,30,30,0.55)';
+        ctx.globalAlpha = 0.65;
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.shadowColor = 'rgba(0,0,0,0.25)';
+        ctx.shadowBlur = 14;
+        ctx.shadowOffsetY = 4;
+      }
+
+      drawRoundRect(ctx, posX, posY, cardW, cardH, 22);
+      ctx.fill();
+
+      // Viền card
+      ctx.lineWidth = isHighlighted ? 3 : 1.5;
+      ctx.strokeStyle = isHighlighted ? '#FBBF24' : 'rgba(255,255,255,0.3)';
+      ctx.shadowBlur = 0;
+      ctx.stroke();
+
+      // Circle chữ cái A B C D
+      const circleR = 32;
+      const circleX = posX + 52;
+      const circleY = posY + cardH / 2;
+
+      const circGrad = ctx.createLinearGradient(circleX - circleR, circleY - circleR, circleX + circleR, circleY + circleR);
+      if (isHighlighted) {
+        circGrad.addColorStop(0, '#DC2626');
+        circGrad.addColorStop(1, '#991B1B');
+      } else {
+        circGrad.addColorStop(0, 'rgba(255,255,255,0.25)');
+        circGrad.addColorStop(1, 'rgba(255,255,255,0.15)');
+      }
+      ctx.fillStyle = circGrad;
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(circleX, circleY, circleR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = isHighlighted ? '#FFFFFF' : 'rgba(255,255,255,0.9)';
+      ctx.font = `900 30px ${FONT_FAMILY}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${opt.key}.`, circleX, circleY + 2);
+
+      // Text đáp án
+      const textStartX = posX + 96;
+      const textMaxW = cardW - 114;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.font = getFitFont(ctx, opt.text, '800', FONT_FAMILY, textMaxW, 34, 20);
+      ctx.fillStyle = isHighlighted ? '#92400E' : (isDimmed ? 'rgba(255,255,255,0.5)' : '#FFFFFF');
+      ctx.shadowColor = isDimmed ? 'transparent' : 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = isDimmed ? 0 : 4;
+      ctx.fillText(opt.text, textStartX, posY + cardH / 2 + 2);
+      ctx.shadowBlur = 0;
+
+      // Dấu tick khi đúng
+      if (isReveal && isCorrect) {
+        ctx.save();
+        ctx.translate(posX + cardW - 46, posY + cardH / 2);
+        ctx.scale(0.85 + correctBounce * 0.15, 0.85 + correctBounce * 0.15);
+        ctx.fillStyle = '#DC2626';
+        ctx.shadowColor = 'rgba(220,38,38,0.5)';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(0, 0, 26, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        drawIconCheck(ctx, 0, 0, 28, '#FFFFFF');
+        ctx.restore();
+      }
+
+      ctx.restore();
+    });
+
+    // ---- 7. EXPLANATION (khi reveal) ----
+    if (isReveal && q.explanation) {
+      const revealElapsed = timeInQ - guessTime;
+      const panelAlpha = Math.min(1, Math.max(0, revealElapsed / 0.35));
+      const explY = gridStartY + Math.ceil(optionCount / cols) * (cardH + cardGap) + 28;
+
+      ctx.save();
+      ctx.globalAlpha = panelAlpha;
+      ctx.fillStyle = 'rgba(0,0,0,0.78)';
+      ctx.shadowColor = 'rgba(0,0,0,0.4)';
+      ctx.shadowBlur = 20;
+      drawRoundRect(ctx, 75, explY, 930, 160, 24);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#DC2626';
+      ctx.stroke();
+
+      // Icon giải thích
+      ctx.fillStyle = '#DC2626';
+      ctx.font = `bold 32px ${FONT_FAMILY}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText('💡', 95, explY + 18);
+
+      ctx.fillStyle = '#FDE68A';
+      drawWrappedText(ctx, q.explanation, 540, explY + 18, 820, 26, '700', FONT_FAMILY, 2, {
+        minY: explY + 12,
+        maxHeight: 130,
+        minFontSize: 18
+      });
+      ctx.restore();
+    }
+
+    // ---- 8. FOOTER ----
+    const footerY = H - 130;
+    const footerH = 90;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    drawRoundRect(ctx, 55, footerY, 970, footerH, 20);
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(220,38,38,0.4)';
+    ctx.stroke();
+
+    // Icon play vòng tròn đỏ
+    ctx.fillStyle = '#DC2626';
+    ctx.beginPath();
+    ctx.arc(55 + footerH / 2, footerY + footerH / 2, 28, 0, Math.PI * 2);
+    ctx.fill();
+    drawIconPlay(ctx, 55 + footerH / 2 + 2, footerY + footerH / 2, 14, '#FFFFFF');
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `800 27px ${FONT_FAMILY}`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Nhấn Theo dõi để biết thêm', 55 + footerH + 10, footerY + footerH / 2 - 13);
+    ctx.font = `700 22px ${FONT_FAMILY}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillText('nhiều kiến thức mới về Việt Nam!', 55 + footerH + 10, footerY + footerH / 2 + 16);
+    ctx.restore();
+  };
+
   const drawVocabTikTokCanvasFrame = (ctx, qObj, qIdx, totalQ, stage, timeInQ, stageProgress, theme, currentSet = null) => {
     const safeQObj = qObj || {};
     const targetSet = currentSet || activeSet || {};
@@ -4367,8 +4781,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.fillText(`🌾 ${topicText}`, 0, 2);
     ctx.restore();
 
-    // 3. TOP RIGHT MASCOT LOGO
-    drawMascotLogo(ctx, 970, 100, 65, (logoImgRef && logoImgRef.current) || getLoadedImage('/logo2.png'));
 
     // 4. SUB-HEADER PILL: "ĐIỀN TỪ CÒN THIẾU VÀO CÂU CA DAO ➔"
     const headerTitleText = 'ĐIỀN TỪ CÒN THIẾU VÀO CÂU CA DAO ➔';
@@ -6463,6 +6875,24 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       return;
     }
 
+    // Dạng đặc biệt: Địa Lý & Văn Hóa Việt Nam (ảnh nền thật, không overlay xanh lá)
+    const isDiaLyVietNam = (
+      selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+      settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+      targetSet.id === 'dia-ly-van-hoa-viet-nam' ||
+      (targetSet.topic && (
+        targetSet.topic.toUpperCase().includes('ĐỊA LÝ') ||
+        (targetSet.topic.toUpperCase().includes('VIỆT NAM') && targetSet.topic.toUpperCase().includes('VĂN HÓA')) ||
+        targetSet.topic.toUpperCase() === 'ĐỊA LÝ & VĂN HÓA VN'
+      ))
+    ) && !isLingoBiBiVocab4OptionsMode;
+
+    if (isDiaLyVietNam && ((qObj && qObj.mode === 'vocab-b1-tiktok') || (targetSet && targetSet.mode === 'vocab-b1-tiktok') || (qObj && qObj.topic && qObj.headerTitle))) {
+      drawDiaLyVietNamCanvasFrame(ctx, qObj, qIdx, totalQ, stage, timeInQ, stageProgress, currentSet);
+      ctx.restore();
+      return;
+    }
+
     const isVocabTikTokMode = (qObj && qObj.mode === 'vocab-b1-tiktok') ||
       (targetSet && targetSet.mode === 'vocab-b1-tiktok') ||
       (theme && theme.id === 'vocab-b1-tiktok') ||
@@ -6473,6 +6903,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       ctx.restore();
       return;
     }
+
 
     const isWordGuessMode = (qObj && qObj.mode === 'word-guess') ||
       (targetSet && targetSet.mode === 'word-guess') ||
@@ -7098,8 +7529,272 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     return { mime: 'video/mp4', ext: 'mp4' };
   };
 
+
+  // ============================================================
+  // LANDSCAPE (YouTube 16:9) – Vẽ nội dung lên canvas 1920x1080
+  // Chiến lược: render frame 9:16 vào vùng trung tâm (căn giữa theo chiều cao),
+  // hai bên dùng blur background + gradient đậm để tạo cảm giác cinematic.
+  // ============================================================
+  const drawLandscapeFrame = (srcCanvas, destCtx) => {
+    const LW = 1920, LH = 1080;
+    const SRC_W = srcCanvas.width || 1080;
+    const SRC_H = srcCanvas.height || 1920;
+
+    // Tính kích thước vùng hiển thị 9:16 ở trung tâm
+    const scale = LH / SRC_H;
+    const displayW = SRC_W * scale;
+    const displayH = LH;
+    const centerX = (LW - displayW) / 2;
+
+    // --- Background: blur lớn từ ảnh nguồn ---
+    destCtx.save();
+    destCtx.filter = 'blur(28px)';
+    // Fill toàn bộ canvas bằng nội dung scale full
+    const scaleFullW = LW / SRC_W;
+    const scaleFullH = LH / SRC_H;
+    const scaleFull = Math.max(scaleFullW, scaleFullH) * 1.15;
+    const fullW = SRC_W * scaleFull;
+    const fullH = SRC_H * scaleFull;
+    destCtx.drawImage(srcCanvas, (LW - fullW) / 2, (LH - fullH) / 2, fullW, fullH);
+    destCtx.filter = 'none';
+    destCtx.restore();
+
+    // Overlay tối nhẹ trên background để không bị chói
+    destCtx.save();
+    destCtx.fillStyle = 'rgba(0,0,0,0.55)';
+    destCtx.fillRect(0, 0, LW, LH);
+    destCtx.restore();
+
+    // Dải gradient hai bên trái/phải
+    destCtx.save();
+    const leftGrad = destCtx.createLinearGradient(0, 0, centerX + 80, 0);
+    leftGrad.addColorStop(0, 'rgba(0,0,0,0.85)');
+    leftGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    destCtx.fillStyle = leftGrad;
+    destCtx.fillRect(0, 0, centerX + 80, LH);
+
+    const rightStart = centerX + displayW - 80;
+    const rightGrad = destCtx.createLinearGradient(rightStart, 0, LW, 0);
+    rightGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    rightGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
+    destCtx.fillStyle = rightGrad;
+    destCtx.fillRect(rightStart, 0, LW - rightStart, LH);
+    destCtx.restore();
+
+    // Vẽ nội dung 9:16 ở trung tâm với shadow nhẹ
+    destCtx.save();
+    destCtx.shadowColor = 'rgba(0,0,0,0.6)';
+    destCtx.shadowBlur = 40;
+    destCtx.drawImage(srcCanvas, 0, 0, SRC_W, SRC_H, centerX, 0, displayW, displayH);
+    destCtx.shadowBlur = 0;
+    destCtx.restore();
+
+    // Viền mảnh hai bên vùng nội dung
+    destCtx.save();
+    destCtx.strokeStyle = 'rgba(255,255,255,0.18)';
+    destCtx.lineWidth = 2;
+    destCtx.strokeRect(centerX, 0, displayW, displayH);
+    destCtx.restore();
+
+    // Watermark góc dưới phải
+    destCtx.save();
+    destCtx.fillStyle = 'rgba(255,255,255,0.35)';
+    destCtx.font = 'bold 20px "Be Vietnam Pro", sans-serif';
+    destCtx.textAlign = 'right';
+    destCtx.textBaseline = 'bottom';
+    destCtx.fillText('QuizMCQ VideoMaker', LW - 18, LH - 12);
+    destCtx.restore();
+  };
+
+  // Render VIDEO NGANG (YouTube 16:9 - 1920x1080)
+  const renderSingleVideoLandscape = (setObj, themeObj, setIndex) => {
+    return new Promise(async (resolve, reject) => {
+      const srcCanvas = canvasRef.current;        // 1080x1920 source canvas
+      const destCanvas = landscapeCanvasRef.current; // 1920x1080 output canvas
+      if (!srcCanvas || !destCanvas) return reject(new Error('Canvas reference unavailable'));
+
+      let canvasStream = null;
+      let dest = null;
+      let silentOsc = null;
+      let silentGain = null;
+      let combinedStream = null;
+      let recorder = null;
+
+      const stopAllTracks = () => {
+        try { if (canvasStream) canvasStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+        try { if (dest && dest.stream) dest.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+        try { if (combinedStream) combinedStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+        try { if (silentOsc) { silentOsc.stop(); silentOsc.disconnect(); } } catch (e) {}
+        try { if (silentGain) silentGain.disconnect(); } catch (e) {}
+      };
+
+      try {
+        const qList = setObj.questions || [];
+        try {
+          if (!isLingoBiBiSetOrQ(setObj)) {
+            const qSpeechItems = qList.map(q => ({ question: q.question })).filter(item => !!item.question);
+            const effectiveVoice = getEffectiveVoice(settings.voiceLang, setObj) || 'vi-VN-HoaiMyNeural';
+            await audioSynth.preloadWordList(qSpeechItems, effectiveVoice, settings.voiceSpeed || 1.25);
+          }
+          await preloadQuestionImages(qList);
+        } catch (preloadErr) {
+          console.warn('Preload warning (landscape):', preloadErr);
+        }
+
+        const timingsInfo = getQuestionTimings(qList, setObj, settings);
+        const setTotalTime = timingsInfo.totalQuestionsTime + 0.5;
+
+        if (isExportCancelledRef.current) { stopAllTracks(); return resolve({ cancelled: true }); }
+
+        const destCtx = destCanvas.getContext('2d');
+        canvasStream = destCanvas.captureStream(60);
+        const audioCtx = audioSynth.getAudioContext();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+        dest = audioCtx.createMediaStreamDestination();
+        silentOsc = audioCtx.createOscillator();
+        silentGain = audioCtx.createGain();
+        silentGain.gain.value = 0.00001;
+        silentOsc.connect(silentGain);
+        silentGain.connect(dest);
+        silentOsc.start();
+
+        const selectedFormat = getSupportedMimeTypeAndExt();
+        combinedStream = new MediaStream([...canvasStream.getVideoTracks(), ...dest.stream.getAudioTracks()]);
+        recorder = new MediaRecorder(combinedStream, { mimeType: selectedFormat.mime, videoBitsPerSecond: 10000000 });
+        activeRecorderRef.current = recorder;
+        const chunks = [];
+        recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+
+        const cleanName = (setObj.name || `Bo_${setIndex + 1}`).replace(/[^a-zA-Z0-9_]/g, '_');
+        const fileName = `YouTube_16x9_${cleanName}.${selectedFormat.ext}`;
+
+        recorder.onstop = () => {
+          stopAllTracks();
+          if (isExportCancelledRef.current) { setExportProgress(0); return resolve({ cancelled: true }); }
+          const blob = new Blob(chunks, { type: selectedFormat.mime });
+          const blobUrl = URL.createObjectURL(blob);
+          setExportProgress(100);
+          const a = document.createElement('a');
+          a.href = blobUrl; a.download = fileName;
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          resolve({ cancelled: false, blobUrl, fileName });
+        };
+
+        recorder.start();
+
+        let currentExportFrame = 0;
+        const EXPORT_FPS = 60;
+        const STEP_SEC = 1 / EXPORT_FPS;
+        let lastExportSec = -1, lastExportQIdx = -1, lastExportState = '';
+
+        const renderLandscapeStep = () => {
+          if (isExportCancelledRef.current) {
+            stopAllTracks();
+            try { if (recorder.state !== 'inactive') recorder.stop(); } catch (e) {}
+            return;
+          }
+          try {
+            const timeSec = currentExportFrame * STEP_SEC;
+            if (timeSec > setTotalTime) {
+              try { if (recorder.state !== 'inactive') recorder.stop(); } catch (e) {}
+              return;
+            }
+            currentExportFrame++;
+
+            const { timings } = timingsInfo;
+            let qIdx = 0, timeInQ = 0, stage = 'guess', stageProgress = 0;
+            let cumTime = 0;
+            for (let i = 0; i < timings.length; i++) {
+              const t = timings[i];
+              if (timeSec < cumTime + t.qTotalTime) {
+                qIdx = i;
+                timeInQ = timeSec - cumTime;
+                const readEnd = t.readTime;
+                const guessEnd = readEnd + t.guessTime;
+                if (timeInQ < readEnd) { stage = 'read'; stageProgress = timeInQ / (readEnd || 1); }
+                else if (timeInQ < guessEnd) { stage = 'guess'; stageProgress = (timeInQ - readEnd) / (t.guessTime || 1); }
+                else { stage = 'reveal'; stageProgress = (timeInQ - guessEnd) / (t.revealTime || 1); }
+                break;
+              }
+              cumTime += t.qTotalTime;
+              qIdx = Math.min(timings.length - 1, i + 1);
+            }
+
+            const validQIdx = Math.max(0, Math.min(qList.length - 1, qIdx));
+            const activeQ = qList[validQIdx] || {};
+
+            // Audio (same as regular export)
+            const secInt = Math.floor(timeSec);
+            const stateKey = `${validQIdx}-${stage}`;
+            const isNewQ = validQIdx !== lastExportQIdx;
+            const isNewStage = stateKey !== lastExportState;
+
+            if (isNewQ && secInt !== lastExportSec) {
+              lastExportSec = secInt;
+              if (stage === 'read' || stage === 'guess') {
+                const questionText = getTTSQuestionText(activeQ.question || activeQ.word || '', activeQ.mode || setObj?.mode || '');
+                if (questionText) {
+                  const effectiveVoice = getEffectiveVoice(settings.voiceLang, setObj, activeQ);
+                  audioSynth.playSpeech(questionText, effectiveVoice, dest, { rate: settings.voiceSpeed || 1.25 });
+                }
+              }
+            }
+            lastExportQIdx = validQIdx;
+            lastExportState = stateKey;
+
+            // Draw vertical frame to srcCanvas first
+            const srcCtx = srcCanvas.getContext('2d');
+            drawCanvasFrame(srcCtx, activeQ, validQIdx, qList.length, stage, timeInQ, stageProgress, themeObj, setObj);
+
+            // Then composite into 16:9 landscape canvas
+            drawLandscapeFrame(srcCanvas, destCtx);
+
+            const progressPct = Math.min(99, Math.round((timeSec / setTotalTime) * 100));
+            if (progressPct !== lastProgressRef.current) {
+              lastProgressRef.current = progressPct;
+              setExportProgress(progressPct);
+            }
+
+            requestAnimationFrame(renderLandscapeStep);
+          } catch (renderErr) {
+            console.error('Landscape render error:', renderErr);
+            stopAllTracks();
+            try { if (recorder.state !== 'inactive') recorder.stop(); } catch (e) {}
+            reject(renderErr);
+          }
+        };
+
+        requestAnimationFrame(renderLandscapeStep);
+      } catch (err) {
+        stopAllTracks();
+        reject(err);
+      }
+    });
+  };
+
+  // Handler xuất video ngang YouTube
+  const handleExportLandscapeVideo = async () => {
+    if (isExporting) return;
+    isExportCancelledRef.current = false;
+    setIsExporting(true);
+    setIsPlaying(false);
+    setExportProgress(0);
+    lastProgressRef.current = -1;
+    try {
+      await renderSingleVideoLandscape(activeSet, currentTheme, activeSetIndex);
+      setIsExporting(false);
+      setIsPlaying(true);
+    } catch (e) {
+      console.error('Landscape Export Error:', e);
+      alert('Không thể xuất video ngang YouTube.');
+      setIsExporting(false);
+    }
+  };
+
   // Helper render a SINGLE VIDEO and return Promise
   const renderSingleVideo = (setObj, themeObj, setIndex) => {
+
     return new Promise(async (resolve, reject) => {
       const canvas = canvasRef.current;
       if (!canvas) return reject(new Error('Canvas reference unavailable'));

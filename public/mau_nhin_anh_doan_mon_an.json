@@ -1,0 +1,98 @@
+[
+  {
+    "name": "🍳 Bộ 1: Món Ăn Việt Nam Truyền Thống",
+    "topic": "🍳 ĐOÁN MÓN ĂN",
+    "fromFlag": "🇻🇳",
+    "toFlag": "🍽️",
+    "headerTitle": "ĐÂY LÀ MÓN GÌ?",
+    "mode": "food-guess",
+    "questions": [
+      {
+        "question": "Đây là món gì?",
+        "word": "Phở Bò",
+        "optionA": "Phở Bò",
+        "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=1200&q=80",
+        "explanation": "Phở Bò 🇻🇳 - Quốc hồn quốc túy ẩm thực Việt Nam với nước dùng thơm ngon đậm đà!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "word": "Bánh Mì",
+        "optionA": "Bánh Mì",
+        "image": "https://images.unsplash.com/photo-1539252554756-4d7f6e6d70e1?w=1200&q=80",
+        "explanation": "Bánh Mì Việt Nam 🥖 - Được CNN bình chọn là 1 trong 23 món ăn ngon nhất thế giới!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "word": "Bún Chả",
+        "optionA": "Bún Chả",
+        "image": "https://images.unsplash.com/photo-1569360017657-6a7ef0ab0697?w=1200&q=80",
+        "explanation": "Bún Chả Hà Nội 🍜 - Món ngon Hà Thành nổi tiếng cả thế giới qua bữa ăn của Obama!",
+        "mode": "food-guess"
+      }
+    ]
+  },
+  {
+    "name": "🌮 Bộ 2: Ẩm Thực Quốc Tế",
+    "topic": "🍳 ĐOÁN MÓN ĂN",
+    "fromFlag": "🌍",
+    "toFlag": "🍽️",
+    "headerTitle": "ĐÂY LÀ MÓN GÌ?",
+    "mode": "food-guess",
+    "questions": [
+      {
+        "question": "Đây là món gì?",
+        "word": "Sushi",
+        "optionA": "Sushi",
+        "image": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1200&q=80",
+        "explanation": "Sushi 🇯🇵 - Nghệ thuật ẩm thực Nhật Bản tinh tế với cơm dấm và cá tươi ngon!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "word": "Pizza",
+        "optionA": "Pizza",
+        "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=80",
+        "explanation": "Pizza 🇮🇹 - Món ăn biểu tượng nước Ý được yêu thích trên toàn thế giới!",
+        "mode": "food-guess"
+      }
+    ]
+  },
+  {
+    "name": "🍰 Bộ 3: Món Tráng Miệng & Bánh Ngọt",
+    "topic": "🍳 ĐOÁN MÓN ĂN",
+    "fromFlag": "🍰",
+    "toFlag": "🍽️",
+    "headerTitle": "ĐÂY LÀ MÓN GÌ?",
+    "mode": "food-guess",
+    "questions": [
+      {
+        "question": "Đây là món gì?",
+        "word": "Chè Thái",
+        "optionA": "Chè Thái",
+        "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80",
+        "explanation": "Chè Thái 🇹🇭 - Món tráng miệng nhiều màu sắc rực rỡ với dừa và đậu đủ loại!",
+        "mode": "food-guess"
+      }
+    ]
+  },
+  {
+    "name": "🥗 Bộ 4: Món Ăn Healthy",
+    "topic": "🍳 ĐOÁN MÓN ĂN",
+    "fromFlag": "🥗",
+    "toFlag": "🍽️",
+    "headerTitle": "ĐÂY LÀ MÓN GÌ?",
+    "mode": "food-guess",
+    "questions": [
+      {
+        "question": "Đây là món gì?",
+        "word": "Gỏi Cuốn",
+        "optionA": "Gỏi Cuốn",
+        "image": "https://images.unsplash.com/photo-1540189549336-e6e99eb4b45b?w=1200&q=80",
+        "explanation": "Gỏi Cuốn 🇻🇳 - Món ăn healthy của Việt Nam được du khách nước ngoài yêu thích!",
+        "mode": "food-guess"
+      }
+    ]
+  }
+]
