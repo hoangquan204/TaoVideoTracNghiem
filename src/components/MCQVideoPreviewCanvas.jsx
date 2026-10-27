@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 import { audioSynth } from '../utils/audioSynth';
 import { TTSService } from '../utils/ttsService';
 import { THEMES } from './SettingsPanel';
-import { Play, Pause, RotateCcw, Download, Sparkles, Film, Zap, AlertOctagon } from 'lucide-react';
+import { Play, Pause, RotateCcw, Download, Sparkles, Film, Zap, AlertOctagon, Smartphone, Monitor } from 'lucide-react';
 
 const FONT_FAMILY = '"Be Vietnam Pro", "Segoe UI", Tahoma, sans-serif';
 
@@ -28,6 +28,15 @@ const isLingoBiBiSetOrQ = (setObj = {}, qObj = {}) => {
   );
 };
 
+const stripHeaderIcons = (text) => {
+  if (!text) return '';
+  return String(text)
+    .replace(/[🐾🍳🏛️🚩🏆🦁🐯🐬🐻🦅🍲🍜🍱🍕🍔🍟🍙]/gu, '')
+    .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{1FA00}-\u{1FAFF}]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 const getEffectiveVoice = (voiceSetting, setObj = {}, qObj = {}) => {
   const isLingoBiBi = isLingoBiBiSetOrQ(setObj, qObj);
   if (isLingoBiBi) {
@@ -50,7 +59,7 @@ const getQuestionReadTime = (qObj, setObj = {}, voiceSetting = '', speedSetting 
   if (!qObj) return 1.0;
   const rawText = qObj.question || qObj.word || '';
   const mode = qObj.mode || setObj?.mode || '';
-  const isShortGuessMode = mode === 'landmark-guess' || mode === 'food-guess' || mode === 'place-guess';
+  const isShortGuessMode = mode === 'landmark-guess' || mode === 'food-guess' || mode === 'animal-guess' || mode === 'flags' || mode === 'place-guess';
   const text = getTTSQuestionText(rawText, mode);
   if (!text) return isShortGuessMode ? 0.9 : 1.5;
 
@@ -102,7 +111,7 @@ const getAnswerReadTime = (qObj, setObj = {}, voiceSetting = '', speedSetting = 
 };
 
 const getQuestionTimings = (qList, setObj, settingsObj) => {
-  const isCountryGuess = setObj?.mode === 'country-guess' || (qList && qList.length > 0 && (qList[0]?.mode === 'country-guess' || qList[0]?.clues));
+  const isCountryGuess = setObj?.mode === 'country-guess' || (qList && qList.length > 0 && (qList[0]?.mode === 'country-guess' || (Array.isArray(qList[0]?.clues) && qList[0].clues.length > 0)));
   const isFlashcard = setObj?.mode === 'lingobibi-flashcard' || (qList && qList.length > 0 && qList[0]?.mode === 'lingobibi-flashcard');
   const isCaDao = setObj?.mode === 'ca-dao-tuc-ngu' || (qList && qList.length > 0 && qList[0]?.mode === 'ca-dao-tuc-ngu');
   const isFlags = setObj?.mode === 'flags' ||
@@ -113,7 +122,26 @@ const getQuestionTimings = (qList, setObj, settingsObj) => {
       (qList[0]?.question && (String(qList[0]?.question).toLowerCase().includes('cờ') || String(qList[0]?.question).toLowerCase().includes('quốc kỳ'))) ||
       (setObj?.topic && (String(setObj.topic).toLowerCase().includes('cờ') || String(setObj.topic).toLowerCase().includes('quốc kỳ')))
     ));
-  const isLandmark = setObj?.mode === 'landmark-guess' || setObj?.mode === 'place-guess' || setObj?.mode === 'landmark' || setObj?.mode === 'place' || (qList && qList.length > 0 && (qList[0]?.mode === 'landmark-guess' || qList[0]?.mode === 'place-guess' || qList[0]?.mode === 'landmark' || qList[0]?.mode === 'place' || (qList[0]?.topic && String(qList[0]?.topic).toLowerCase().includes('địa điểm'))));
+  const isImageGuessTimings = (
+    setObj?.mode === 'animal-guess' || setObj?.mode === 'food-guess' || setObj?.mode === 'landmark-guess' || setObj?.mode === 'flags' ||
+    setObj?.id === 'animal-guess' || setObj?.id === 'food-guess' || setObj?.id === 'landmark-guess' || setObj?.id === 'flags' ||
+    (qList && qList.length > 0 && (qList[0]?.mode === 'animal-guess' || qList[0]?.mode === 'food-guess' || qList[0]?.mode === 'landmark-guess' || qList[0]?.mode === 'flags'))
+  );
+  const isWordGuessTimings = (
+    setObj?.id === 'vocab-b1-word-guess' || setObj?.id === 'vocab-image-word-guess' ||
+    setObj?.mode === 'word-guess' ||
+    (qList && qList.length > 0 && (qList[0]?.id === 'vocab-b1-word-guess' || qList[0]?.mode === 'word-guess' || (qList[0]?.word && !qList[0]?.optionB)))
+  );
+  const isVietnamGeoTimings = !isImageGuessTimings && !isWordGuessTimings && (
+    setObj?.id === 'dia-ly-van-hoa-viet-nam' ||
+    setObj?.presetId === 'dia-ly-van-hoa-viet-nam' ||
+    (setObj?.mode === 'vocab-b1-tiktok' && setObj?.id !== 'vocab-b1-word-guess') ||
+    (setObj?.topic && (setObj.topic.toUpperCase().includes('ĐỊA LÝ') || (setObj.topic.toUpperCase().includes('VIỆT NAM') && !setObj.topic.toUpperCase().includes('MÓN ĂN')))) ||
+    (setObj?.name && setObj.name.toUpperCase().includes('ĐỊA LÝ')) ||
+    (qList && qList.length > 0 && qList[0]?.mode === 'vocab-b1-tiktok' && !qList[0]?.word) ||
+    (qList && qList.length > 0 && qList[0]?.topic && (qList[0].topic.toUpperCase().includes('ĐỊA LÝ') || (qList[0].topic.toUpperCase().includes('VIỆT NAM') && !qList[0].topic.toUpperCase().includes('MÓN ĂN'))))
+  );
+  const isLandmark = !isVietnamGeoTimings && (setObj?.mode === 'landmark-guess' || setObj?.mode === 'place-guess' || setObj?.mode === 'landmark' || setObj?.mode === 'place' || (qList && qList.length > 0 && (qList[0]?.mode === 'landmark-guess' || qList[0]?.mode === 'place-guess' || qList[0]?.mode === 'landmark' || qList[0]?.mode === 'place')));
   const isLandmarkOrFood = isLandmark || setObj?.mode === 'food-guess' || (qList && qList.length > 0 && (qList[0]?.mode === 'food-guess'));
   const GUESS_TIME = settingsObj?.guessTime || 3.0;
   const REVEAL_TIME = isCountryGuess ? 6.0 : 2.0;
@@ -317,7 +345,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
         audioSynth.preloadWordList(qSpeechItems, effectiveVoice, settings.voiceSpeed || 1.25);
       }
 
-      if (settings.readAnswer !== false && activeSet?.mode !== 'player-guess' && activeSet?.mode !== 'landmark-guess' && activeSet?.mode !== 'food-guess' && activeSet?.mode !== 'flags') {
+      if (settings.readAnswer !== false && activeSet?.mode !== 'player-guess' && activeSet?.mode !== 'landmark-guess' && activeSet?.mode !== 'food-guess' && activeSet?.mode !== 'animal-guess' && activeSet?.mode !== 'flags') {
         const ansSpeechItems = questions.map(q => {
           const correctKey = (q.correctOption || 'A').toUpperCase();
           let ansText = q['option' + correctKey] || q.word || q.optionA || '';
@@ -330,8 +358,29 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
   }, [activeSetIndex, questions, settings]);
 
   // Timing params per question (Chế độ Đoán Quốc Gia 5 gợi ý: 15s gợi ý + 6s công bố = 21s/câu)
-  const isCountryGuess = activeSet?.mode === 'country-guess' || (questions.length > 0 && (questions[0]?.mode === 'country-guess' || questions[0]?.clues));
-  const isLandmark = activeSet?.mode === 'landmark-guess' || activeSet?.mode === 'place-guess' || (questions.length > 0 && (questions[0]?.mode === 'landmark-guess' || questions[0]?.mode === 'place-guess'));
+  const isImageGuessActive = (
+    selectedMCQPreset === 'animal-guess' || selectedMCQPreset === 'food-guess' || selectedMCQPreset === 'landmark-guess' || selectedMCQPreset === 'flags' ||
+    activeSet?.mode === 'animal-guess' || activeSet?.mode === 'food-guess' || activeSet?.mode === 'landmark-guess' || activeSet?.mode === 'flags' ||
+    activeSet?.id === 'animal-guess' || activeSet?.id === 'food-guess' || activeSet?.id === 'landmark-guess' || activeSet?.id === 'flags'
+  );
+  const isWordGuessActive = (
+    selectedMCQPreset === 'vocab-b1-word-guess' || selectedMCQPreset === 'vocab-image-word-guess' ||
+    activeSet?.id === 'vocab-b1-word-guess' || activeSet?.id === 'vocab-image-word-guess' || activeSet?.mode === 'word-guess' ||
+    (questions.length > 0 && (questions[0]?.mode === 'word-guess' || (questions[0]?.word && !questions[0]?.optionB)))
+  );
+  const isVietnamGeoActive = !isImageGuessActive && !isWordGuessActive && (
+    selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+    settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+    activeSet?.id === 'dia-ly-van-hoa-viet-nam' ||
+    activeSet?.presetId === 'dia-ly-van-hoa-viet-nam' ||
+    (activeSet?.mode === 'vocab-b1-tiktok' && activeSet?.id !== 'vocab-b1-word-guess') ||
+    (activeSet?.topic && (activeSet.topic.toUpperCase().includes('ĐỊA LÝ') || (activeSet.topic.toUpperCase().includes('VIỆT NAM') && !activeSet.topic.toUpperCase().includes('MÓN ĂN')))) ||
+    (activeSet?.name && activeSet.name.toUpperCase().includes('ĐỊA LÝ')) ||
+    (questions.length > 0 && questions[0]?.mode === 'vocab-b1-tiktok' && !questions[0]?.word) ||
+    (questions.length > 0 && questions[0]?.topic && (questions[0].topic.toUpperCase().includes('ĐỊA LÝ') || (questions[0].topic.toUpperCase().includes('VIỆT NAM') && !questions[0].topic.toUpperCase().includes('MÓN ĂN'))))
+  );
+  const isCountryGuess = !isVietnamGeoActive && (activeSet?.mode === 'country-guess' || (questions.length > 0 && (questions[0]?.mode === 'country-guess' || (Array.isArray(questions[0]?.clues) && questions[0].clues.length > 0))));
+  const isLandmark = !isVietnamGeoActive && (activeSet?.mode === 'landmark-guess' || activeSet?.mode === 'place-guess' || (questions.length > 0 && (questions[0]?.mode === 'landmark-guess' || questions[0]?.mode === 'place-guess')));
   const GUESS_TIME = settings.guessTime || 3.0;
   const REVEAL_TIME = isCountryGuess ? 6.0 : (isLandmark ? 3.5 : 2.0);
   const TOTAL_Q_TIME = GUESS_TIME + REVEAL_TIME;
@@ -1066,9 +1115,18 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           audioSynth.playWhoosh(0.35);
         }
         const isLingoBiBi = isLingoBiBiSetOrQ(activeSet, activeQ);
-        if (settings.readQuestion && isPlayingRef.current && activeQ && activeQ.question && !isLingoBiBi) {
+        const questionTextToSpeak = activeQ?.question || (
+          (activeSet?.mode === 'animal-guess' || activeQ?.mode === 'animal-guess' || selectedMCQPreset === 'animal-guess') ? 'Đây là con gì?' : (
+            (activeSet?.mode === 'food-guess' || activeQ?.mode === 'food-guess' || selectedMCQPreset === 'food-guess') ? 'Đây là món gì?' : (
+              (activeSet?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess' || selectedMCQPreset === 'landmark-guess') ? 'Đây là địa danh nào?' : (
+                (activeSet?.mode === 'flags' || activeQ?.mode === 'flags' || selectedMCQPreset === 'flags') ? 'Đây là quốc kỳ của nước nào?' : ''
+              )
+            )
+          )
+        );
+        if (settings.readQuestion && isPlayingRef.current && questionTextToSpeak && !isLingoBiBi) {
           const effectiveVoice = getEffectiveVoice(settings.voiceLang, activeSet, activeQ);
-          const ttsQuestionText = getTTSQuestionText(activeQ.question, activeSet?.mode || activeQ.mode);
+          const ttsQuestionText = getTTSQuestionText(questionTextToSpeak, activeSet?.mode || activeQ?.mode);
           TTSService.speak(ttsQuestionText, {
             voice: effectiveVoice,
             rate: settings.voiceSpeed || 1.25
@@ -1092,14 +1150,34 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
         const isFlashcardMode = (activeSet?.mode === 'lingobibi-flashcard' || activeQ?.mode === 'lingobibi-flashcard' || activeSet?.id === 'lingobibi-flashcard');
         const isLingoBiBi = isLingoBiBiSetOrQ(activeSet, activeQ);
         const isCaDaoMode = (activeSet?.mode === 'ca-dao-tuc-ngu' || activeQ?.mode === 'ca-dao-tuc-ngu' || activeSet?.id === 'ca-dao-tuc-ngu');
-        const isFlagsOrCountryMode = (activeSet?.mode === 'flags' || activeQ?.mode === 'flags' || activeSet?.id === 'flags' || activeSet?.mode === 'country-guess' || activeQ?.mode === 'country-guess' || activeSet?.id === 'country-guess-5-clues');
+        const isFlagsOrCountryMode = (activeSet?.mode === 'flags' || activeQ?.mode === 'flags' || activeSet?.id === 'flags' || activeSet?.mode === 'country-guess' || activeQ?.mode === 'country-guess' || activeSet?.id === 'country-guess-5-clues' || selectedMCQPreset === 'flags');
         if (isPlayingRef.current && !isFlashcardMode && !isLingoBiBi) {
           triggerConfetti();
           audioSynth.playSuccessFanfare(0.65);
         }
-        const isLandmarkOrFoodMode = (activeSet?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess');
-        const isFoodGuessModeOnly = (activeSet?.mode === 'food-guess' || activeQ?.mode === 'food-guess');
-        if ((settings.readAnswer || isLandmarkOrFoodMode || isLingoBiBi) && !isFoodGuessModeOnly && isPlayingRef.current && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
+        const isImageGuessModeOnly = (
+          activeSet?.mode === 'food-guess' || activeQ?.mode === 'food-guess' || selectedMCQPreset === 'food-guess' ||
+          activeSet?.mode === 'animal-guess' || activeQ?.mode === 'animal-guess' || selectedMCQPreset === 'animal-guess' ||
+          activeSet?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess' || selectedMCQPreset === 'landmark-guess' ||
+          activeSet?.id === 'food-guess' || activeSet?.id === 'animal-guess' || activeSet?.id === 'landmark-guess'
+        );
+        const isWordGuessLive = (
+          selectedMCQPreset === 'vocab-b1-word-guess' || selectedMCQPreset === 'vocab-image-word-guess' ||
+          activeSet?.id === 'vocab-b1-word-guess' || activeSet?.mode === 'word-guess' ||
+          activeQ?.mode === 'word-guess' || !!(activeQ && activeQ.word && !activeQ.optionB)
+        );
+        const isVietnamGeoActive = !isImageGuessModeOnly && !isWordGuessLive && (
+          selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+          settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+          activeSet?.id === 'dia-ly-van-hoa-viet-nam' ||
+          activeSet?.presetId === 'dia-ly-van-hoa-viet-nam' ||
+          (activeSet?.mode === 'vocab-b1-tiktok' && activeSet?.id !== 'vocab-b1-word-guess') ||
+          (activeQ?.mode === 'vocab-b1-tiktok' && !activeQ?.word) ||
+          (activeSet?.topic && (activeSet.topic.toUpperCase().includes('ĐỊA LÝ') || (activeSet.topic.toUpperCase().includes('VIỆT NAM') && !activeSet.topic.toUpperCase().includes('MÓN ĂN')))) ||
+          (activeQ?.topic && (activeQ.topic.toUpperCase().includes('ĐỊA LÝ') || (activeQ.topic.toUpperCase().includes('VIỆT NAM') && !activeQ.topic.toUpperCase().includes('MÓN ĂN'))))
+        );
+        const isLandmarkOrFoodMode = !isVietnamGeoActive && (activeSet?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess');
+        if ((settings.readAnswer || isLandmarkOrFoodMode || isLingoBiBi) && !isImageGuessModeOnly && isPlayingRef.current && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
           // Lấy đáp án đúng (Option A, B, C, D hoặc landmark / dish / word)
           const correctKey = (activeQ.correctOption || 'A').toUpperCase();
           let targetWord = activeQ.landmark || activeQ.dish || activeQ.word || '';
@@ -1859,8 +1937,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.fillText(topicText, 0, 2);
     ctx.restore();
 
-    // 4. SUB-HEADER PILL: "ĐÂY LÀ QUỐC GIA NÀO? ➔"
-    const headerTitleText = (safeQObj.headerTitle || targetSet.headerTitle || 'ĐÂY LÀ QUỐC GIA NÀO?').toUpperCase();
+    // 4. SUB-HEADER PILL: "ĐÂY LÀ QUỐC KỲ CỦA NƯỚC NÀO? ➔"
+    const headerTitleText = (safeQObj.headerTitle || targetSet.headerTitle || 'ĐÂY LÀ QUỐC KỲ CỦA NƯỚC NÀO?').toUpperCase();
     let subFontPx = 26;
     ctx.font = `900 ${subFontPx}px "Be Vietnam Pro", sans-serif`;
     let subMeasuredW = ctx.measureText(headerTitleText).width;
@@ -2011,7 +2089,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     }
 
     // 7. ANSWER CARDS (4 OPTIONS OR LETTER SLOTS)
-    const hasWordGuess = !!(safeQObj.word);
+    const hasWordGuess = !!(safeQObj.word) && !(safeQObj.optionA && safeQObj.optionB);
 
     if (hasWordGuess) {
       // Dạng Điền Ô Chữ Quốc Gia
@@ -4304,7 +4382,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     const targetSet = currentSet || activeSet || {};
     const globalT = performance.now() / 1000;
 
-    const topicText = (safeQObj.topic || targetSet.topic || '🍳 ĐOÁN MÓN ĂN').toUpperCase();
+    const rawTopic = safeQObj.topic || targetSet.topic || 'ĐOÁN MÓN ĂN';
+    const topicText = (stripHeaderIcons(rawTopic) || 'ĐOÁN MÓN ĂN').toUpperCase();
     const headerTitleText = (safeQObj.headerTitle || targetSet.headerTitle || 'ĐÂY LÀ MÓN GÌ?').toUpperCase();
     const correctOptionKey = (safeQObj.correctOption || 'A').toUpperCase();
 
@@ -4396,7 +4475,29 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.font = `900 ${fontPx}px "Be Vietnam Pro", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`🍳 ${topicText}`, 0, 2);
+    ctx.fillText(topicText, 0, 2);
+    ctx.restore();
+
+    // 3. TOP RIGHT QUESTION COUNTER BADGE: "CÂU 1/5"
+    ctx.save();
+    const countW = 190, countH = 74;
+    const countX = 1080 - 45 - countW / 2;
+    const countY = 105;
+    ctx.translate(countX, countY);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 6;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    drawRoundRect(ctx, -countW / 2, -countH / 2, countW, countH, 37);
+    ctx.fill();
+    ctx.strokeStyle = '#FF7043';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '900 28px "Be Vietnam Pro", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`CÂU ${qIdx + 1}/${totalQ}`, 0, 2);
     ctx.restore();
 
     // 4. SUB-HEADER PILL: "ĐÂY LÀ MÓN GÌ? ➔"
@@ -4699,33 +4800,469 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     drawVignette(ctx);
   };
 
-  // Dedicated Canvas Renderer for "🏰 Nhìn Ảnh Đoán Địa Điểm Nổi Tiếng" (Landmark Guess Crossword Style)
+  // Dedicated Canvas Renderer for "🐾 Nhìn Ảnh Đoán Con Vật" (4 Options ABCD Style)
+  const drawAnimalGuessCanvasFrame = (ctx, qObj, qIdx, totalQ, stage, timeInQ, stageProgress, theme, currentSet = null) => {
+    const safeQObj = qObj || {};
+    const targetSet = currentSet || activeSet || {};
+    const globalT = performance.now() / 1000;
+
+    const rawTopic = safeQObj.topic || targetSet.topic || 'ĐOÁN CON VẬT';
+    const topicText = (stripHeaderIcons(rawTopic) || 'ĐOÁN CON VẬT').toUpperCase();
+    const headerTitleText = (safeQObj.headerTitle || targetSet.headerTitle || 'ĐÂY LÀ CON GÌ?').toUpperCase();
+    const correctOptionKey = (safeQObj.correctOption || 'A').toUpperCase();
+
+    // 4 Options A, B, C, D
+    const optionA = String(safeQObj.optionA || safeQObj.word || safeQObj.animal || 'Sư Tử').trim();
+    const optionB = String(safeQObj.optionB || 'Báo Hoa Mai').trim();
+    const optionC = String(safeQObj.optionC || 'Hổ Bengal').trim();
+    const optionD = String(safeQObj.optionD || 'Linh Cẩu').trim();
+    const options = [
+      { key: 'A', text: optionA },
+      { key: 'B', text: optionB },
+      { key: 'C', text: optionC },
+      { key: 'D', text: optionD }
+    ];
+
+    let correctWord = options.find(o => o.key === correctOptionKey)?.text || optionA;
+    const explanationText = safeQObj.explanation || `${correctWord} - Loài động vật hoang dã kỳ thú!`;
+    const GUESS_TIME = settings?.guessTime || 3.0;
+
+    // 1. BACKGROUND: Deep Lush Jungle Emerald to Dark Forest Gradient
+    const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1920);
+    bgGrad.addColorStop(0, '#064E3B'); // Deep Jungle Emerald
+    bgGrad.addColorStop(0.5, '#047857'); // Lush Forest Emerald
+    bgGrad.addColorStop(1, '#022C22'); // Dark Obsidian Forest
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 1080, 1920);
+
+    // Ambient Nature Glow Orbs
+    drawAmbientGlowOrbs(ctx, globalT, { accent: '#10B981', accent2: '#F59E0B' });
+
+    // Floating Background Nature Sparkles
+    particlesRef.current.forEach((p, pi) => {
+      p.x += p.vx * 0.8;
+      p.y += p.vy * 0.8;
+      if (p.x < 0 || p.x > 1080) p.vx *= -1;
+      if (p.y < 0 || p.y > 1920) p.vy *= -1;
+
+      const twinkle = 0.2 + (Math.sin(globalT * 1.8 + pi) * 0.5 + 0.5) * 0.3;
+      ctx.save();
+      ctx.globalAlpha = twinkle;
+      drawIconSparkle(ctx, p.x, p.y, p.radius * 1.3, '#A7F3D0', globalT * 1.2 + pi);
+      ctx.restore();
+    });
+
+    // Screen Border Frame Overlay (Emerald Mint Gold)
+    ctx.save();
+    ctx.lineWidth = 14;
+    ctx.strokeStyle = 'rgba(52, 211, 153, 0.75)';
+    drawRoundRect(ctx, 10, 10, 1060, 1900, 44);
+    ctx.stroke();
+    ctx.restore();
+
+    // 2. TOP LEFT BADGE: "🐾 ĐOÁN CON VẬT"
+    let fontPx = 36;
+    ctx.font = `900 ${fontPx}px "Be Vietnam Pro", sans-serif`;
+    let measuredW = ctx.measureText(topicText).width;
+    while (fontPx > 20 && measuredW > 440) {
+      fontPx -= 2;
+      ctx.font = `900 ${fontPx}px "Be Vietnam Pro", sans-serif`;
+      measuredW = ctx.measureText(topicText).width;
+    }
+
+    const badgeH = 84;
+    const badgePaddingX = 36;
+    const badgeW = Math.max(280, Math.min(520, measuredW + badgePaddingX * 2));
+    const badgeX = 45 + badgeW / 2;
+    const badgeY = 105;
+
+    drawDecorationTicks(ctx, badgeX - badgeW / 2 + 25, badgeY - 5, '#FDE68A', 1.2, -0.4);
+    drawDecorationTicks(ctx, badgeX + badgeW / 2 - 25, badgeY - 5, '#FDE68A', 1.2, 0.4);
+
+    ctx.save();
+    ctx.translate(badgeX, badgeY);
+    ctx.rotate(-0.02);
+
+    ctx.shadowColor = 'rgba(16, 185, 129, 0.55)';
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 8;
+
+    const badgeGrad = ctx.createLinearGradient(-badgeW / 2, 0, badgeW / 2, 0);
+    badgeGrad.addColorStop(0, '#059669');
+    badgeGrad.addColorStop(1, '#10B981');
+    ctx.fillStyle = badgeGrad;
+
+    drawRoundRect(ctx, -badgeW / 2, -badgeH / 2, badgeW, badgeH, 42);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `900 ${fontPx}px "Be Vietnam Pro", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(topicText, 0, 2);
+    ctx.restore();
+
+    // 3. TOP RIGHT QUESTION COUNTER BADGE: "CÂU 1/5"
+    ctx.save();
+    const countW = 190, countH = 74;
+    const countX = 1080 - 45 - countW / 2;
+    const countY = 105;
+    ctx.translate(countX, countY);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 6;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    drawRoundRect(ctx, -countW / 2, -countH / 2, countW, countH, 37);
+    ctx.fill();
+    ctx.strokeStyle = '#34D399';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '900 28px "Be Vietnam Pro", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`CÂU ${qIdx + 1}/${totalQ}`, 0, 2);
+    ctx.restore();
+
+    // 4. SUB-HEADER PILL: "ĐÂY LÀ CON GÌ? ➔"
+    let subFontPx = 26;
+    ctx.font = `900 ${subFontPx}px "Be Vietnam Pro", sans-serif`;
+    let subMeasuredW = ctx.measureText(headerTitleText).width;
+
+    const headerW = Math.max(380, Math.min(700, subMeasuredW + 110));
+    const headerH = 68;
+    const headerX = 540 - headerW / 2;
+    const headerY = 215;
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 6;
+    ctx.fillStyle = '#FFFFFF';
+    drawRoundRect(ctx, headerX, headerY, headerW, headerH, 34);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    ctx.fillStyle = '#065F46';
+    ctx.font = `900 ${subFontPx}px "Be Vietnam Pro", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const textCenterX = headerX + (headerW - 60) / 2;
+    ctx.fillText(headerTitleText, textCenterX, headerY + headerH / 2 + 1);
+
+    const arrowCircleX = headerX + headerW - 38;
+    const arrowCircleY = headerY + headerH / 2;
+    ctx.fillStyle = '#059669';
+    ctx.beginPath();
+    ctx.arc(arrowCircleX, arrowCircleY, 18, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 20px "Be Vietnam Pro", sans-serif';
+    ctx.fillText('➔', arrowCircleX, arrowCircleY + 1);
+    ctx.restore();
+
+    // 5. MAIN HERO ANIMAL IMAGE SHOWCASE CARD (880x490)
+    const imgW = 880;
+    const imgH = 490;
+    const imgX = 540 - imgW / 2;
+    const imgY = 295;
+
+    drawDecorationTicks(ctx, 45, imgY + imgH / 2, '#FDE68A', 1.2, -0.6);
+    drawDecorationTicks(ctx, 1035, imgY + imgH / 2, '#FDE68A', 1.2, 0.6);
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 10;
+    ctx.fillStyle = '#FFFFFF';
+    drawRoundRect(ctx, imgX - 8, imgY - 8, imgW + 16, imgH + 16, 32);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    ctx.lineWidth = 4.5;
+    ctx.strokeStyle = '#10B981';
+    ctx.stroke();
+    ctx.restore();
+
+    // Render Animal Image
+    const animalImgObj = safeQObj.image ? getLoadedImage(safeQObj.image) : null;
+    if (animalImgObj) {
+      ctx.save();
+      drawRoundRect(ctx, imgX, imgY, imgW, imgH, 26);
+      ctx.clip();
+      drawFitImage(ctx, animalImgObj, imgX, imgY, imgW, imgH, { progress: stageProgress, qIdx: qIdx, kenBurns: settings?.imageMotion === true, containFit: true });
+      ctx.restore();
+    } else {
+      ctx.save();
+      drawRoundRect(ctx, imgX, imgY, imgW, imgH, 26);
+      ctx.fillStyle = '#ECFDF5';
+      ctx.fill();
+      ctx.fillStyle = '#047857';
+      ctx.font = 'bold 36px "Be Vietnam Pro", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🐾 HÌNH ẢNH CON VẬT', 540, imgY + imgH / 2);
+      ctx.restore();
+    }
+
+    // 6. COUNTDOWN TIMER BAR & BADGE (3s) (Y: 808)
+    const barW = 720;
+    const barH = 18;
+    const barX = 540 - barW / 2;
+    const barY = 808;
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    drawRoundRect(ctx, barX, barY, barW, barH, 9);
+    ctx.fill();
+
+    const fillPercent = stage === 'read' ? 1.0 : (stage === 'guess' ? Math.max(0, 1 - stageProgress) : 0);
+    const currentBarW = Math.max(0, barW * fillPercent);
+    if (currentBarW > 0) {
+      const greenGrad = ctx.createLinearGradient(barX, 0, barX + currentBarW, 0);
+      greenGrad.addColorStop(0, '#10B981');
+      greenGrad.addColorStop(1, '#00E676');
+      ctx.fillStyle = greenGrad;
+      ctx.shadowColor = 'rgba(0, 230, 118, 0.8)';
+      ctx.shadowBlur = 12;
+      drawRoundRect(ctx, barX, barY, currentBarW, barH, 9);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // Timer seconds badge text next to progress bar
+    const remainingSec = stage === 'read' ? Math.ceil(GUESS_TIME) : (stage === 'guess' ? Math.max(1, Math.ceil(GUESS_TIME * (1 - stageProgress))) : 0);
+    let timerText = stage === 'reveal' ? '✅ ĐÁP ÁN!' : `⏱️ ${remainingSec}s`;
+
+    ctx.save();
+    ctx.font = '900 22px "Be Vietnam Pro", sans-serif';
+    ctx.fillStyle = stage === 'reveal' ? '#00E676' : '#A7F3D0';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 6;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(timerText, barX + barW, barY - 6);
+    ctx.restore();
+
+    // 7. 4 MULTIPLE CHOICE OPTIONS A, B, C, D (Y: 848 - 1460)
+    const optionW = 880;
+    const optionH = 110;
+    const optionGap = 16;
+    const startOptY = 848;
+
+    options.forEach((opt, idx) => {
+      const optY = startOptY + idx * (optionH + optionGap);
+      const optX = 540 - optionW / 2;
+      const isCorrect = opt.key === correctOptionKey;
+
+      let cardBgGrad;
+      let strokeColor = 'rgba(255, 255, 255, 0.4)';
+      let textColor = '#FFFFFF';
+      let badgeBg = '#059669';
+      let badgeTextColor = '#FFFFFF';
+      let cardAlpha = 1.0;
+      let scaleFactor = 1.0;
+
+      if (stage === 'reveal') {
+        if (isCorrect) {
+          scaleFactor = 1.03 + Math.sin(globalT * 6) * 0.015;
+          strokeColor = '#00E676';
+          badgeBg = '#00E676';
+          badgeTextColor = '#003311';
+          textColor = '#FFFFFF';
+        } else {
+          cardAlpha = 0.45;
+          strokeColor = 'rgba(255, 255, 255, 0.15)';
+        }
+      }
+
+      ctx.save();
+      ctx.globalAlpha = cardAlpha;
+
+      if (stage === 'reveal' && isCorrect) {
+        ctx.translate(540, optY + optionH / 2);
+        ctx.scale(scaleFactor, scaleFactor);
+        ctx.translate(-540, -(optY + optionH / 2));
+
+        ctx.shadowColor = 'rgba(0, 230, 118, 0.8)';
+        ctx.shadowBlur = 28;
+
+        const greenGrad = ctx.createLinearGradient(optX, optY, optX + optionW, optY + optionH);
+        greenGrad.addColorStop(0, '#047857');
+        greenGrad.addColorStop(1, '#00E676');
+        cardBgGrad = greenGrad;
+      } else {
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+        ctx.shadowBlur = 14;
+        ctx.shadowOffsetY = 4;
+
+        const normalGrad = ctx.createLinearGradient(optX, optY, optX + optionW, optY + optionH);
+        normalGrad.addColorStop(0, 'rgba(255, 255, 255, 0.20)');
+        normalGrad.addColorStop(1, 'rgba(255, 255, 255, 0.08)');
+        cardBgGrad = normalGrad;
+      }
+
+      ctx.fillStyle = cardBgGrad;
+      drawRoundRect(ctx, optX, optY, optionW, optionH, 26);
+      ctx.fill();
+
+      ctx.lineWidth = stage === 'reveal' && isCorrect ? 4.5 : 2.5;
+      ctx.strokeStyle = strokeColor;
+      ctx.stroke();
+
+      // Left Option Circle Badge (A, B, C, D)
+      const badgeCircleX = optX + 55;
+      const badgeCircleY = optY + optionH / 2;
+      ctx.fillStyle = badgeBg;
+      ctx.beginPath();
+      ctx.arc(badgeCircleX, badgeCircleY, 26, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = badgeTextColor;
+      ctx.font = '900 28px "Be Vietnam Pro", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(stage === 'reveal' && isCorrect ? '✓' : opt.key, badgeCircleX, badgeCircleY + 1);
+
+      // Option Text
+      ctx.fillStyle = textColor;
+      ctx.font = '900 30px "Be Vietnam Pro", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+
+      let optText = opt.text;
+      let optFontPx = 30;
+      ctx.font = `900 ${optFontPx}px "Be Vietnam Pro", sans-serif`;
+      let optTextW = ctx.measureText(optText).width;
+      const maxOptTextW = optionW - 130;
+      while (optFontPx > 20 && optTextW > maxOptTextW) {
+        optFontPx -= 2;
+        ctx.font = `900 ${optFontPx}px "Be Vietnam Pro", sans-serif`;
+        optTextW = ctx.measureText(optText).width;
+      }
+      ctx.fillText(optText, optX + 105, optY + optionH / 2 + 1);
+
+      ctx.restore();
+    });
+
+    // 8. EXPLANATION BANNER (If reveal stage)
+    if (stage === 'reveal') {
+      ctx.save();
+      const explY = startOptY + 4 * (optionH + optionGap) + 4;
+      const explW = 880;
+      const explH = 90;
+      const explX = 540 - explW / 2;
+
+      ctx.fillStyle = 'rgba(236, 253, 245, 0.95)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 6;
+      drawRoundRect(ctx, explX, explY, explW, explH, 22);
+      ctx.fill();
+
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#34D399';
+      ctx.stroke();
+
+      ctx.fillStyle = '#065F46';
+      drawWrappedText(ctx, `💡 ${explanationText}`, 540, explY + 16, explW - 40, 24, '800', FONT_FAMILY, 2, {
+        minY: explY + 8,
+        maxHeight: explH - 16,
+        minFontSize: 18
+      });
+      ctx.restore();
+    }
+
+    // 9. BOTTOM FOOTER CTA BANNER (Y: 1720)
+    const footerW = 920;
+    const footerH = 110;
+    const footerX = 540 - footerW / 2;
+    const footerY = 1720;
+
+    drawDecorationTicks(ctx, footerX - 25, footerY + footerH / 2, '#FDE68A', 1.2, -0.3);
+    drawDecorationTicks(ctx, footerX + footerW + 25, footerY + footerH / 2, '#FDE68A', 1.2, 0.3);
+
+    const pulseFactor = Math.sin(globalT * 3.5) * 0.5 + 0.5;
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(16, 185, 129, ' + (0.35 + pulseFactor * 0.35) + ')';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetY = 6;
+
+    const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
+    footerGrad.addColorStop(0, '#047857');
+    footerGrad.addColorStop(1, '#065F46');
+    ctx.fillStyle = footerGrad;
+    drawRoundRect(ctx, footerX, footerY, footerW, footerH, 55);
+    ctx.fill();
+
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = '#34D399';
+    ctx.stroke();
+    ctx.restore();
+
+    drawIconThumbsUp(ctx, footerX + 65, footerY + footerH / 2, 24, '#FFFFFF');
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.fillRect(footerX + 130, footerY + 25, 3, footerH - 50);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 26px "Be Vietnam Pro", sans-serif';
+    ctx.fillText('NHỚ LIKE & THEO DÕI', footerX + 160, footerY + footerH / 2 - 14);
+
+    ctx.font = '700 22px "Be Vietnam Pro", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.fillText('để cùng khám phá thế giới động vật kỳ thú! 🐾', footerX + 160, footerY + footerH / 2 + 18);
+
+    drawIconHeart(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
+    ctx.restore();
+
+    drawVignette(ctx);
+  };
+
+  // Dedicated Canvas Renderer for "🏛️ Nhìn Ảnh Đoán Địa Danh Nổi Tiếng" (4 Options ABCD Style)
   const drawLandmarkGuessCanvasFrame = (ctx, qObj, qIdx, totalQ, stage, timeInQ, stageProgress, theme, currentSet = null) => {
     const safeQObj = qObj || {};
     const targetSet = currentSet || activeSet || {};
     const globalT = performance.now() / 1000;
 
-    const landmarkName = String(safeQObj.landmark || safeQObj.word || safeQObj.optionA || safeQObj.question || 'THÁP EIFFEL').toUpperCase().trim();
-    const explanationText = safeQObj.explanation || `${landmarkName} - Địa điểm du lịch kỳ vĩ nổi tiếng thế giới!`;
-    const topicText = (safeQObj.topic || targetSet.topic || '🏰 ĐOÁN ĐỊA ĐIỂM').toUpperCase();
-    const headerTitleText = (safeQObj.headerTitle || targetSet.headerTitle || 'ĐÂY LÀ ĐÂY?').toUpperCase();
+    const rawTopic = safeQObj.topic || targetSet.topic || 'ĐOÁN ĐỊA DANH';
+    const topicText = (stripHeaderIcons(rawTopic) || 'ĐOÁN ĐỊA DANH').toUpperCase();
+    const headerTitleText = (safeQObj.headerTitle || targetSet.headerTitle || 'ĐÂY LÀ ĐỊA DANH NÀO?').toUpperCase();
+    const correctOptionKey = (safeQObj.correctOption || 'A').toUpperCase();
 
+    // 4 Options A, B, C, D
+    const optionA = String(safeQObj.optionA || safeQObj.word || safeQObj.landmark || 'Vịnh Hạ Long').trim();
+    const optionB = String(safeQObj.optionB || 'Vịnh Lan Hạ').trim();
+    const optionC = String(safeQObj.optionC || 'Vịnh Nha Trang').trim();
+    const optionD = String(safeQObj.optionD || 'Đảo Phú Quốc').trim();
+    const options = [
+      { key: 'A', text: optionA },
+      { key: 'B', text: optionB },
+      { key: 'C', text: optionC },
+      { key: 'D', text: optionD }
+    ];
+
+    let correctWord = options.find(o => o.key === correctOptionKey)?.text || optionA;
+    const explanationText = safeQObj.explanation || `${correctWord} - Địa danh du lịch kỳ vĩ nổi tiếng thế giới!`;
     const GUESS_TIME = settings?.guessTime || 3.0;
-    const REVEAL_TIME = 2.0;
 
-    // 1. BACKGROUND: Deep Royal Indigo & Midnight Sapphire Gradient
+    // 1. BACKGROUND: Deep Sapphire & Midnight Royal Blue Gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1920);
-    bgGrad.addColorStop(0, '#0B132B'); // Deep Midnight Navy
-    bgGrad.addColorStop(0.4, '#1C2541'); // Deep Sapphire Blue
-    bgGrad.addColorStop(0.8, '#0D1B2A'); // Rich Dark Indigo
-    bgGrad.addColorStop(1, '#06101E'); // Near Black Slate
+    bgGrad.addColorStop(0, '#0A192F'); // Deep Navy
+    bgGrad.addColorStop(0.5, '#0F3460'); // Sapphire Blue
+    bgGrad.addColorStop(1, '#051329'); // Dark Midnight
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1080, 1920);
 
-    // Cyan & Gold Ambient Glow Orbs
-    drawAmbientGlowOrbs(ctx, globalT, { accent: '#0EA5E9', accent2: '#F59E0B' });
+    // Cyan & Golden Amber Ambient Glow Orbs
+    drawAmbientGlowOrbs(ctx, globalT, { accent: '#0EA5E9', accent2: '#38BDF8' });
 
-    // Floating Travel Sparkles & Stars
+    // Floating Travel Sparkles
     particlesRef.current.forEach((p, pi) => {
       p.x += p.vx * 0.8;
       p.y += p.vy * 0.8;
@@ -4735,19 +5272,19 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       const twinkle = 0.2 + (Math.sin(globalT * 1.8 + pi) * 0.5 + 0.5) * 0.35;
       ctx.save();
       ctx.globalAlpha = twinkle;
-      drawIconSparkle(ctx, p.x, p.y, p.radius * 1.35, '#38BDF8', globalT * 1.2 + pi);
+      drawIconSparkle(ctx, p.x, p.y, p.radius * 1.3, '#38BDF8', globalT * 1.2 + pi);
       ctx.restore();
     });
 
-    // Outer Screen Border Frame Overlay
+    // Screen Border Frame Overlay (Electric Sky Blue)
     ctx.save();
     ctx.lineWidth = 14;
-    ctx.strokeStyle = 'rgba(14, 165, 233, 0.75)'; // Electric Cyan Gold
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
     drawRoundRect(ctx, 10, 10, 1060, 1900, 44);
     ctx.stroke();
     ctx.restore();
 
-    // 2. TOP LEFT BADGE: "🏰 ĐOÁN ĐỊA ĐIỂM"
+    // 2. TOP LEFT BADGE: "🏛️ ĐOÁN ĐỊA DANH"
     let fontPx = 36;
     ctx.font = `900 ${fontPx}px "Be Vietnam Pro", sans-serif`;
     let measuredW = ctx.measureText(topicText).width;
@@ -4775,7 +5312,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.shadowOffsetY = 8;
 
     const badgeGrad = ctx.createLinearGradient(-badgeW / 2, 0, badgeW / 2, 0);
-    badgeGrad.addColorStop(0, '#0284C7'); // Royal Sky Blue
+    badgeGrad.addColorStop(0, '#0284C7'); // Deep Sky Blue
     badgeGrad.addColorStop(1, '#0369A1');
     ctx.fillStyle = badgeGrad;
     drawRoundRect(ctx, -badgeW / 2, -badgeH / 2, badgeW, badgeH, 42);
@@ -4786,21 +5323,43 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.font = `900 ${fontPx}px "Be Vietnam Pro", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`🏰 ${topicText}`, 0, 2);
+    ctx.fillText(topicText, 0, 2);
     ctx.restore();
 
-    // 4. SUB-HEADER PILL: "ĐÂY LÀ ĐÂY? ➔"
+    // 3. TOP RIGHT QUESTION COUNTER BADGE: "CÂU 1/5"
+    ctx.save();
+    const countW = 190, countH = 74;
+    const countX = 1080 - 45 - countW / 2;
+    const countY = 105;
+    ctx.translate(countX, countY);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 6;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    drawRoundRect(ctx, -countW / 2, -countH / 2, countW, countH, 37);
+    ctx.fill();
+    ctx.strokeStyle = '#38BDF8';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '900 28px "Be Vietnam Pro", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`CÂU ${qIdx + 1}/${totalQ}`, 0, 2);
+    ctx.restore();
+
+    // 4. SUB-HEADER PILL: "ĐÂY LÀ ĐỊA DANH NÀO? ➔"
     let subFontPx = 26;
     ctx.font = `900 ${subFontPx}px "Be Vietnam Pro", sans-serif`;
     let subMeasuredW = ctx.measureText(headerTitleText).width;
 
-    const headerW = Math.max(380, Math.min(700, subMeasuredW + 110));
+    const headerW = Math.max(380, Math.min(720, subMeasuredW + 110));
     const headerH = 68;
     const headerX = 540 - headerW / 2;
-    const headerY = 220;
+    const headerY = 215;
 
     ctx.save();
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
     ctx.shadowBlur = 18;
     ctx.shadowOffsetY = 6;
     ctx.fillStyle = '#FFFFFF';
@@ -4808,14 +5367,13 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.fill();
     ctx.shadowColor = 'transparent';
 
-    ctx.fillStyle = '#0F172A';
+    ctx.fillStyle = '#0369A1';
     ctx.font = `900 ${subFontPx}px "Be Vietnam Pro", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const textCenterX = headerX + (headerW - 60) / 2;
     ctx.fillText(headerTitleText, textCenterX, headerY + headerH / 2 + 1);
 
-    // Arrow Badge Circle
     const arrowCircleX = headerX + headerW - 38;
     const arrowCircleY = headerY + headerH / 2;
     ctx.fillStyle = '#0284C7';
@@ -4827,19 +5385,19 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.fillText('➔', arrowCircleX, arrowCircleY + 1);
     ctx.restore();
 
-    // 5. MAIN HERO LANDMARK IMAGE SHOWCASE CARD (SUPER SIZED HD SHOWCASE 920x540)
-    const imgW = 920;
-    const imgH = 540;
+    // 5. MAIN HERO LANDMARK IMAGE SHOWCASE CARD (880x490)
+    const imgW = 880;
+    const imgH = 490;
     const imgX = 540 - imgW / 2;
-    const imgY = 305;
+    const imgY = 295;
 
     drawDecorationTicks(ctx, 45, imgY + imgH / 2, '#38BDF8', 1.2, -0.6);
     drawDecorationTicks(ctx, 1035, imgY + imgH / 2, '#38BDF8', 1.2, 0.6);
 
     ctx.save();
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-    ctx.shadowBlur = 28;
-    ctx.shadowOffsetY = 12;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 10;
     ctx.fillStyle = '#FFFFFF';
     drawRoundRect(ctx, imgX - 8, imgY - 8, imgW + 16, imgH + 16, 32);
     ctx.fill();
@@ -4856,223 +5414,191 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       ctx.save();
       drawRoundRect(ctx, imgX, imgY, imgW, imgH, 26);
       ctx.clip();
-      drawFitImage(ctx, landmarkImgObj, imgX, imgY, imgW, imgH, { progress: stageProgress, qIdx: qIdx, kenBurns: settings?.imageMotion === true, smartLandmarkFit: true });
+      drawFitImage(ctx, landmarkImgObj, imgX, imgY, imgW, imgH, { progress: stageProgress, qIdx: qIdx, kenBurns: settings?.imageMotion === true, containFit: true });
       ctx.restore();
     } else {
       ctx.save();
       drawRoundRect(ctx, imgX, imgY, imgW, imgH, 26);
       ctx.fillStyle = '#E0F2FE';
       ctx.fill();
-      ctx.fillStyle = '#0369A1';
-      ctx.font = 'bold 44px "Be Vietnam Pro", sans-serif';
+      ctx.fillStyle = '#0284C7';
+      ctx.font = 'bold 36px "Be Vietnam Pro", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('🏛️ HÌNH ẢNH ĐỊA ĐIỂM', 540, imgY + imgH / 2);
+      ctx.fillText('🏛️ HÌNH ẢNH ĐỊA DANH', 540, imgY + imgH / 2);
       ctx.restore();
     }
 
-    // Light Cyan Swoosh Underline below image
-    const swooshY = imgY + imgH + 18;
-    ctx.save();
-    ctx.fillStyle = '#38BDF8';
-    ctx.shadowColor = 'rgba(56, 189, 248, 0.6)';
-    ctx.shadowBlur = 12;
-    ctx.beginPath();
-    ctx.ellipse(540, swooshY, 410, 10, -0.02, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // 6. CYAN COUNTDOWN TIMER BAR & BADGE (3s)
+    // 6. COUNTDOWN TIMER BAR & BADGE (3s) (Y: 808)
     const barW = 720;
-    const barH = 16;
+    const barH = 18;
     const barX = 540 - barW / 2;
-    const barY = swooshY + 24;
+    const barY = 808;
 
     ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-    drawRoundRect(ctx, barX, barY, barW, barH, 8);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    drawRoundRect(ctx, barX, barY, barW, barH, 9);
     ctx.fill();
 
     const fillPercent = stage === 'read' ? 1.0 : (stage === 'guess' ? Math.max(0, 1 - stageProgress) : 0);
     const currentBarW = Math.max(0, barW * fillPercent);
     if (currentBarW > 0) {
-      const cyanGrad = ctx.createLinearGradient(barX, 0, barX + currentBarW, 0);
-      cyanGrad.addColorStop(0, '#38BDF8');
-      cyanGrad.addColorStop(1, '#0284C7');
-      ctx.fillStyle = cyanGrad;
-      ctx.shadowColor = 'rgba(56, 189, 248, 0.7)';
-      ctx.shadowBlur = 10;
-      drawRoundRect(ctx, barX, barY, currentBarW, barH, 8);
+      const greenGrad = ctx.createLinearGradient(barX, 0, barX + currentBarW, 0);
+      greenGrad.addColorStop(0, '#00E676');
+      greenGrad.addColorStop(1, '#00C853');
+      ctx.fillStyle = greenGrad;
+      ctx.shadowColor = 'rgba(0, 230, 118, 0.8)';
+      ctx.shadowBlur = 12;
+      drawRoundRect(ctx, barX, barY, currentBarW, barH, 9);
       ctx.fill();
     }
     ctx.restore();
 
-    // 6b. TIMER SECONDS BADGE (⏱️ 3s)
-    const currentGuessDuration = GUESS_TIME;
-    const remainingSec = stage === 'read' ? Math.ceil(currentGuessDuration) : (stage === 'guess' ? Math.max(0, Math.ceil(currentGuessDuration * (1 - stageProgress))) : 0);
-    if (stage === 'guess' || stage === 'read') {
-      ctx.save();
-      const tBadgeW = 95;
-      const tBadgeH = 32;
-      const tBadgeX = barX + barW - tBadgeW;
-      const tBadgeY = barY - 38;
-      ctx.fillStyle = '#0284C7';
-      ctx.shadowColor = 'rgba(2, 132, 199, 0.5)';
-      ctx.shadowBlur = 8;
-      drawRoundRect(ctx, tBadgeX, tBadgeY, tBadgeW, tBadgeH, 16);
-      ctx.fill();
-      ctx.shadowColor = 'transparent';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = '900 18px "Be Vietnam Pro", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`⏱️ ${remainingSec}s`, tBadgeX + tBadgeW / 2, tBadgeY + tBadgeH / 2 + 1);
-      ctx.restore();
-    }
-
-    // 7. ANSWER CARD SECTION - WORD SLOT BOXES (O CHU LANDMARK)
-    const ansCardY = barY + 42;
-    const ansCardH = (stage === 'guess' || stage === 'read') ? 310 : 420;
-    const ansCardW = 900;
-    const ansCardX = 540 - ansCardW / 2;
-    const ansTagY = ansCardY - 22;
+    // Timer seconds badge text next to progress bar
+    const remainingSec = stage === 'read' ? Math.ceil(GUESS_TIME) : (stage === 'guess' ? Math.max(1, Math.ceil(GUESS_TIME * (1 - stageProgress))) : 0);
+    let timerText = stage === 'reveal' ? '✅ ĐÁP ÁN!' : `⏱️ ${remainingSec}s`;
 
     ctx.save();
-    ctx.fillStyle = 'rgba(11, 19, 43, 0.95)';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
-    ctx.shadowBlur = 30;
-    ctx.shadowOffsetY = 15;
-    drawRoundRect(ctx, ansCardX, ansCardY, ansCardW, ansCardH, 40);
-    ctx.fill();
-    ctx.shadowColor = 'transparent';
+    ctx.font = '900 22px "Be Vietnam Pro", sans-serif';
+    ctx.fillStyle = stage === 'reveal' ? '#00E676' : '#38BDF8';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 6;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(timerText, barX + barW, barY - 6);
+    ctx.restore();
 
-    const ansBorderGrad = ctx.createLinearGradient(ansCardX, ansCardY, ansCardX + ansCardW, ansCardY + ansCardH);
-    if (stage === 'reveal') {
-      ansBorderGrad.addColorStop(0, '#38BDF8');
-      ansBorderGrad.addColorStop(1, '#10B981');
-    } else {
-      ansBorderGrad.addColorStop(0, '#0284C7');
-      ansBorderGrad.addColorStop(1, '#0369A1');
-    }
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = ansBorderGrad;
-    ctx.stroke();
+    // 7. 4 MULTIPLE CHOICE OPTIONS A, B, C, D (Y: 848 - 1460)
+    const optionW = 880;
+    const optionH = 110;
+    const optionGap = 16;
+    const startOptY = 848;
 
-    // Tag Badge top of Answer Card
-    const tagText = (stage === 'guess' || stage === 'read') ? 'ĐÁP ÁN: (Chữ cái đầu & ô chữ ẩn _ _ _)' : '✨ ĐÁP ÁN CHÍNH XÁC!';
-    const tagBg = (stage === 'guess' || stage === 'read') ? '#0284C7' : '#10B981';
-    const tagW = 680;
-    ctx.fillStyle = tagBg;
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-    ctx.shadowBlur = 12;
-    ctx.shadowOffsetY = 4;
-    drawRoundRect(ctx, 540 - tagW / 2, ansTagY, tagW, 48, 24);
-    ctx.fill();
-    ctx.shadowColor = 'transparent';
+    options.forEach((opt, idx) => {
+      const optY = startOptY + idx * (optionH + optionGap);
+      const optX = 540 - optionW / 2;
+      const isCorrect = opt.key === correctOptionKey;
 
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '900 23px "Be Vietnam Pro", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(tagText, 540, ansTagY + 25);
+      let cardBgGrad;
+      let strokeColor = 'rgba(255, 255, 255, 0.4)';
+      let textColor = '#FFFFFF';
+      let badgeBg = '#0284C7';
+      let badgeTextColor = '#FFFFFF';
+      let cardAlpha = 1.0;
+      let scaleFactor = 1.0;
 
-    // Letter Slot Boxes (DYNAMIC MULTI-WORD FIT)
-    const letters = landmarkName.split('');
-    const totalChars = letters.length;
-    const maxContainerW = 820;
-
-    let slotW = Math.min(84, Math.max(34, Math.floor(maxContainerW / Math.max(1, totalChars))));
-    let slotH = Math.round(slotW * 1.25);
-    let slotGap = Math.min(16, Math.max(4, Math.floor((maxContainerW - totalChars * slotW) / Math.max(1, totalChars - 1))));
-    if (slotGap < 4) slotGap = 4;
-
-    const totalSlotsW = totalChars * slotW + (totalChars - 1) * slotGap;
-    const startSlotX = 540 - totalSlotsW / 2;
-    const slotY = ansCardY + 75;
-
-    const revealElapsed = stage === 'reveal' ? stageProgress * REVEAL_TIME : 0;
-
-    letters.forEach((char, i) => {
-      const sx = startSlotX + i * (slotW + slotGap);
-      const isSpace = char === ' ' || char === '-';
-      const isFirstLetterOfWord = i === 0 || (i > 0 && (letters[i - 1] === ' ' || letters[i - 1] === '-'));
-
-      if (isSpace) {
-        ctx.fillStyle = '#38BDF8';
-        ctx.font = `900 ${Math.round(slotW * 0.6)}px "Be Vietnam Pro", sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText('-', sx + slotW / 2, slotY + slotH / 2);
-        return;
+      if (stage === 'reveal') {
+        if (isCorrect) {
+          scaleFactor = 1.03 + Math.sin(globalT * 6) * 0.015;
+          strokeColor = '#00E676';
+          badgeBg = '#00E676';
+          badgeTextColor = '#003311';
+          textColor = '#FFFFFF';
+        } else {
+          cardAlpha = 0.45;
+          strokeColor = 'rgba(255, 255, 255, 0.15)';
+        }
       }
 
       ctx.save();
-      let boxBg = 'rgba(255, 255, 255, 0.08)';
-      let boxBorder = 'rgba(255, 255, 255, 0.25)';
-      let charText = '_';
-      let charColor = '#38BDF8';
+      ctx.globalAlpha = cardAlpha;
 
-      if (stage === 'guess' || stage === 'read') {
-        if (isFirstLetterOfWord) {
-          boxBg = '#0284C7';
-          boxBorder = '#FFFFFF';
-          charText = char;
-          charColor = '#FFFFFF';
-        } else {
-          charText = '_';
-          charColor = 'rgba(255, 255, 255, 0.7)';
-        }
+      if (stage === 'reveal' && isCorrect) {
+        ctx.translate(540, optY + optionH / 2);
+        ctx.scale(scaleFactor, scaleFactor);
+        ctx.translate(-540, -(optY + optionH / 2));
+
+        ctx.shadowColor = 'rgba(0, 230, 118, 0.8)';
+        ctx.shadowBlur = 28;
+
+        const greenGrad = ctx.createLinearGradient(optX, optY, optX + optionW, optY + optionH);
+        greenGrad.addColorStop(0, '#00C853');
+        greenGrad.addColorStop(1, '#00E676');
+        cardBgGrad = greenGrad;
       } else {
-        const letterDelay = i * 0.05;
-        const letterPopRaw = Math.max(0, Math.min(1, (revealElapsed - letterDelay) / 0.3));
-        const letterPop = easeOutBack(letterPopRaw);
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+        ctx.shadowBlur = 14;
+        ctx.shadowOffsetY = 4;
 
-        ctx.translate(sx + slotW / 2, slotY + slotH / 2);
-        ctx.scale(0.85 + letterPop * 0.15, 0.85 + letterPop * 0.15);
-        ctx.translate(-(sx + slotW / 2), -(slotY + slotH / 2));
-
-        const gGrad = ctx.createLinearGradient(sx, slotY, sx + slotW, slotY + slotH);
-        gGrad.addColorStop(0, '#38BDF8');
-        gGrad.addColorStop(1, '#10B981');
-        boxBg = gGrad;
-        boxBorder = '#FFFFFF';
-        charText = char;
-        charColor = '#FFFFFF';
+        const normalGrad = ctx.createLinearGradient(optX, optY, optX + optionW, optY + optionH);
+        normalGrad.addColorStop(0, 'rgba(255, 255, 255, 0.20)');
+        normalGrad.addColorStop(1, 'rgba(255, 255, 255, 0.08)');
+        cardBgGrad = normalGrad;
       }
 
-      ctx.fillStyle = boxBg;
-      ctx.shadowColor = (stage === 'reveal' || isFirstLetterOfWord) ? 'rgba(56, 189, 248, 0.6)' : 'rgba(0, 0, 0, 0.3)';
-      ctx.shadowBlur = (stage === 'reveal' || isFirstLetterOfWord) ? 16 : 8;
-      drawRoundRect(ctx, sx, slotY, slotW, slotH, 18);
+      ctx.fillStyle = cardBgGrad;
+      drawRoundRect(ctx, optX, optY, optionW, optionH, 26);
       ctx.fill();
 
-      ctx.lineWidth = (stage === 'reveal' || isFirstLetterOfWord) ? 3.5 : 2;
-      ctx.strokeStyle = boxBorder;
+      ctx.lineWidth = stage === 'reveal' && isCorrect ? 4.5 : 2.5;
+      ctx.strokeStyle = strokeColor;
       ctx.stroke();
 
-      ctx.fillStyle = charColor;
-      ctx.font = `900 ${Math.round(slotW * 0.62)}px "Be Vietnam Pro", sans-serif`;
+      // Left Option Circle Badge (A, B, C, D)
+      const badgeCircleX = optX + 55;
+      const badgeCircleY = optY + optionH / 2;
+      ctx.fillStyle = badgeBg;
+      ctx.beginPath();
+      ctx.arc(badgeCircleX, badgeCircleY, 26, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = badgeTextColor;
+      ctx.font = '900 28px "Be Vietnam Pro", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(charText, sx + slotW / 2, slotY + slotH / 2 + (charText === '_' ? -4 : 2));
+      ctx.fillText(stage === 'reveal' && isCorrect ? '✓' : opt.key, badgeCircleX, badgeCircleY + 1);
+
+      // Option Text
+      ctx.fillStyle = textColor;
+      ctx.font = '900 30px "Be Vietnam Pro", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+
+      // Auto-fit text if long
+      let optText = opt.text;
+      let optFontPx = 30;
+      ctx.font = `900 ${optFontPx}px "Be Vietnam Pro", sans-serif`;
+      let optTextW = ctx.measureText(optText).width;
+      const maxOptTextW = optionW - 130;
+      while (optFontPx > 20 && optTextW > maxOptTextW) {
+        optFontPx -= 2;
+        ctx.font = `900 ${optFontPx}px "Be Vietnam Pro", sans-serif`;
+        optTextW = ctx.measureText(optText).width;
+      }
+      ctx.fillText(optText, optX + 105, optY + optionH / 2 + 1);
+
       ctx.restore();
     });
 
+    // 8. EXPLANATION BANNER (If reveal stage) (Y: ~1360)
     if (stage === 'reveal') {
-      const panelEntrance = easeOutCubic(Math.min(1, revealElapsed / 0.35));
       ctx.save();
-      ctx.globalAlpha = panelEntrance;
-      const explY = slotY + slotH + 25;
-      ctx.fillStyle = '#38BDF8';
-      drawWrappedText(ctx, explanationText, 540, explY, 820, 26, '700', FONT_FAMILY, 3, {
-        minY: explY - 10,
-        maxHeight: 100,
+      const explY = startOptY + 4 * (optionH + optionGap) + 4;
+      const explW = 880;
+      const explH = 90;
+      const explX = 540 - explW / 2;
+
+      ctx.fillStyle = 'rgba(240, 249, 255, 0.95)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 6;
+      drawRoundRect(ctx, explX, explY, explW, explH, 22);
+      ctx.fill();
+
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#38BDF8';
+      ctx.stroke();
+
+      ctx.fillStyle = '#0369A1';
+      drawWrappedText(ctx, `💡 ${explanationText}`, 540, explY + 16, explW - 40, 24, '800', FONT_FAMILY, 2, {
+        minY: explY + 8,
+        maxHeight: explH - 16,
         minFontSize: 18
       });
       ctx.restore();
     }
-    ctx.restore();
 
-    // 8. BOTTOM FOOTER CTA BANNER
+    // 9. BOTTOM FOOTER CTA BANNER (Y: 1720)
     const footerW = 920;
     const footerH = 110;
     const footerX = 540 - footerW / 2;
@@ -5090,7 +5616,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
 
     const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
     footerGrad.addColorStop(0, '#0284C7');
-    footerGrad.addColorStop(1, '#1E3A8A');
+    footerGrad.addColorStop(1, '#0369A1');
     ctx.fillStyle = footerGrad;
     drawRoundRect(ctx, footerX, footerY, footerW, footerH, 55);
     ctx.fill();
@@ -5114,7 +5640,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
 
     ctx.font = '700 22px "Be Vietnam Pro", sans-serif';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fillText('để khám phá thêm nhiều địa điểm đẹp! ✈️', footerX + 160, footerY + footerH / 2 + 18);
+    ctx.fillText('để khám phá thêm nhiều địa danh tuyệt đẹp! 🏛️', footerX + 160, footerY + footerH / 2 + 18);
 
     drawIconHeart(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
     ctx.restore();
@@ -6118,14 +6644,50 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     // ---------- nhận diện dạng video ----------
     const setMode = targetSet?.mode || '';
     const qMode = q.mode || '';
-    const hasMode = (...names) => names.includes(setMode) || names.includes(qMode) || names.includes(targetSet?.id);
-    const isCountry = hasMode('country-guess', 'country', 'country-guess-5-clues') || Array.isArray(q.clues);
-    const isPlayer = !isCountry && hasMode('player-guess', 'player');
-    const isLandmark = !isCountry && hasMode('landmark-guess', 'place-guess');
-    const isFood = !isCountry && hasMode('food-guess', 'dish-guess');
-    const isFlags = !isCountry && (hasMode('flags', 'flags-b1') || String(q.image || '').includes('flagcdn'));
-    const isWord = !isCountry && hasMode('word-guess');
-    const hasImage = !isCountry && (isPlayer || isLandmark || isFood || isFlags || isWord || !!q.image);
+    const hasMode = (...names) => names.includes(setMode) || names.includes(qMode) || names.includes(targetSet?.id) || names.includes(targetSet?.presetId);
+
+    // Ưu tiên cao nhất: Kiểm tra có phải dạng video Địa Lý & Văn Hóa Việt Nam hay không
+    const isExplicitVietnamGeo = (
+      selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+      settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+      targetSet?.id === 'dia-ly-van-hoa-viet-nam' ||
+      targetSet?.presetId === 'dia-ly-van-hoa-viet-nam' ||
+      q?.id === 'dia-ly-van-hoa-viet-nam'
+    );
+
+    const isImageGuessPreset = !isExplicitVietnamGeo && (
+      selectedMCQPreset === 'animal-guess' || selectedMCQPreset === 'food-guess' || selectedMCQPreset === 'flags' ||
+      selectedMCQPreset === 'landmark-guess' ||
+      hasMode('animal-guess', 'animal', 'food-guess', 'dish-guess', 'flags', 'flags-b1', 'landmark-guess', 'place-guess')
+    );
+
+    const isCountry = !isExplicitVietnamGeo && (
+      hasMode('country-guess', 'country', 'country-guess-5-clues') || (Array.isArray(q.clues) && q.clues.length > 0)
+    );
+
+    const isWord = !isExplicitVietnamGeo && !isCountry && (
+      selectedMCQPreset === 'vocab-b1-word-guess' ||
+      selectedMCQPreset === 'vocab-image-word-guess' ||
+      targetSet?.id === 'vocab-b1-word-guess' ||
+      targetSet?.id === 'vocab-image-word-guess' ||
+      hasMode('word-guess', 'vocab-b1-word-guess', 'vocab-image-word-guess') ||
+      !!(q && q.word && !q.optionB)
+    );
+
+    // Kiểm tra xem có phải dạng video Địa Lý & Văn Hóa Việt Nam hay không
+    const isVietnamGeo = isExplicitVietnamGeo || (!isImageGuessPreset && !isCountry && !isWord && !isLingoBiBiSetOrQ(targetSet, q) && (
+      ((setMode === 'vocab-b1-tiktok' || qMode === 'vocab-b1-tiktok') && targetSet?.id !== 'vocab-b1-word-guess' && !q.word) ||
+      (targetSet?.topic && (targetSet.topic.toUpperCase().includes('ĐỊA LÝ') || (targetSet.topic.toUpperCase().includes('VIỆT NAM') && !targetSet.topic.toUpperCase().includes('MÓN ĂN')))) ||
+      (q?.topic && (q.topic.toUpperCase().includes('ĐỊA LÝ') || (q.topic.toUpperCase().includes('VIỆT NAM') && !q.topic.toUpperCase().includes('MÓN ĂN')))) ||
+      (targetSet?.name && targetSet.name.toUpperCase().includes('ĐỊA LÝ'))
+    ));
+
+    const isPlayer = !isVietnamGeo && !isCountry && !isWord && hasMode('player-guess', 'player');
+    const isLandmark = !isVietnamGeo && !isCountry && !isWord && hasMode('landmark-guess', 'place-guess');
+    const isAnimal = !isVietnamGeo && !isCountry && !isWord && (hasMode('animal-guess', 'animal') || selectedMCQPreset === 'animal-guess');
+    const isFood = !isVietnamGeo && !isCountry && !isWord && (hasMode('food-guess', 'dish-guess') || selectedMCQPreset === 'food-guess');
+    const isFlags = !isVietnamGeo && !isCountry && !isWord && (hasMode('flags', 'flags-b1') || selectedMCQPreset === 'flags' || String(q.image || '').includes('flagcdn'));
+    const hasImage = !isCountry && (isPlayer || isLandmark || isFood || isAnimal || isFlags || isWord || !!q.image);
 
     // ---------- 5 gợi ý (đoán quốc gia) ----------
     let cluesList = [];
@@ -6159,12 +6721,24 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.save();
     ctx.clearRect(0, 0, W, H);
 
-    // 1. NỀN GRADIENT
-    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-    bgGrad.addColorStop(0, th.bg || '#121212');
-    bgGrad.addColorStop(1, th.bgTo || th.bg || '#1E241E');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, W, H);
+    // 1. NỀN GRADIENT HOẶC ẢNH PHONG CẢNH CHO VIETNAM GEO
+    const bgUrl = q.image || q.bg || q.background;
+    const bgImg = bgUrl ? getLoadedImage(bgUrl) : null;
+    if (isVietnamGeo && bgImg) {
+      const zoom = settings?.imageMotion ? 1 + Math.min(1, timeInQ / 15) * 0.05 : 1;
+      drawImageCover(bgImg, 0, 0, W, H, zoom);
+      const dimGrad = ctx.createLinearGradient(0, 0, W, H);
+      dimGrad.addColorStop(0, 'rgba(15, 23, 42, 0.78)');
+      dimGrad.addColorStop(1, 'rgba(10, 15, 26, 0.88)');
+      ctx.fillStyle = dimGrad;
+      ctx.fillRect(0, 0, W, H);
+    } else {
+      const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+      bgGrad.addColorStop(0, th.bg || '#121212');
+      bgGrad.addColorStop(1, th.bgTo || th.bg || '#1E241E');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+    }
 
     // 2. QUẦNG SÁNG
     [[W * 0.12, H * 0.25, 340, accent], [W * 0.88, H * 0.78, 320, accent2], [W * 0.5, H * 1.0, 260, '#FFFFFF']].forEach(([ox, oy, rad, col]) => {
@@ -6198,17 +6772,30 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, W, headerH);
 
-    const topicText = String(q.topic || targetSet?.topic || 'ĐỐ VUI').toUpperCase();
+    const topicText = isVietnamGeo
+      ? String(q.topic || targetSet?.topic || 'ĐỊA LÝ & VĂN HÓA VN').toUpperCase()
+      : isWord
+        ? String(q.topic || targetSet?.topic || '🔤 ĐỐ TỪ VỰNG TIẾNG ANH B1').toUpperCase()
+        : (isAnimal || isFood || isLandmark)
+          ? stripHeaderIcons(String(q.topic || targetSet?.topic || (isAnimal ? 'ĐOÁN CON VẬT' : isFood ? 'ĐOÁN MÓN ĂN' : 'ĐOÁN ĐỊA DANH'))).toUpperCase()
+          : String(q.topic || targetSet?.topic || (isFlags ? '🚩 ĐOÁN QUỐC KỲ' : 'ĐỐ VUI')).toUpperCase();
     ctx.save();
     ctx.font = `900 28px ${FONT_FAMILY}`;
     const badgeW = Math.min(620, ctx.measureText(topicText).width + 64);
-    ctx.fillStyle = accent;
+    if (isVietnamGeo) {
+      const bGrad = ctx.createLinearGradient(30, 16, 30 + badgeW, 16);
+      bGrad.addColorStop(0, '#DC2626');
+      bGrad.addColorStop(1, '#991B1B');
+      ctx.fillStyle = bGrad;
+    } else {
+      ctx.fillStyle = accent;
+    }
     drawRoundRect(ctx, 30, 16, badgeW, 58, 29);
     ctx.fill();
     ctx.fillStyle = '#FFFFFF';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(topicText, 30 + badgeW / 2, 46);
+    ctx.fillText(isVietnamGeo && !topicText.includes('🇻🇳') ? `🇻🇳 ${topicText}` : topicText, 30 + badgeW / 2, 46);
     ctx.restore();
 
     ctx.save();
@@ -6382,17 +6969,353 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
         ctx.fillText('Đây là quốc gia nào?', cardX + cardW / 2, cardY + cardH * 0.82);
         ctx.restore();
       }
+    } else if (isWord) {
+      // ===== ĐOÁN Ô CHỮ B1 TIẾNG ANH (16:9 LANDSCAPE SHOWCASE) =====
+      const targetWord = String(q.word || q.optionA || 'APPLE').toUpperCase().trim();
+      const letters = targetWord.split('');
+      const cleanChars = letters.filter(c => c !== ' ' && c !== '-');
+      const revealElapsed = isReveal ? Math.max(0, timeInQ - (settings?.guessTime || 3.0)) : 0;
+
+      // 1. CỘT TRÁI: THẺ HÌNH ẢNH MINH HỌA (Width: 780px, Height: contentH)
+      const leftX = 36;
+      const leftW = 780;
+      const leftY = contentY;
+      const leftH = contentH;
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.55)';
+      ctx.shadowBlur = 28;
+      ctx.fillStyle = th.cardBg || 'rgba(18, 16, 36, 0.92)';
+      drawRoundRect(ctx, leftX, leftY, leftW, leftH, 28);
+      ctx.fill();
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      if (isReveal) {
+        ctx.shadowColor = 'rgba(34, 197, 94, 0.6)';
+        ctx.shadowBlur = 24;
+      }
+      ctx.lineWidth = 4.5;
+      ctx.strokeStyle = isReveal ? '#22C55E' : accent;
+      ctx.stroke();
+      ctx.restore();
+
+      // Top Tag Thẻ Trái
+      const tagLText = '🖼️ HÌNH MINH HỌA TỪ VỰNG';
+      ctx.save();
+      ctx.font = `800 22px ${FONT_FAMILY}`;
+      const tagLW = ctx.measureText(tagLText).width + 48;
+      ctx.fillStyle = isReveal ? '#22C55E' : accent;
+      drawRoundRect(ctx, leftX + 24, leftY - 18, tagLW, 40, 20);
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(tagLText, leftX + 24 + tagLW / 2, leftY + 2);
+      ctx.restore();
+
+      // Khung ảnh bên trong thẻ trái
+      const imgPad = 18;
+      const imgBoxX = leftX + imgPad;
+      const imgBoxY = leftY + 36;
+      const imgBoxW = leftW - imgPad * 2;
+      const imgBoxH = leftH - 36 - 64;
+
+      const wordImg = q.image ? getLoadedImage(q.image) : null;
+      if (wordImg) {
+        ctx.save();
+        drawRoundRect(ctx, imgBoxX, imgBoxY, imgBoxW, imgBoxH, 20);
+        ctx.clip();
+        const zoom = settings?.imageMotion ? 1 + Math.min(1, timeInQ / 12) * 0.06 : 1;
+        drawImageCover(wordImg, imgBoxX, imgBoxY, imgBoxW, imgBoxH, zoom);
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        drawRoundRect(ctx, imgBoxX, imgBoxY, imgBoxW, imgBoxH, 20);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.font = `700 32px ${FONT_FAMILY}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🖼️ Đang tải hình ảnh từ vựng...', imgBoxX + imgBoxW / 2, imgBoxY + imgBoxH / 2);
+        ctx.restore();
+      }
+
+      // Thanh thông tin bên dưới ảnh
+      const footH = 46;
+      const footY = leftY + leftH - footH - 14;
+      ctx.save();
+      if (isReveal) {
+        ctx.fillStyle = 'rgba(34, 197, 94, 0.95)';
+        drawRoundRect(ctx, leftX + imgPad, footY, imgBoxW, footH, 16);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `900 26px ${FONT_FAMILY}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`✓ ĐÁP ÁN: ${targetWord}`, leftX + leftW / 2, footY + footH / 2 + 1);
+      } else {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+        drawRoundRect(ctx, leftX + imgPad, footY, imgBoxW, footH, 16);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#FFDE59';
+        ctx.font = `800 22px ${FONT_FAMILY}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`💡 Từ này gồm ${cleanChars.length} chữ cái tiếng Anh`, leftX + leftW / 2, footY + footH / 2 + 1);
+      }
+      ctx.restore();
+
+      // 2. CỘT PHẢI: GỢI Ý NGHĨA + Ô CHỮ + PHIÊN ÂM & GIẢI THÍCH (Width: 1040px)
+      const rightX = leftX + leftW + 36;
+      const rightW = W - 36 - rightX;
+      const rightY = contentY;
+
+      // Card 1: GỢI Ý NGHĨA TIẾNG VIỆT (Height: 210px)
+      const clueH = 210;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = 22;
+      ctx.fillStyle = 'rgba(20, 18, 42, 0.92)';
+      drawRoundRect(ctx, rightX, rightY, rightW, clueH, 24);
+      ctx.fill();
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.restore();
+
+      // Tag Card 1
+      const clueTag = q.headerTitle || '💡 GỢI Ý NGHĨA TIẾNG VIỆT:';
+      ctx.save();
+      ctx.font = `800 22px ${FONT_FAMILY}`;
+      const clueTagW = ctx.measureText(clueTag).width + 48;
+      ctx.fillStyle = accent;
+      drawRoundRect(ctx, rightX + 28, rightY - 18, clueTagW, 40, 20);
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(clueTag, rightX + 28 + clueTagW / 2, rightY + 2);
+      ctx.restore();
+
+      // Nội dung câu hỏi nghĩa tiếng Việt
+      const clueText = q.question || 'Từ tiếng Anh này có nghĩa là gì?';
+      const clueFit = fitWrapped(clueText, rightW - 70, 48, 28, 2, '900');
+      ctx.save();
+      ctx.fillStyle = '#FFDE59';
+      ctx.font = `900 ${clueFit.size}px ${FONT_FAMILY}`;
+      drawCenteredLines(clueFit.lines, rightX + rightW / 2, rightY + 36 + (clueH - 36) / 2, clueFit.size);
+      ctx.restore();
+
+      // Card 2: Ô CHỮ (DYNAMIC LETTER BOXES) (Height: 270px)
+      const slotCardY = rightY + clueH + 24;
+      const slotCardH = 270;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = 24;
+      ctx.fillStyle = 'rgba(24, 20, 50, 0.95)';
+      drawRoundRect(ctx, rightX, slotCardY, rightW, slotCardH, 24);
+      ctx.fill();
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+
+      if (isReveal) {
+        ctx.shadowColor = 'rgba(34, 197, 94, 0.6)';
+        ctx.shadowBlur = 24;
+        ctx.strokeStyle = '#22C55E';
+        ctx.lineWidth = 4;
+      } else {
+        const slotBorderGrad = ctx.createLinearGradient(rightX, slotCardY, rightX + rightW, slotCardY + slotCardH);
+        slotBorderGrad.addColorStop(0, accent);
+        slotBorderGrad.addColorStop(1, accent2);
+        ctx.strokeStyle = slotBorderGrad;
+        ctx.lineWidth = 3.5;
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      // Tag Card 2
+      const slotTagText = isReveal
+        ? '✨ ĐÁP ÁN CHÍNH XÁC!'
+        : `🔤 ĐIỀN CHỮ CÁI CÒN THIẾU (${cleanChars.length} CHỮ CÁI)`;
+      ctx.save();
+      ctx.font = `800 22px ${FONT_FAMILY}`;
+      const slotTagW = ctx.measureText(slotTagText).width + 48;
+      ctx.fillStyle = isReveal ? '#22C55E' : (accent2 || accent);
+      drawRoundRect(ctx, rightX + 28, slotCardY - 18, slotTagW, 40, 20);
+      ctx.fill();
+      ctx.fillStyle = isReveal ? '#FFFFFF' : '#1A1635';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(slotTagText, rightX + 28 + slotTagW / 2, slotCardY + 2);
+      ctx.restore();
+
+      // Tính kích thước và vẽ các ô chữ cái
+      const maxLetterW = rightW - 60;
+      let slotW = Math.min(88, Math.max(38, Math.floor(maxLetterW / Math.max(1, letters.length))));
+      let slotH = Math.round(slotW * 1.25);
+      let slotGap = Math.min(16, Math.max(6, Math.floor((maxLetterW - letters.length * slotW) / Math.max(1, letters.length - 1))));
+      if (slotGap < 6) slotGap = 6;
+      const totalSlotRowW = letters.length * slotW + (letters.length - 1) * slotGap;
+      const startSlotX = rightX + (rightW - totalSlotRowW) / 2;
+      const startSlotY = slotCardY + 36 + (slotCardH - 36 - slotH) / 2;
+
+      letters.forEach((char, ci) => {
+        const sx = startSlotX + ci * (slotW + slotGap);
+        const isSpace = char === ' ' || char === '-';
+        const isFirstLetter = ci === 0 || (ci > 0 && (letters[ci - 1] === ' ' || letters[ci - 1] === '-'));
+
+        if (isSpace) {
+          ctx.save();
+          ctx.fillStyle = '#FFDE59';
+          ctx.font = `bold ${Math.round(slotW * 0.6)}px ${FONT_FAMILY}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('-', sx + slotW / 2, startSlotY + slotH / 2);
+          ctx.restore();
+          return;
+        }
+
+        ctx.save();
+        let boxBg = 'rgba(255, 255, 255, 0.08)';
+        let boxBorder = 'rgba(255, 255, 255, 0.28)';
+        let charText = '_';
+        let charColor = '#FFDE59';
+
+        if (stage === 'guess' || stage === 'read') {
+          if (isFirstLetter) {
+            boxBg = accent;
+            boxBorder = '#FFFFFF';
+            charText = char;
+            charColor = '#FFFFFF';
+          } else {
+            charText = '_';
+            charColor = 'rgba(255, 255, 255, 0.7)';
+          }
+        } else {
+          // Reveal stage: Pop staggered animation
+          const letterDelay = ci * 0.04;
+          const letterPopRaw = Math.max(0, Math.min(1, (revealElapsed - letterDelay) / 0.28));
+          const letterPop = easeOutBack(letterPopRaw);
+
+          ctx.translate(sx + slotW / 2, startSlotY + slotH / 2);
+          ctx.scale(0.85 + letterPop * 0.15, 0.85 + letterPop * 0.15);
+          ctx.translate(-(sx + slotW / 2), -(startSlotY + slotH / 2));
+
+          const gGrad = ctx.createLinearGradient(sx, startSlotY, sx + slotW, startSlotY + slotH);
+          gGrad.addColorStop(0, '#22C55E');
+          gGrad.addColorStop(1, '#10B981');
+          boxBg = gGrad;
+          boxBorder = '#FFFFFF';
+          charText = char;
+          charColor = '#FFFFFF';
+        }
+
+        ctx.fillStyle = boxBg;
+        ctx.shadowColor = (isReveal || isFirstLetter) ? 'rgba(34, 197, 94, 0.6)' : 'rgba(0, 0, 0, 0.35)';
+        ctx.shadowBlur = 14;
+        drawRoundRect(ctx, sx, startSlotY, slotW, slotH, 18);
+        ctx.fill();
+
+        ctx.lineWidth = (isReveal || isFirstLetter) ? 3.5 : 2;
+        ctx.strokeStyle = boxBorder;
+        ctx.stroke();
+
+        ctx.fillStyle = charColor;
+        ctx.font = `900 ${Math.round(slotW * 0.62)}px ${FONT_FAMILY}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(charText, sx + slotW / 2, startSlotY + slotH / 2 + (charText === '_' ? -6 : 2));
+        ctx.restore();
+      });
+
+      // Card 3: PHIÊN ÂM IPA & GIẢI THÍCH (HOẶC ĐỒNG HỒ ĐẾM NGƯỢC KHI ĐANG ĐOÁN) (Height: 330px)
+      const bottomCardY = slotCardY + slotCardH + 24;
+      const bottomCardH = contentH - (bottomCardY - rightY);
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = 22;
+      ctx.fillStyle = 'rgba(18, 16, 36, 0.92)';
+      drawRoundRect(ctx, rightX, bottomCardY, rightW, bottomCardH, 24);
+      ctx.fill();
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.restore();
+
+      if (isReveal) {
+        // Entrance animation
+        const panelEntrance = easeOutCubic(Math.min(1, revealElapsed / 0.35));
+        ctx.save();
+        ctx.globalAlpha = panelEntrance;
+
+        // 1. IPA Pill Badge
+        if (q.ipa) {
+          const ipaText = `🔊 PHIÊN ÂM: ${q.ipa}`;
+          ctx.save();
+          ctx.font = `800 28px ${FONT_FAMILY}`;
+          const ipaW = Math.min(500, ctx.measureText(ipaText).width + 60);
+          const ipaH = 50;
+          const ipaX = rightX + (rightW - ipaW) / 2;
+          const ipaY = bottomCardY + 22;
+
+          ctx.fillStyle = 'rgba(0, 240, 255, 0.16)';
+          drawRoundRect(ctx, ipaX, ipaY, ipaW, ipaH, 25);
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#00F0FF';
+          ctx.stroke();
+
+          ctx.fillStyle = '#00F0FF';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(ipaText, ipaX + ipaW / 2, ipaY + ipaH / 2 + 1);
+          ctx.restore();
+        }
+
+        // 2. Explanation / Meaning Text
+        const explY = q.ipa ? bottomCardY + 90 : bottomCardY + 40;
+        const explText = q.explanation || `${targetWord}: ${q.question}`;
+        const explFit = fitWrapped(explText, rightW - 80, 36, 24, 3, '800');
+        ctx.save();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `800 ${explFit.size}px ${FONT_FAMILY}`;
+        drawCenteredLines(explFit.lines, rightX + rightW / 2, explY + (bottomCardH - (explY - bottomCardY)) / 2 - 8, explFit.size);
+        ctx.restore();
+
+        ctx.restore(); // panelEntrance
+        drawCanvasConfettiBurst(ctx, qIdx, revealElapsed, theme);
+      } else {
+        // Trạng thái đang đếm ngược chờ trả lời
+        const bob = Math.sin(globalT * 3) * 6;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `700 56px ${FONT_FAMILY}`;
+        ctx.fillText('⏳', rightX + rightW / 2, bottomCardY + 70 + bob);
+
+        ctx.fillStyle = '#FFDE59';
+        ctx.font = `900 34px ${FONT_FAMILY}`;
+        ctx.fillText('BẠN CÓ 3 GIÂY ĐỂ ĐOÁN TỪ TIẾNG ANH NÀY!', rightX + rightW / 2, bottomCardY + 145);
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.font = `700 24px ${FONT_FAMILY}`;
+        ctx.fillText('💬 Hãy để lại đáp án của bạn dưới phần bình luận nhé!', rightX + rightW / 2, bottomCardY + 195);
+        ctx.restore();
+      }
     } else {
-      // ===== TRẮC NGHIỆM / ĐOÁN ẢNH / CỜ / Ô CHỮ =====
+      // ===== TRẮC NGHIỆM 4 ĐÁP ÁN (A, B, C, D) =====
       const imgX = 36, imgW = 800;
       const rightX = hasImage ? imgX + imgW + 36 : 96;
       const rightW = hasImage ? W - 36 - rightX : W - 192;
 
       const correctKey = String(q.correctOption || 'A').toUpperCase();
       const optMap = { A: q.optionA, B: q.optionB, C: q.optionC, D: q.optionD };
-      const answerText = String(isWord
-        ? (q.word || optMap[correctKey] || '')
-        : (optMap[correctKey] || q.landmark || q.dish || q.player || q.word || ''));
+      const answerText = String(optMap[correctKey] || q.landmark || q.dish || q.player || q.word || '');
 
       // --- Thẻ ảnh bên trái ---
       if (hasImage) {
@@ -6432,8 +7355,9 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           ctx.restore();
         }
 
-        // Khi lộ đáp án: hiện banner tên đáp án ở dưới ảnh (ảnh vẫn nhìn rõ)
-        if (isReveal && answerText) {
+        // Khi lộ đáp án: chỉ hiện banner che ảnh nếu là game đoán ảnh (landmark/food/animal/player/flags)
+        // Đối với Trắc nghiệm Địa lý Văn hóa, KHÔNG che ảnh!
+        if (isReveal && answerText && (isLandmark || isFood || isAnimal || isPlayer || isFlags)) {
           const pr = easeOutCubic(Math.min(1, stageProgress * 4));
           const bH = 120, bY = imgY + imgH - bH - 28 + (1 - pr) * 50;
           ctx.save();
@@ -6451,7 +7375,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       }
 
       // --- Thẻ câu hỏi ---
-      const qCardH = contentH * (isWord ? 0.30 : 0.34);
+      const qCardH = contentH * 0.34;
       ctx.save();
       ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 20;
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -6462,8 +7386,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       ctx.restore();
 
       const questionRaw = q.question ||
-        (isLandmark ? 'Đây là địa điểm nào?' : isFood ? 'Đây là món gì?' : isPlayer ? 'Đây là cầu thủ nào?' :
-          isFlags ? 'Cờ của quốc gia nào?' : isWord ? 'Đây là từ gì?' : 'Câu hỏi?');
+        (isLandmark ? 'Đây là địa điểm nào?' : isFood ? 'Đây là món gì?' : isAnimal ? 'Đây là con gì?' : isPlayer ? 'Đây là cầu thủ nào?' :
+          isFlags ? 'Đây là quốc kỳ của nước nào?' : 'Câu hỏi?');
       const qFit = fitWrapped(questionRaw, rightW - 80, hasImage ? 50 : 64, 28, 3, '900');
       ctx.fillStyle = '#FFFFFF';
       ctx.font = `900 ${qFit.size}px ${FONT_FAMILY}`;
@@ -6472,37 +7396,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       const areaY = contentY + qCardH + 24;
       const areaH = contentH - qCardH - 24;
 
-      if (isWord) {
-        // --- Ô chữ mở dần ---
-        const chars = [...String(q.word || q.optionA || '').toUpperCase().trim()];
-        const n = chars.length;
-        if (n > 0) {
-          const revealedCount = isReveal ? n : (stage === 'guess' ? Math.floor(n * 0.6 * stageProgress) : 0);
-          const g = 12;
-          const box = Math.min(130, (rightW - (n - 1) * g) / n);
-          const totalW = n * box + (n - 1) * g;
-          const x0 = rightX + (rightW - totalW) / 2;
-          const by = areaY + (areaH - box) / 2;
-          chars.forEach((ch, ci) => {
-            if (ch === ' ') return;
-            const bx = x0 + ci * (box + g);
-            const shown = ci < revealedCount;
-            ctx.save();
-            ctx.fillStyle = shown ? accent2 : 'rgba(255,255,255,0.14)';
-            if (shown) { ctx.shadowColor = rgba(accent2, 0.6); ctx.shadowBlur = 16; }
-            drawRoundRect(ctx, bx, by, box, box, 16);
-            ctx.fill();
-            ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
-            ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 3; ctx.stroke();
-            ctx.fillStyle = shown ? '#111111' : 'rgba(255,255,255,0.35)';
-            ctx.font = `900 ${box * 0.58}px ${FONT_FAMILY}`;
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(shown ? ch : '?', bx + box / 2, by + box / 2 + 2);
-            ctx.restore();
-          });
-        }
-      } else {
-        // --- 4 đáp án (lưới 2x2) ---
+      // --- 4 đáp án (lưới 2x2) ---
         const opts = ['A', 'B', 'C', 'D'].map(k => ({ key: k, text: optMap[k] || '' })).filter(o => o.text);
         const cols = 2;
         const rows = Math.max(1, Math.ceil(opts.length / cols));
@@ -6572,19 +7466,22 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           }
           ctx.restore();
         });
-      }
     }
     ctx.restore(); // kết thúc hiệu ứng vào cảnh
 
     // 8. THANH KÊU GỌI HÀNH ĐỘNG
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
     ctx.fillRect(0, H - ctaH, W, ctaH);
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.font = `700 28px ${FONT_FAMILY}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = `700 26px ${FONT_FAMILY}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('👍 Thích  •  💬 Bình luận đáp án của bạn  •  🔔 Đăng ký kênh để xem tiếp', W / 2, H - ctaH / 2 + 1);
+    if (isVietnamGeo) {
+      ctx.fillText('🔔 Nhấn Theo dõi để biết thêm nhiều kiến thức mới  •  Vietnam GeoQuiz', W / 2, H - ctaH / 2 + 1);
+    } else {
+      ctx.fillText('👍 Thích  •  💬 Bình luận đáp án của bạn  •  🔔 Đăng ký kênh để xem tiếp', W / 2, H - ctaH / 2 + 1);
+    }
     ctx.restore();
 
     // Vignette cho khung ngang
@@ -6614,6 +7511,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       return;
     }
 
+
+
     const isPlayerGuessMode = (qObj && (qObj.mode === 'player-guess' || qObj.mode === 'player')) ||
       (targetSet && (targetSet.mode === 'player-guess' || targetSet.id === 'player-guess')) ||
       (theme && (theme.id === 'player-guess' || theme.id === 'player'));
@@ -6625,7 +7524,9 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     }
 
     const isLandmarkGuessMode = (qObj && (qObj.mode === 'landmark-guess' || qObj.mode === 'place-guess')) ||
-      (targetSet && (targetSet.mode === 'landmark-guess' || targetSet.id === 'landmark-guess')) ||
+      (targetSet && (targetSet.mode === 'landmark-guess' || targetSet.id === 'landmark-guess' || targetSet.presetId === 'landmark-guess')) ||
+      selectedMCQPreset === 'landmark-guess' ||
+      settings?.selectedMCQPreset === 'landmark-guess' ||
       (theme && theme.id === 'landmark-guess');
 
     if (isLandmarkGuessMode) {
@@ -6634,8 +7535,22 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       return;
     }
 
+    const isAnimalGuessMode = (qObj && (qObj.mode === 'animal-guess' || qObj.mode === 'animal')) ||
+      (targetSet && (targetSet.mode === 'animal-guess' || targetSet.id === 'animal-guess' || targetSet.presetId === 'animal-guess')) ||
+      selectedMCQPreset === 'animal-guess' ||
+      settings?.selectedMCQPreset === 'animal-guess' ||
+      (theme && theme.id === 'animal-guess');
+
+    if (isAnimalGuessMode) {
+      drawAnimalGuessCanvasFrame(ctx, qObj, qIdx, totalQ, stage, timeInQ, stageProgress, theme, currentSet);
+      ctx.restore();
+      return;
+    }
+
     const isFoodGuessMode = (qObj && (qObj.mode === 'food-guess' || qObj.mode === 'dish-guess')) ||
-      (targetSet && (targetSet.mode === 'food-guess' || targetSet.id === 'food-guess')) ||
+      (targetSet && (targetSet.mode === 'food-guess' || targetSet.id === 'food-guess' || targetSet.presetId === 'food-guess')) ||
+      selectedMCQPreset === 'food-guess' ||
+      settings?.selectedMCQPreset === 'food-guess' ||
       (theme && theme.id === 'food-guess');
 
     if (isFoodGuessMode) {
@@ -6675,11 +7590,33 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     }
 
     const isFlagsB1Mode = (qObj && (qObj.mode === 'flags' || qObj.mode === 'flags-b1')) ||
-      (targetSet && (targetSet.mode === 'flags' || targetSet.mode === 'flags-b1' || targetSet.id === 'flags')) ||
+      (targetSet && (targetSet.mode === 'flags' || targetSet.mode === 'flags-b1' || targetSet.id === 'flags' || targetSet.presetId === 'flags')) ||
+      selectedMCQPreset === 'flags' ||
+      settings?.selectedMCQPreset === 'flags' ||
       (theme && (theme.id === 'flags' || theme.id === 'flags-b1'));
 
     if (isFlagsB1Mode) {
       drawFlagsB1CanvasFrame(ctx, qObj, qIdx, totalQ, stage, timeInQ, stageProgress, theme, currentSet);
+      ctx.restore();
+      return;
+    }
+
+    // Chế độ Địa lý & Văn hóa Việt Nam
+    const isVietnamGeoCanvas = !isLingoBiBiSetOrQ(targetSet, qObj) && (
+      selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+      settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+      targetSet?.id === 'dia-ly-van-hoa-viet-nam' ||
+      targetSet?.presetId === 'dia-ly-van-hoa-viet-nam' ||
+      qObj?.id === 'dia-ly-van-hoa-viet-nam' ||
+      targetSet?.mode === 'vocab-b1-tiktok' ||
+      qObj?.mode === 'vocab-b1-tiktok' ||
+      (targetSet?.topic && (targetSet.topic.toUpperCase().includes('ĐỊA LÝ') || (targetSet.topic.toUpperCase().includes('VIỆT NAM') && !targetSet.topic.toUpperCase().includes('MÓN ĂN')))) ||
+      (qObj?.topic && (qObj.topic.toUpperCase().includes('ĐỊA LÝ') || (qObj.topic.toUpperCase().includes('VIỆT NAM') && !qObj.topic.toUpperCase().includes('MÓN ĂN')))) ||
+      (targetSet?.name && targetSet.name.toUpperCase().includes('ĐỊA LÝ'))
+    );
+
+    if (isVietnamGeoCanvas) {
+      drawVocabTikTokCanvasFrame(ctx, qObj, qIdx, totalQ, stage, timeInQ, stageProgress, theme, currentSet);
       ctx.restore();
       return;
     }
@@ -7541,9 +8478,18 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
               lastExportSec = -1;
               audioSynth.playWhoosh(0.35, dest);
               const isLingoBiBi = isLingoBiBiSetOrQ(setObj, activeQ);
-              if (activeQ && activeQ.question && !isLingoBiBi) {
+              const questionTextToSpeak = activeQ?.question || (
+                (setObj?.mode === 'animal-guess' || activeQ?.mode === 'animal-guess' || selectedMCQPreset === 'animal-guess') ? 'Đây là con gì?' : (
+                  (setObj?.mode === 'food-guess' || activeQ?.mode === 'food-guess' || selectedMCQPreset === 'food-guess') ? 'Đây là món gì?' : (
+                    (setObj?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess' || selectedMCQPreset === 'landmark-guess') ? 'Đây là địa danh nào?' : (
+                      (setObj?.mode === 'flags' || activeQ?.mode === 'flags' || selectedMCQPreset === 'flags') ? 'Đây là quốc kỳ của nước nào?' : ''
+                    )
+                  )
+                )
+              );
+              if (questionTextToSpeak && !isLingoBiBi) {
                 const effectiveVoice = getEffectiveVoice(settings.voiceLang, setObj, activeQ);
-                const ttsQuestionText = getTTSQuestionText(activeQ.question, setObj?.mode || activeQ.mode);
+                const ttsQuestionText = getTTSQuestionText(questionTextToSpeak, setObj?.mode || activeQ?.mode);
                 audioSynth.playSpeech(
                   ttsQuestionText,
                   effectiveVoice,
@@ -7569,13 +8515,33 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
               const isFlashcardMode = (setObj?.mode === 'lingobibi-flashcard' || activeQ?.mode === 'lingobibi-flashcard' || setObj?.id === 'lingobibi-flashcard');
               const isLingoBiBi = isLingoBiBiSetOrQ(setObj, activeQ);
               const isCaDaoMode = (setObj?.mode === 'ca-dao-tuc-ngu' || activeQ?.mode === 'ca-dao-tuc-ngu' || setObj?.id === 'ca-dao-tuc-ngu');
-              const isFlagsOrCountryMode = (setObj?.mode === 'flags' || activeQ?.mode === 'flags' || setObj?.id === 'flags' || setObj?.mode === 'country-guess' || activeQ?.mode === 'country-guess' || setObj?.id === 'country-guess-5-clues');
+              const isFlagsOrCountryMode = (setObj?.mode === 'flags' || activeQ?.mode === 'flags' || setObj?.id === 'flags' || setObj?.mode === 'country-guess' || activeQ?.mode === 'country-guess' || setObj?.id === 'country-guess-5-clues' || selectedMCQPreset === 'flags');
               if (!isFlashcardMode && !isLingoBiBi) {
                 audioSynth.playSuccessFanfare(0.65, dest);
               }
-              const isLandmarkOrFoodExport = (setObj?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess');
-              const isFoodGuessExportOnly = (setObj?.mode === 'food-guess' || activeQ?.mode === 'food-guess');
-              if ((settings.readAnswer || isLandmarkOrFoodExport || isLingoBiBi) && !isFoodGuessExportOnly && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
+              const isImageGuessExportOnly = (
+                setObj?.mode === 'food-guess' || activeQ?.mode === 'food-guess' || selectedMCQPreset === 'food-guess' ||
+                setObj?.mode === 'animal-guess' || activeQ?.mode === 'animal-guess' || selectedMCQPreset === 'animal-guess' ||
+                setObj?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess' || selectedMCQPreset === 'landmark-guess' ||
+                setObj?.id === 'food-guess' || setObj?.id === 'animal-guess' || setObj?.id === 'landmark-guess'
+              );
+              const isWordGuessExport = (
+                selectedMCQPreset === 'vocab-b1-word-guess' || selectedMCQPreset === 'vocab-image-word-guess' ||
+                setObj?.id === 'vocab-b1-word-guess' || setObj?.mode === 'word-guess' ||
+                activeQ?.mode === 'word-guess' || !!(activeQ && activeQ.word && !activeQ.optionB)
+              );
+              const isVietnamGeoExport = !isImageGuessExportOnly && !isWordGuessExport && (
+                selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+                settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
+                setObj?.id === 'dia-ly-van-hoa-viet-nam' ||
+                setObj?.presetId === 'dia-ly-van-hoa-viet-nam' ||
+                (setObj?.mode === 'vocab-b1-tiktok' && setObj?.id !== 'vocab-b1-word-guess') ||
+                (activeQ?.mode === 'vocab-b1-tiktok' && !activeQ?.word) ||
+                (setObj?.topic && (setObj.topic.toUpperCase().includes('ĐỊA LÝ') || (setObj.topic.toUpperCase().includes('VIỆT NAM') && !setObj.topic.toUpperCase().includes('MÓN ĂN')))) ||
+                (activeQ?.topic && (activeQ.topic.toUpperCase().includes('ĐỊA LÝ') || (activeQ.topic.toUpperCase().includes('VIỆT NAM') && !activeQ.topic.toUpperCase().includes('MÓN ĂN'))))
+              );
+              const isLandmarkOrFoodExport = !isVietnamGeoExport && (setObj?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess');
+              if ((settings.readAnswer || isLandmarkOrFoodExport || isLingoBiBi) && !isImageGuessExportOnly && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
                 const correctKey = (activeQ.correctOption || 'A').toUpperCase();
                 let targetWord = activeQ.landmark || activeQ.dish || activeQ.word || '';
                 if (!targetWord) {
@@ -7668,7 +8634,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
 
       {/* Video Orientation Toggle */}
       <div className="orientation-toggle-bar">
-        <span className="orientation-label">📐 Định dạng video:</span>
+        <span className="orientation-label">Tỷ lệ khung hình:</span>
         <div className="orientation-toggle-group">
           <button
             type="button"
@@ -7681,13 +8647,10 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
               }
             }}
             disabled={isExporting}
-            title="9:16 Shorts / TikTok (1080×1920)"
+            title="9:16 Dọc · Shorts / TikTok (1080×1920)"
           >
-            <span className="orient-icon">📱</span>
-            <span className="orient-text">
-              <strong>9:16 Shorts</strong>
-              <small>1080×1920 · TikTok/Reels</small>
-            </span>
+            <Smartphone size={15} />
+            <span>9:16 Shorts</span>
           </button>
           <button
             type="button"
@@ -7700,13 +8663,10 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
               }
             }}
             disabled={isExporting}
-            title="16:9 YouTube (1920×1080)"
+            title="16:9 Ngang · YouTube (1920×1080)"
           >
-            <span className="orient-icon">🖥️</span>
-            <span className="orient-text">
-              <strong>16:9 YouTube</strong>
-              <small>1920×1080 · Full HD</small>
-            </span>
+            <Monitor size={15} />
+            <span>16:9 YouTube</span>
           </button>
         </div>
       </div>
@@ -7721,7 +8681,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
             onClick={() => setActiveSetIndex(idx)}
             disabled={isExporting}
           >
-            Bộ #{idx + 1}
+            Bộ {idx + 1}
           </button>
         ))}
       </div>
@@ -7746,8 +8706,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           }}
           disabled={isExporting}
         >
-          {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-          {isPlaying ? 'Tạm Dừng' : 'Xem Trực Tiếp'}
+          {isPlaying ? <Pause size={17} /> : <Play size={17} />}
+          <span>{isPlaying ? 'Tạm Dừng' : 'Xem Video'}</span>
         </button>
 
         <button
@@ -7760,7 +8720,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           }}
           disabled={isExporting}
         >
-          <RotateCcw size={18} /> Phổ Lại Từ Đầu
+          <RotateCcw size={16} />
+          <span>Phát Lại</span>
         </button>
 
         {/* Export Selected Set Video */}
@@ -7769,16 +8730,15 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           className="control-btn btn-export-single"
           onClick={handleExportSingleVideo}
           disabled={isExporting}
-          style={{ flex: 1.5, background: isLandscape ? '#7C3AED' : 'var(--primary-blue, #2563EB)', color: '#FFFFFF' }}
         >
-          <Download size={18} />
-          {isExporting ? `Đang Render (${exportProgress}%)...` : `🎬 RENDER ${isLandscape ? '16:9 YouTube' : '9:16 Shorts'} (Bộ #${activeSetIndex + 1})`}
+          <Download size={16} />
+          <span>{isExporting ? `Đang render (${exportProgress}%)...` : `Xuất video (Bộ ${activeSetIndex + 1})`}</span>
         </button>
       </div>
       <div className="canvas-resolution-info">
         {isLandscape
-          ? '🖥️ Xuất video 16:9 · Full HD 1920×1080 · YouTube'
-          : '📱 Xuất video 9:16 · Full HD 1080×1920 · TikTok / Shorts'
+          ? '16:9 · Full HD 1920×1080 · YouTube'
+          : '9:16 · Full HD 1080×1920 · TikTok / Shorts'
         }
       </div>
 

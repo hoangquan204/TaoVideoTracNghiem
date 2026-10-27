@@ -1,81 +1,75 @@
 import React, { useState } from 'react';
 import { MCQ_PRESETS } from '../utils/mcqPresets';
 import {
-  ChevronLeft, ChevronRight, Search, X, Video,
-  Globe, MapPin, Utensils, Flag, Brain, BookOpen,
-  Music, Image, Zap, Users, Star, Leaf
+  ChevronLeft, ChevronRight, Search, X, Video
 } from 'lucide-react';
 
-// Icon mapping for each preset
+// Icon mapping & clean short labels for each preset
 const PRESET_ICONS = {
-  'dia-ly-van-hoa-viet-nam': { icon: '🇻🇳', color: '#DC2626', bg: '#FEE2E2', label: 'Địa lý VN' },
-  'ca-dao-tuc-ngu': { icon: '🌾', color: '#92400E', bg: '#FEF3C7', label: 'Ca Dao' },
-  'vocab-b1-word-guess': { icon: '🔤', color: '#1D4ED8', bg: '#EFF6FF', label: 'Đoán Từ' },
-  'fill-in-blank-b1-tiktok': { icon: '📝', color: '#059669', bg: '#ECFDF5', label: 'Điền Chỗ Trống' },
+  'dia-ly-van-hoa-viet-nam': { icon: '🇻🇳', label: 'Địa Lý & Văn Hóa VN' },
+  'ca-dao-tuc-ngu': { icon: '🌾', label: 'Ca Dao Việt Nam' },
+  'animal-guess': { icon: '🐾', label: 'Đoán Con Vật' },
+  'food-guess': { icon: '🍳', label: 'Đoán Món Ăn' },
+  'landmark-guess': { icon: '🏛️', label: 'Đoán Địa Danh' },
+  'flags': { icon: '🚩', label: 'Đoán Quốc Kỳ' },
+  'vocab-b1-word-guess': { icon: '🔤', label: 'Đoán Ô Chữ B1' },
 };
 
-// Chỉ hiển thị các preset này trong sidebar
-const ALLOWED_PRESET_IDS = new Set([
+// Presets allowed in the sidebar (ordered directly without category header texts)
+const SIDEBAR_PRESET_IDS = [
   'dia-ly-van-hoa-viet-nam',
   'ca-dao-tuc-ngu',
+  'animal-guess',
+  'food-guess',
+  'landmark-guess',
+  'flags',
   'vocab-b1-word-guess',
-  'fill-in-blank-b1-tiktok',
-]);
-
-// Category groupings
-const CATEGORIES = [
-  {
-    id: 'vietnam',
-    title: '🇻🇳 Việt Nam',
-    ids: ['dia-ly-van-hoa-viet-nam', 'ca-dao-tuc-ngu'],
-  },
-  {
-    id: 'vocab',
-    title: '📚 Từ Vựng & Điền Chỗ Trống',
-    ids: ['vocab-b1-word-guess', 'fill-in-blank-b1-tiktok'],
-  },
 ];
 
-export default function Sidebar({ selectedPreset, onSelectPreset, collapsed, onCollapse }) {
+const ALLOWED_PRESET_SET = new Set(SIDEBAR_PRESET_IDS);
+
+export default function Sidebar({
+  selectedPreset,
+  onSelectPreset,
+  collapsed,
+  onCollapse,
+  mobileOpen,
+  onCloseMobile,
+  currentView,
+  onOpenGuide
+}) {
   const [search, setSearch] = useState('');
 
   const filteredPresets = search.trim()
     ? MCQ_PRESETS.filter(p =>
-      ALLOWED_PRESET_IDS.has(p.id) && (
+      ALLOWED_PRESET_SET.has(p.id) && (
         p.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.badge && p.badge.toLowerCase().includes(search.toLowerCase()))
+        (p.badge && p.badge.toLowerCase().includes(search.toLowerCase())) ||
+        (PRESET_ICONS[p.id]?.label && PRESET_ICONS[p.id].label.toLowerCase().includes(search.toLowerCase()))
       )
     )
     : null;
 
+  const handleItemClick = (presetId) => {
+    onSelectPreset(presetId);
+    if (onCloseMobile) onCloseMobile();
+  };
+
   const renderPresetItem = (preset) => {
-    const info = PRESET_ICONS[preset.id] || { icon: '🎬', color: '#64748B', bg: '#F1F5F9', label: '' };
-    const isActive = selectedPreset === preset.id;
+    const info = PRESET_ICONS[preset.id] || { icon: '🎬', label: preset.badge || preset.name };
+    const isActive = selectedPreset === preset.id && currentView !== 'guide';
 
     return (
       <button
         key={preset.id}
         id={`sidebar-preset-${preset.id}`}
         className={`sidebar-menu-item ${isActive ? 'active' : ''}`}
-        onClick={() => onSelectPreset(preset.id)}
-        title={collapsed ? preset.name : undefined}
+        onClick={() => handleItemClick(preset.id)}
+        title={preset.name}
       >
-        <div className="menu-item-icon-wrapper">
-          <span
-            className="menu-item-emoji-badge"
-            style={{
-              background: isActive ? info.color : info.bg,
-              color: isActive ? '#FFF' : info.color,
-            }}
-          >
-            {info.icon}
-          </span>
-        </div>
+        <span className="menu-item-emoji">{info.icon}</span>
         {!collapsed && (
-          <div className="menu-item-content">
-            <span className="menu-item-name">{preset.badge || preset.name}</span>
-            <span className="menu-item-sub">{info.label}</span>
-          </div>
+          <span className="menu-item-name">{info.label || preset.badge || preset.name}</span>
         )}
         {!collapsed && isActive && (
           <span className="menu-item-active-dot" />
@@ -84,82 +78,83 @@ export default function Sidebar({ selectedPreset, onSelectPreset, collapsed, onC
     );
   };
 
-  return (
-    <aside className={`app-sidebar video-type-sidebar ${collapsed ? 'collapsed' : ''}`}>
-      {/* Header */}
-      <div className="sidebar-header">
-        {!collapsed && (
-          <div className="sidebar-title-box">
-            <Video size={16} className="sidebar-header-icon" />
-            <div className="sidebar-header-text">
-              <span className="sidebar-header-title">DẠNG VIDEO</span>
-              <span className="sidebar-header-count">{ALLOWED_PRESET_IDS.size} loại</span>
-            </div>
-          </div>
-        )}
-        <button
-          className="sidebar-collapse-toggle"
-          onClick={() => onCollapse(!collapsed)}
-          title={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
-        >
-          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
-      </div>
+  const defaultPresets = SIDEBAR_PRESET_IDS
+    .map(id => MCQ_PRESETS.find(p => p.id === id))
+    .filter(Boolean);
 
-      {/* Search */}
-      {!collapsed && (
-        <div className="sidebar-search-wrapper">
+  return (
+    <>
+      {/* Mobile backdrop overlay */}
+      {mobileOpen && (
+        <div
+          className="sidebar-mobile-backdrop"
+          onClick={onCloseMobile}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside className={`app-sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
+        {/* Header */}
+        <div className="sidebar-header">
+          {!collapsed && (
+            <div className="sidebar-title-box">
+              <Video size={16} className="sidebar-header-icon" />
+              <span className="sidebar-header-title">DẠNG VIDEO</span>
+            </div>
+          )}
+
+          {/* Desktop collapse toggle */}
+          <button
+            type="button"
+            className="sidebar-collapse-toggle desktop-toggle"
+            onClick={() => onCollapse(!collapsed)}
+            title={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+          >
+            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
+
+          {/* Mobile close button */}
+          <button
+            type="button"
+            className="sidebar-mobile-close-btn"
+            onClick={onCloseMobile}
+            title="Đóng danh mục"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Search */}
+        {!collapsed && (
           <div className="sidebar-search-box">
-            <Search size={14} className="sidebar-search-icon" />
+            <Search size={14} className="search-icon" />
             <input
               type="text"
-              className="sidebar-search-input"
+              className="search-input"
               placeholder="Tìm dạng video..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
             {search && (
-              <button className="sidebar-search-clear" onClick={() => setSearch('')}>
+              <button
+                type="button"
+                className="search-clear-btn"
+                onClick={() => setSearch('')}
+                title="Xóa tìm kiếm"
+              >
                 <X size={12} />
               </button>
             )}
           </div>
-        </div>
-      )}
-
-      {/* Nav */}
-      <nav className="sidebar-nav-container">
-        {filteredPresets ? (
-          // Filtered results
-          <div className="sidebar-menu-list">
-            {filteredPresets.length > 0
-              ? filteredPresets.map(renderPresetItem)
-              : <div className="sidebar-empty-msg">Không tìm thấy dạng video</div>
-            }
-          </div>
-        ) : (
-          // Category grouped
-          CATEGORIES.map(cat => {
-            const catPresets = cat.ids
-              .map(id => MCQ_PRESETS.find(p => p.id === id))
-              .filter(Boolean);
-            if (!catPresets.length) return null;
-            return (
-              <div key={cat.id} className="sidebar-category">
-                {!collapsed && (
-                  <div className="sidebar-category-header">
-                    <span className="category-header-title">{cat.title}</span>
-                    <span className="category-item-count">{catPresets.length}</span>
-                  </div>
-                )}
-                <div className="sidebar-menu-list">
-                  {catPresets.map(renderPresetItem)}
-                </div>
-              </div>
-            );
-          })
         )}
-      </nav>
-    </aside>
+
+        {/* Navigation list: Direct menu items without category header lines */}
+        <nav className="sidebar-nav">
+          <div className="sidebar-menu-list">
+            {(filteredPresets || defaultPresets).map(renderPresetItem)}
+          </div>
+        </nav>
+      </aside>
+    </>
   );
 }

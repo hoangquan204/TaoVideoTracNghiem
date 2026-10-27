@@ -1,0 +1,54 @@
+{
+  "title": "Mẫu JSON Đoán Ô Chữ B1 Tiếng Anh (Word Guess)",
+  "description": "Mẫu câu hỏi dành cho dạng video Đoán Ô Chữ B1 (16:9 Landscape & 9:16 Shorts)",
+  "mode": "word-guess",
+  "sets": [
+    {
+      "name": "Bộ 1: Đoán Ô Chữ B1 - Từ Vựng Thông Dụng",
+      "topic": "ĐOÁN Ô CHỮ B1",
+      "mode": "word-guess",
+      "questions": [
+        {
+          "question": "Cân bằng, sự thăng bằng",
+          "word": "BALANCE",
+          "ipa": "/ˈbæl.əns/",
+          "explanation": "Balance (n/v): Cân bằng, sự thăng bằng giữa các yếu tố.",
+          "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800",
+          "mode": "word-guess"
+        },
+        {
+          "question": "Sự dũng cảm, can đảm",
+          "word": "COURAGE",
+          "ipa": "/ˈkʌr.ɪdʒ/",
+          "explanation": "Courage (n): Lòng can đảm, sự dũng cảm đối mặt hiểm nguy.",
+          "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800",
+          "mode": "word-guess"
+        },
+        {
+          "question": "Thành công, thắng lợi",
+          "word": "SUCCESS",
+          "ipa": "/səkˈses/",
+          "explanation": "Success (n): Thành công, đạt được mục tiêu mong muốn.",
+          "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800",
+          "mode": "word-guess"
+        },
+        {
+          "question": "Tự do, sự độc lập",
+          "word": "FREEDOM",
+          "ipa": "/ˈfriː.dəm/",
+          "explanation": "Freedom (n): Tự do, quyền tự quyết không bị ràng buộc.",
+          "image": "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800",
+          "mode": "word-guess"
+        },
+        {
+          "question": "Kiên nhẫn, nhẫn nại",
+          "word": "PATIENCE",
+          "ipa": "/ˈpeɪ.ʃəns/",
+          "explanation": "Patience (n): Lòng kiên nhẫn, khả năng chờ đợi bình tĩnh.",
+          "image": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800",
+          "mode": "word-guess"
+        }
+      ]
+    }
+  ]
+}

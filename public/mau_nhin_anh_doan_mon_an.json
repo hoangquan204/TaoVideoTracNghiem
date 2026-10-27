@@ -1,96 +1,264 @@
 [
   {
-    "name": "🍳 Bộ 1: Món Ăn Việt Nam Truyền Thống",
+    "name": "🇻🇳 Bộ 1: Món Ăn Việt Nam Truyền Thống",
     "topic": "🍳 ĐOÁN MÓN ĂN",
     "fromFlag": "🇻🇳",
     "toFlag": "🍽️",
     "headerTitle": "ĐÂY LÀ MÓN GÌ?",
     "mode": "food-guess",
+    "guessTime": 3,
     "questions": [
       {
         "question": "Đây là món gì?",
-        "word": "Phở Bò",
-        "optionA": "Phở Bò",
         "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=1200&q=80",
-        "explanation": "Phở Bò 🇻🇳 - Quốc hồn quốc túy ẩm thực Việt Nam với nước dùng thơm ngon đậm đà!",
+        "optionA": "Phở Bò",
+        "optionB": "Hủ Tiếu Nam Vang",
+        "optionC": "Bún Bò Huế",
+        "optionD": "Mì Quảng",
+        "correctOption": "A",
+        "explanation": "Phở Bò 🇻🇳 - Tinh hoa ẩm thực Việt với nước dùng thanh ngọt thơm nức hương quế hồi!",
         "mode": "food-guess"
       },
       {
         "question": "Đây là món gì?",
-        "word": "Bánh Mì",
-        "optionA": "Bánh Mì",
-        "image": "https://images.unsplash.com/photo-1539252554756-4d7f6e6d70e1?w=1200&q=80",
-        "explanation": "Bánh Mì Việt Nam 🥖 - Được CNN bình chọn là 1 trong 23 món ăn ngon nhất thế giới!",
+        "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=1200&q=80",
+        "optionA": "Sandwich kẹp thịt",
+        "optionB": "Bánh Mì Việt Nam",
+        "optionC": "Bánh Hot Dog",
+        "optionD": "Bánh Taco",
+        "correctOption": "B",
+        "explanation": "Bánh Mì 🥖 - Món ăn đường phố trứ danh lọt top những món bánh kẹp ngon nhất thế giới!",
         "mode": "food-guess"
       },
       {
         "question": "Đây là món gì?",
-        "word": "Bún Chả",
-        "optionA": "Bún Chả",
         "image": "https://images.unsplash.com/photo-1569360017657-6a7ef0ab0697?w=1200&q=80",
-        "explanation": "Bún Chả Hà Nội 🍜 - Món ngon Hà Thành nổi tiếng cả thế giới qua bữa ăn của Obama!",
+        "optionA": "Bún Thịt Nướng",
+        "optionB": "Bún Đậu Mắm Tôm",
+        "optionC": "Bún Chả Hà Nội",
+        "optionD": "Bún Riêu Cua",
+        "correctOption": "C",
+        "explanation": "Bún Chả Hà Nội 🍜 - Chả nướng than hoa thơm lừng ăn kèm nước chấm chua ngọt trứ danh!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1200&q=80",
+        "optionA": "Cơm Gà Hội An",
+        "optionB": "Cơm Rang Dưa Bò",
+        "optionC": "Cơm Tấm Sài Gòn",
+        "optionD": "Cơm Niêu",
+        "correctOption": "C",
+        "explanation": "Cơm Tấm 🍛 - Nét đặc trưng ẩm thực Sài Gòn với sườn nướng mật ong và chả trứng béo ngậy!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=1200&q=80",
+        "optionA": "Bánh Khọt",
+        "optionB": "Bánh Xèo Nam Bộ",
+        "optionC": "Bánh Canh Cua",
+        "optionD": "Bánh Cuốn Nóng",
+        "correctOption": "B",
+        "explanation": "Bánh Xèo 🥞 - Vỏ bánh vàng ươm giòn tan bọc nhân tôm thịt giá đỗ cuốn rau rừng thanh mát!",
         "mode": "food-guess"
       }
     ]
   },
   {
-    "name": "🌮 Bộ 2: Ẩm Thực Quốc Tế",
+    "name": "🍜 Bộ 2: Đặc Sản Vùng Miền Đậm Đà",
+    "topic": "🍳 ĐOÁN MÓN ĂN",
+    "fromFlag": "🇻🇳",
+    "toFlag": "🍲",
+    "headerTitle": "ĐÂY LÀ MÓN GÌ?",
+    "mode": "food-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1544025162-d76694265947?w=1200&q=80",
+        "optionA": "Nem Rán",
+        "optionB": "Gỏi Cuốn Tôm Thịt",
+        "optionC": "Chả Giò Rế",
+        "optionD": "Bánh Cuốn",
+        "correctOption": "B",
+        "explanation": "Gỏi Cuốn 🥗 - Món cuốn thanh đạm với tôm thịt và rau thơm chấm sốt tương đậu phộng!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1576777647209-e8733d9b85c3?w=1200&q=80",
+        "optionA": "Bún Thang",
+        "optionB": "Bún Cá Hải Phòng",
+        "optionC": "Bún Bò Huế",
+        "optionD": "Mì Vịt Tiềm",
+        "correctOption": "C",
+        "explanation": "Bún Bò Huế 🍲 - Vị cay nồng quyến rũ cùng hương sả ruốc đặc trưng của đất Thần Kinh!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1555126634-323283e090fa?w=1200&q=80",
+        "optionA": "Bánh Nậm",
+        "optionB": "Bánh Bèo Chén",
+        "optionC": "Bánh Bột Lọc",
+        "optionD": "Bánh Đúc Nóng",
+        "correctOption": "B",
+        "explanation": "Bánh Bèo 🥣 - Bánh bột gạo mềm mướt rắc tôm chấy, tóp mỡ giòn chan nước mắm nhĩ ớt tươi!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1559847844-5315695dadae?w=1200&q=80",
+        "optionA": "Cao Lầu",
+        "optionB": "Hủ Tiếu",
+        "optionC": "Mì Quảng",
+        "optionD": "Miến Lươn",
+        "correctOption": "C",
+        "explanation": "Mì Quảng 🍜 - Đậm đà phong vị xứ Quảng với tôm thịt, bánh tráng mè nướng và rau sống bắp chuối!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=1200&q=80",
+        "optionA": "Sữa Chua Nếp Cẩm",
+        "optionB": "Tàu Hũ Đường",
+        "optionC": "Chè Ba Màu",
+        "optionD": "Trà Sữa Trân Châu",
+        "correctOption": "C",
+        "explanation": "Chè Ba Màu 🍧 - Món ngọt giải nhiệt tuổi thơ với đậu xanh, đậu đỏ, thạch lá dứa và nước cốt dừa!",
+        "mode": "food-guess"
+      }
+    ]
+  },
+  {
+    "name": "🍣 Bộ 3: Ẩm Thực Châu Á Nổi Tiếng",
+    "topic": "🍳 ĐOÁN MÓN ĂN",
+    "fromFlag": "🌏",
+    "toFlag": "🍱",
+    "headerTitle": "ĐÂY LÀ MÓN GÌ?",
+    "mode": "food-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1200&q=80",
+        "optionA": "Sashimi Cá Hồi",
+        "optionB": "Sushi Nhật Bản",
+        "optionC": "Kimbap Rong Biển",
+        "optionD": "Onigiri Cơm Nắm",
+        "correctOption": "B",
+        "explanation": "Sushi 🍣 - Đỉnh cao ẩm thực Nhật Bản với cơm dấm và hải sản tươi sống hảo hạng!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=1200&q=80",
+        "optionA": "Mì Ramen Nhật Bản",
+        "optionB": "Mì Udon Nóng",
+        "optionC": "Mì Soba Kiều Mạch",
+        "optionD": "Mì Trộn Tương Đen",
+        "correctOption": "A",
+        "explanation": "Ramen 🍜 - Món mì quốc dân xứ Phù Tang với nước dùng hầm xương Tonkotsu béo ngậy!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=1200&q=80",
+        "optionA": "Bánh Bao Xá Xíu",
+        "optionB": "Dimsum Há Cảo",
+        "optionC": "Sủi Cảo Hấp",
+        "optionD": "Bánh Xếp Chiên",
+        "correctOption": "B",
+        "explanation": "Dimsum 🥟 - Nét ẩm thực điểm tâm tinh tế lừng danh của người Quảng Đông!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1559847844-5315695dadae?w=1200&q=80",
+        "optionA": "Mì Xào Giòn",
+        "optionB": "Bún Singapore",
+        "optionC": "Pad Thai Xứ Chùa Vàng",
+        "optionD": "Miến Xào Cua",
+        "correctOption": "C",
+        "explanation": "Pad Thai 🇹🇭 - Món phở xào chua cay ngọt đặc trưng đất nước Thái Lan!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1553163147-622ab57be1c7?w=1200&q=80",
+        "optionA": "Cơm Trộn Bibimbap",
+        "optionB": "Cơm Chiên Kimchi",
+        "optionC": "Kimbap Cuốn",
+        "optionD": "Tokbokki Sốt Cay",
+        "correctOption": "A",
+        "explanation": "Bibimbap 🍚 - Cơm trộn thố đá Hàn Quốc rực rỡ sắc màu với sốt tương ớt Gochujang!",
+        "mode": "food-guess"
+      }
+    ]
+  },
+  {
+    "name": "🍕 Bộ 4: Ẩm Thực Phương Tây Trứ Danh",
     "topic": "🍳 ĐOÁN MÓN ĂN",
     "fromFlag": "🌍",
-    "toFlag": "🍽️",
+    "toFlag": "🧀",
     "headerTitle": "ĐÂY LÀ MÓN GÌ?",
     "mode": "food-guess",
+    "guessTime": 3,
     "questions": [
       {
         "question": "Đây là món gì?",
-        "word": "Sushi",
-        "optionA": "Sushi",
-        "image": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1200&q=80",
-        "explanation": "Sushi 🇯🇵 - Nghệ thuật ẩm thực Nhật Bản tinh tế với cơm dấm và cá tươi ngon!",
+        "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&q=80",
+        "optionA": "Bánh Tart Nướng",
+        "optionB": "Pizza Nước Ý",
+        "optionC": "Bánh Mì Tỏi",
+        "optionD": "Bánh Quiche",
+        "correctOption": "B",
+        "explanation": "Pizza 🍕 - Món bánh tròn nướng củi lừng danh với phô mai Mozzarella dẻo béo thơm lừng!",
         "mode": "food-guess"
       },
       {
         "question": "Đây là món gì?",
-        "word": "Pizza",
-        "optionA": "Pizza",
-        "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=80",
-        "explanation": "Pizza 🇮🇹 - Món ăn biểu tượng nước Ý được yêu thích trên toàn thế giới!",
+        "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80",
+        "optionA": "Hamburger Bò Mỹ",
+        "optionB": "Bánh Kẹp Hot Dog",
+        "optionC": "Sandwich Thịt Nguội",
+        "optionD": "Bánh Taco Mexico",
+        "correctOption": "A",
+        "explanation": "Burger 🍔 - Món ăn nhanh kinh điển nước Mỹ với miếng bò nướng mọng nước và sốt đậm đà!",
         "mode": "food-guess"
-      }
-    ]
-  },
-  {
-    "name": "🍰 Bộ 3: Món Tráng Miệng & Bánh Ngọt",
-    "topic": "🍳 ĐOÁN MÓN ĂN",
-    "fromFlag": "🍰",
-    "toFlag": "🍽️",
-    "headerTitle": "ĐÂY LÀ MÓN GÌ?",
-    "mode": "food-guess",
-    "questions": [
+      },
       {
         "question": "Đây là món gì?",
-        "word": "Chè Thái",
-        "optionA": "Chè Thái",
-        "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80",
-        "explanation": "Chè Thái 🇹🇭 - Món tráng miệng nhiều màu sắc rực rỡ với dừa và đậu đủ loại!",
+        "image": "https://images.unsplash.com/photo-1621996346565-e3d5d6281699?w=1200&q=80",
+        "optionA": "Mì Lasagna",
+        "optionB": "Mì Ý Spaghetti Bò Bằm",
+        "optionC": "Mì Penne Sốt Kem",
+        "optionD": "Mì Macaroni Phô Mai",
+        "correctOption": "B",
+        "explanation": "Spaghetti 🍝 - Mì Ý sốt Bolognese cà chua thịt bò bằm rắc phô mai Parmesan béo ngậy!",
         "mode": "food-guess"
-      }
-    ]
-  },
-  {
-    "name": "🥗 Bộ 4: Món Ăn Healthy",
-    "topic": "🍳 ĐOÁN MÓN ĂN",
-    "fromFlag": "🥗",
-    "toFlag": "🍽️",
-    "headerTitle": "ĐÂY LÀ MÓN GÌ?",
-    "mode": "food-guess",
-    "questions": [
+      },
       {
         "question": "Đây là món gì?",
-        "word": "Gỏi Cuốn",
-        "optionA": "Gỏi Cuốn",
-        "image": "https://images.unsplash.com/photo-1540189549336-e6e99eb4b45b?w=1200&q=80",
-        "explanation": "Gỏi Cuốn 🇻🇳 - Món ăn healthy của Việt Nam được du khách nước ngoài yêu thích!",
+        "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1200&q=80",
+        "optionA": "Bánh Mì Baguette",
+        "optionB": "Bánh Donut Vòng",
+        "optionC": "Bánh Sừng Bò Croissant",
+        "optionD": "Bánh Su Kem",
+        "correctOption": "C",
+        "explanation": "Croissant 🥐 - Biểu tượng bữa sáng thanh lịch nước Pháp với lớp vỏ ngàn lớp giòn xốp!",
+        "mode": "food-guess"
+      },
+      {
+        "question": "Đây là món gì?",
+        "image": "https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80",
+        "optionA": "Sườn Nướng BBQ",
+        "optionB": "Bò Bít Tết Beefsteak",
+        "optionC": "Thịt Xông Khói",
+        "optionD": "Cừu Nướng Thảo Mộc",
+        "correctOption": "B",
+        "explanation": "Beefsteak 🥩 - Thăn bò hảo hạng áp chảo mềm mọng đạt độ chín hoàn hảo cùng sốt tiêu đen!",
         "mode": "food-guess"
       }
     ]

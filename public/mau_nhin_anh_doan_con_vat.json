@@ -1,0 +1,267 @@
+[
+  {
+    "name": "🦁 Bộ 1: Động Vật Hoang Dã Châu Phi",
+    "topic": "🐾 ĐOÁN CON VẬT",
+    "fromFlag": "🐾",
+    "toFlag": "🦁",
+    "headerTitle": "ĐÂY LÀ CON GÌ?",
+    "mode": "animal-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=1200&q=80",
+        "optionA": "Sư tử",
+        "optionB": "Báo hoa mai",
+        "optionC": "Hổ Bengal",
+        "optionD": "Linh cẩu",
+        "correctOption": "A",
+        "explanation": "Sư tử 🦁 - Chúa tể thảo nguyên châu Phi với tiếng gầm uy lực vang xa tới 8km!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=1200&q=80",
+        "optionA": "Hà mã",
+        "optionB": "Voi Châu Phi",
+        "optionC": "Tê giác",
+        "optionD": "Lạc đà",
+        "correctOption": "B",
+        "explanation": "Voi Châu Phi 🐘 - Động vật trên cạn lớn nhất hành tinh sở hữu đôi tai và ngà khổng lồ!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=1200&q=80",
+        "optionA": "Ngựa vằn",
+        "optionB": "Linh dương",
+        "optionC": "Hươu cao cổ",
+        "optionD": "Đà điểu",
+        "correctOption": "C",
+        "explanation": "Hươu cao cổ 🦒 - Loài động vật cao nhất thế giới với chiếc cổ dài tới 2 mét!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1501706362039-c06b2d715385?w=1200&q=80",
+        "optionA": "Ngựa hoang",
+        "optionB": "Lừa rừng",
+        "optionC": "Ngựa vằn",
+        "optionD": "Báo săn gê-pa",
+        "correctOption": "C",
+        "explanation": "Ngựa vằn 🦓 - Mỗi cá thể ngựa vằn đều mang bộ sọc đen trắng độc nhất vô nhị!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1456926631375-92c8ce872def?w=1200&q=80",
+        "optionA": "Báo hoa mai",
+        "optionB": "Mèo rừng",
+        "optionC": "Chó sói",
+        "optionD": "Cáo đỏ",
+        "correctOption": "A",
+        "explanation": "Báo hoa mai 🐆 - Bậc thầy săn mồi với khả năng leo trèo và tha mồi lên cây tuyệt đỉnh!",
+        "mode": "animal-guess"
+      }
+    ]
+  },
+  {
+    "name": "🐯 Bộ 2: Động Vật Rừng Nhiệt Đới & Châu Á",
+    "topic": "🐾 ĐOÁN CON VẬT",
+    "fromFlag": "🐾",
+    "toFlag": "🐯",
+    "headerTitle": "ĐÂY LÀ CON GÌ?",
+    "mode": "animal-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=1200&q=80",
+        "optionA": "Sư tử",
+        "optionB": "Hổ Bengal",
+        "optionC": "Báo đốm",
+        "optionD": "Mèo gấm",
+        "correctOption": "B",
+        "explanation": "Hổ Bengal 🐯 - Loài thú săn mồi dũng mãnh và là biểu tượng sức mạnh của rừng xanh!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1564349683136-77e08dba1ef6?w=1200&q=80",
+        "optionA": "Gấu đen",
+        "optionB": "Gấu trúc lớn",
+        "optionC": "Gấu túi Koala",
+        "optionD": "Chồn hương",
+        "correctOption": "B",
+        "explanation": "Gấu trúc 🐼 - Bảo vật quốc gia của Trung Quốc với sở thích ăn lá tre trúc cả ngày!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=1200&q=80",
+        "optionA": "Đười ươi",
+        "optionB": "Vượn đen",
+        "optionC": "Khỉ đột Gorilla",
+        "optionD": "Tinh tinh",
+        "correctOption": "C",
+        "explanation": "Khỉ đột Gorilla 🦍 - Động vật linh trưởng lớn nhất thế giới với cơ bắp cuồn cuộn!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1534177616072-ef7dc120449d?w=1200&q=80",
+        "optionA": "Tê giác",
+        "optionB": "Bò tót",
+        "optionC": "Hà mã",
+        "optionD": "Heo vòi",
+        "correctOption": "A",
+        "explanation": "Tê giác 🦏 - Sinh vật khổng lồ có lớp da giáp dày dặn và chiếc sừng kiên cố bảo vệ!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=1200&q=80",
+        "optionA": "Thỏ rừng",
+        "optionB": "Chuột túi Kangaroo",
+        "optionC": "Chó Dingo",
+        "optionD": "Chồn túi",
+        "correctOption": "B",
+        "explanation": "Chuột túi Kangaroo 🦘 - Biểu tượng của nước Úc với những cú nhảy xa thần tốc tới 9m!",
+        "mode": "animal-guess"
+      }
+    ]
+  },
+  {
+    "name": "🐬 Bộ 3: Động Vật Đại Dương Kỳ Thú",
+    "topic": "🐾 ĐOÁN CON VẬT",
+    "fromFlag": "🐾",
+    "toFlag": "🐬",
+    "headerTitle": "ĐÂY LÀ CON GÌ?",
+    "mode": "animal-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1607153333879-c1a05825843d?w=1200&q=80",
+        "optionA": "Cá mập",
+        "optionB": "Cá heo",
+        "optionC": "Cá voi sát thủ",
+        "optionD": "Cá ngừ đại dương",
+        "correctOption": "B",
+        "explanation": "Cá heo 🐬 - Sinh vật biển cực kỳ thông minh, giao tiếp và định vị bằng sóng siêu âm!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1598439210625-5067c578f3f6?w=1200&q=80",
+        "optionA": "Vịt biển",
+        "optionB": "Hải âu",
+        "optionC": "Chim cánh cụt",
+        "optionD": "Bồ nông",
+        "correctOption": "C",
+        "explanation": "Chim cánh cụt 🐧 - Loài chim chịu rét giỏi nhất, bơi lội lướt sóng điệu nghệ ở Nam Cực!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80",
+        "optionA": "Rùa biển",
+        "optionB": "Ba ba",
+        "optionC": "Kỳ đà",
+        "optionD": "Hải cẩu",
+        "correctOption": "A",
+        "explanation": "Rùa biển 🐢 - Hóa thạch sống của đại dương có thể sống thọ hơn 100 năm!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1568430462989-44163eb1752f?w=1200&q=80",
+        "optionA": "Cá mập trắng",
+        "optionB": "Cá voi xanh",
+        "optionC": "Cá đuối khổng lồ",
+        "optionD": "Cá nhà táng",
+        "correctOption": "B",
+        "explanation": "Cá voi xanh 🐋 - Động vật lớn nhất lịch sử Trái Đất với quả tim to bằng một chiếc ô tô!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1545671913-b89ac1b4ac10?w=1200&q=80",
+        "optionA": "Mực ống",
+        "optionB": "Mực nang",
+        "optionC": "Bạch tuộc",
+        "optionD": "Sứa lửa",
+        "correctOption": "C",
+        "explanation": "Bạch tuộc 🐙 - Sinh vật có 3 trái tim, máu xanh lam và khả năng đổi màu ngụy trang tức thì!",
+        "mode": "animal-guess"
+      }
+    ]
+  },
+  {
+    "name": "🐻‍❄️ Bộ 4: Động Vật Vùng Băng Tuyết & Sa Mạc",
+    "topic": "🐾 ĐOÁN CON VẬT",
+    "fromFlag": "🐾",
+    "toFlag": "🦅",
+    "headerTitle": "ĐÂY LÀ CON GÌ?",
+    "mode": "animal-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=1200&q=80",
+        "optionA": "Gấu xám",
+        "optionB": "Gấu Bắc Cực",
+        "optionC": "Chó tuyết Husky",
+        "optionD": "Cáo tuyết",
+        "correctOption": "B",
+        "explanation": "Gấu Bắc Cực 🐻‍❄️ - Thợ săn băng tuyết với bộ lông dày cách nhiệt tuyệt hảo!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&q=80",
+        "optionA": "Lạc đà",
+        "optionB": "Ngựa sa mạc",
+        "optionC": "Dê núi",
+        "optionD": "Bò xạ hương",
+        "correctOption": "A",
+        "explanation": "Lạc đà 🐪 - Chiến binh sa mạc có thể đi bộ hàng trăm dặm mà không cần uống nước!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?w=1200&q=80",
+        "optionA": "Kền kền",
+        "optionB": "Chim ưng",
+        "optionC": "Đại bàng đầu trắng",
+        "optionD": "Cú mèo",
+        "correctOption": "C",
+        "explanation": "Đại bàng đầu trắng 🦅 - Biểu tượng của sức mạnh tự do với thị lực siêu phàm gấp 8 lần người!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1497206365907-f5e630693df0?w=1200&q=80",
+        "optionA": "Cò trắng",
+        "optionB": "Chim hồng hạc",
+        "optionC": "Sếu đầu đỏ",
+        "optionD": "Thiên nga",
+        "correctOption": "B",
+        "explanation": "Hồng hạc 🦩 - Nổi tiếng với sắc lông hồng quyến rũ và dáng đứng một chân thanh thoát!",
+        "mode": "animal-guess"
+      },
+      {
+        "question": "Đây là con gì?",
+        "image": "https://images.unsplash.com/photo-1516934024742-b461fba47600?w=1200&q=80",
+        "optionA": "Chó sói xám",
+        "optionB": "Cáo đỏ",
+        "optionC": "Linh cẩu",
+        "optionD": "Chồn đuôi đỏ",
+        "correctOption": "B",
+        "explanation": "Cáo đỏ 🦊 - Sinh vật lanh lợi, thông minh với chiếc đuôi bông xù giữ ấm mùa đông!",
+        "mode": "animal-guess"
+      }
+    ]
+  }
+]
+

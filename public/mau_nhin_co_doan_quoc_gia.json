@@ -1,0 +1,267 @@
+[
+  {
+    "name": "🌏 Bộ 1: Quốc Kỳ Các Nước Đông Nam Á",
+    "topic": "🚩 ĐOÁN QUỐC KỲ",
+    "fromFlag": "🚩",
+    "toFlag": "🌏",
+    "headerTitle": "ĐÂY LÀ QUỐC KỲ CỦA NƯỚC NÀO?",
+    "mode": "flags",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/vn.png",
+        "optionA": "Việt Nam",
+        "optionB": "Trung Quốc",
+        "optionC": "Ma-rốc",
+        "optionD": "Thổ Nhĩ Kỳ",
+        "correctOption": "A",
+        "explanation": "Việt Nam 🇻🇳 - Cờ đỏ sao vàng năm cánh tượng trưng cho tinh thần đại đoàn kết toàn dân tộc!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/th.png",
+        "optionA": "Lào",
+        "optionB": "Thái Lan",
+        "optionC": "Costa Rica",
+        "optionD": "Campuchia",
+        "correctOption": "B",
+        "explanation": "Thái Lan 🇹🇭 - Cờ Trairanga gồm ba màu đỏ (dân tộc), trắng (tôn giáo) và xanh lam (hoàng gia)!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/sg.png",
+        "optionA": "Indonesia",
+        "optionB": "Monaco",
+        "optionC": "Singapore",
+        "optionD": "Ba Lan",
+        "correctOption": "C",
+        "explanation": "Singapore 🇸🇬 - Trăng lưỡi liềm trắng tượng trưng quốc gia trẻ đang vươn lên cùng 5 ngôi sao đức hạnh!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/id.png",
+        "optionA": "Indonesia",
+        "optionB": "Ba Lan",
+        "optionC": "Monaco",
+        "optionD": "Nước Áo",
+        "correctOption": "A",
+        "explanation": "Indonesia 🇮🇩 - Quốc kỳ Sang Saka Merah-Putih gồm hai dải ngang màu đỏ dũng cảm và trắng thuần khiết!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/my.png",
+        "optionA": "Hoa Kỳ",
+        "optionB": "Liberia",
+        "optionC": "Malaysia",
+        "optionD": "Philippines",
+        "correctOption": "C",
+        "explanation": "Malaysia 🇲🇾 - Cờ Jalur Gemilang gồm 14 sọc đỏ trắng xen kẽ và biểu tượng trăng sao 14 cánh!",
+        "mode": "flags"
+      }
+    ]
+  },
+  {
+    "name": "🏯 Bộ 2: Quốc Kỳ Các Cường Quốc Châu Á",
+    "topic": "🚩 ĐOÁN QUỐC KỲ",
+    "fromFlag": "🚩",
+    "toFlag": "🏯",
+    "headerTitle": "ĐÂY LÀ QUỐC KỲ CỦA NƯỚC NÀO?",
+    "mode": "flags",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/jp.png",
+        "optionA": "Hàn Quốc",
+        "optionB": "Nhật Bản",
+        "optionC": "Bangladesh",
+        "optionD": "Palau",
+        "correctOption": "B",
+        "explanation": "Nhật Bản 🇯🇵 - Cờ Nisshōki với vầng thái dương đỏ rực, biểu tượng Xứ sở Mặt Trời Mọc!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/kr.png",
+        "optionA": "Triều Tiên",
+        "optionB": "Mông Cổ",
+        "optionC": "Hàn Quốc",
+        "optionD": "Đài Loan",
+        "correctOption": "C",
+        "explanation": "Hàn Quốc 🇰🇷 - Cờ Taegeukgi chứa vòng tròn âm dương hài hòa cùng 4 quẻ Bát quái!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/cn.png",
+        "optionA": "Việt Nam",
+        "optionB": "Trung Quốc",
+        "optionC": "Liên Xô",
+        "optionD": "Triều Tiên",
+        "correctOption": "B",
+        "explanation": "Trung Quốc 🇨🇳 - Cờ ngũ tinh hồng kỳ với ngôi sao lớn và bốn ngôi sao nhỏ bao quanh!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/in.png",
+        "optionA": "Ấn Độ",
+        "optionB": "Ireland",
+        "optionC": "Niger",
+        "optionD": "Nước Ý",
+        "correctOption": "A",
+        "explanation": "Ấn Độ 🇮🇳 - Ba dải ngang màu nghệ, trắng, xanh và bánh xe pháp luân Ashoka Chakra ở trung tâm!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/ae.png",
+        "optionA": "Jordan",
+        "optionB": "Kuwait",
+        "optionC": "UAE (Ả Rập Thống Nhất)",
+        "optionD": "Palestine",
+        "correctOption": "C",
+        "explanation": "UAE 🇦🇪 - Bốn sắc màu toàn Ả Rập đỏ, xanh lá, trắng và đen thể hiện sự phồn vinh và đoàn kết!",
+        "mode": "flags"
+      }
+    ]
+  },
+  {
+    "name": "🏰 Bộ 3: Quốc Kỳ Các Quốc Gia Châu Âu",
+    "topic": "🚩 ĐOÁN QUỐC KỲ",
+    "fromFlag": "🚩",
+    "toFlag": "🏰",
+    "headerTitle": "ĐÂY LÀ QUỐC KỲ CỦA NƯỚC NÀO?",
+    "mode": "flags",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/fr.png",
+        "optionA": "Hà Lan",
+        "optionB": "Nước Pháp",
+        "optionC": "Nước Nga",
+        "optionD": "Luxembourg",
+        "correctOption": "B",
+        "explanation": "Nước Pháp 🇫🇷 - Cờ Tam tài ba dải dọc xanh lam, trắng và đỏ: Tự do - Bình đẳng - Bác ái!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/de.png",
+        "optionA": "Nước Bỉ",
+        "optionB": "Nước Đức",
+        "optionC": "Nước Áo",
+        "optionD": "Thụy Sĩ",
+        "correctOption": "B",
+        "explanation": "Nước Đức 🇩🇪 - Ba dải ngang đen, đỏ và vàng kim đại diện cho sự thống nhất và tự do!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/gb.png",
+        "optionA": "Nước Úc",
+        "optionB": "New Zealand",
+        "optionC": "Vương quốc Anh",
+        "optionD": "Iceland",
+        "correctOption": "C",
+        "explanation": "Vương quốc Anh 🇬🇧 - Cờ Union Jack kết hợp ba chữ thập bảo trợ Anh, Scotland và Ireland!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/it.png",
+        "optionA": "Nước Ý",
+        "optionB": "Ireland",
+        "optionC": "Mexico",
+        "optionD": "Hungary",
+        "correctOption": "A",
+        "explanation": "Nước Ý 🇮🇹 - Cờ ba màu xanh lá cây, trắng và đỏ thanh lịch xuất hiện từ thời Napoleon!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/es.png",
+        "optionA": "Bồ Đào Nha",
+        "optionB": "Tây Ban Nha",
+        "optionC": "Colombia",
+        "optionD": "Bolivia",
+        "correctOption": "B",
+        "explanation": "Tây Ban Nha 🇪🇸 - Ba dải ngang đỏ - vàng - đỏ nổi bật với quốc huy cột trụ Hercules vươn biển khơi!",
+        "mode": "flags"
+      }
+    ]
+  },
+  {
+    "name": "🌎 Bộ 4: Quốc Kỳ Các Quốc Gia Châu Mỹ & Toàn Cầu",
+    "topic": "🚩 ĐOÁN QUỐC KỲ",
+    "fromFlag": "🚩",
+    "toFlag": "🌎",
+    "headerTitle": "ĐÂY LÀ QUỐC KỲ CỦA NƯỚC NÀO?",
+    "mode": "flags",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/us.png",
+        "optionA": "Liberia",
+        "optionB": "Hoa Kỳ (Mỹ)",
+        "optionC": "Malaysia",
+        "optionD": "Chile",
+        "correctOption": "B",
+        "explanation": "Hoa Kỳ 🇺🇸 - Cờ Stars and Stripes gồm 13 sọc ngang lịch sử và 50 ngôi sao trắng tượng trưng 50 bang!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/ca.png",
+        "optionA": "Canada",
+        "optionB": "Đan Mạch",
+        "optionC": "Thụy Sĩ",
+        "optionD": "Peru",
+        "correctOption": "A",
+        "explanation": "Canada 🇨🇦 - Quốc kỳ Lá Phong đỏ rực 11 đỉnh nhọn nổi bật trên nền trắng tinh khiết!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/br.png",
+        "optionA": "Argentina",
+        "optionB": "Brazil",
+        "optionC": "Nam Phi",
+        "optionD": "Jamaica",
+        "correctOption": "B",
+        "explanation": "Brazil 🇧🇷 - Nền xanh lá với hình thoi vàng và quả cầu bầu trời đêm sao khẩu hiệu 'Ordem e Progresso'!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/ar.png",
+        "optionA": "Uruguay",
+        "optionB": "Argentina",
+        "optionC": "Guatemala",
+        "optionD": "Honduras",
+        "correctOption": "B",
+        "explanation": "Argentina 🇦🇷 - Ba dải ngang xanh da trời và trắng, ở giữa là biểu tượng Mặt trời Tháng Năm tỏa sáng rực rỡ!",
+        "mode": "flags"
+      },
+      {
+        "question": "Đây là quốc kỳ của nước nào?",
+        "image": "https://flagcdn.com/w640/au.png",
+        "optionA": "New Zealand",
+        "optionB": "Nước Úc (Australia)",
+        "optionC": "Fiji",
+        "optionD": "Tuvalu",
+        "correctOption": "B",
+        "explanation": "Nước Úc 🇦🇺 - Nền xanh Blue Ensign với cờ Union Jack ở góc, ngôi sao Thịnh vượng chung và chòm sao Nam Thập Tự!",
+        "mode": "flags"
+      }
+    ]
+  }
+]
+

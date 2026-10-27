@@ -1,0 +1,267 @@
+[
+  {
+    "name": "🏛️ Bộ 1: Danh Lam Thắng Cảnh Nổi Tiếng Việt Nam",
+    "topic": "🏛️ ĐOÁN ĐỊA DANH",
+    "fromFlag": "🇻🇳",
+    "toFlag": "🏛️",
+    "headerTitle": "ĐÂY LÀ ĐỊA DANH NÀO?",
+    "mode": "landmark-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=80",
+        "optionA": "Vịnh Hạ Long",
+        "optionB": "Vịnh Lan Hạ",
+        "optionC": "Vịnh Nha Trang",
+        "optionD": "Đảo Phú Quốc",
+        "correctOption": "A",
+        "explanation": "Vịnh Hạ Long 🇻🇳 - Di sản thiên nhiên thế giới UNESCO với hàng nghìn hòn đảo đá vôi kỳ vĩ!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&q=80",
+        "optionA": "Cầu Rồng Đà Nẵng",
+        "optionB": "Cầu Vàng Bà Nà Hills",
+        "optionC": "Cầu Nhật Tân Hà Nội",
+        "optionD": "Cầu Tràng Tiền Huế",
+        "correctOption": "B",
+        "explanation": "Cầu Vàng Bà Nà Hills 🌉 - Kiệt tác kiến trúc với đôi bàn tay khổng lồ nâng đỡ dải lụa vàng giữa mây trời!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1574950578143-858c6fc58922?w=1200&q=80",
+        "optionA": "Tam Cốc Bích Động",
+        "optionB": "Vườn Quốc gia Phong Nha",
+        "optionC": "Quần thể danh thắng Tràng An",
+        "optionD": "Chùa Bái Đính",
+        "correctOption": "C",
+        "explanation": "Tràng An Ninh Bình 🚣 - Di sản thế giới hỗn hợp văn hóa và thiên nhiên độc nhất vô nhị của Việt Nam!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1508873696983-2df57046475a?w=1200&q=80",
+        "optionA": "Thung lũng Mường Hoa",
+        "optionB": "Cao nguyên đá Đồng Văn",
+        "optionC": "Đồi chè Mộc Châu",
+        "optionD": "Ruộng bậc thang Mù Cang Chải",
+        "correctOption": "D",
+        "explanation": "Mù Cang Chải 🌾 - Di tích quốc gia đặc biệt với những thửa ruộng bậc thang uốn lượn vàng rực mùa lúa chín!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200&q=80",
+        "optionA": "Chợ Bến Thành",
+        "optionB": "Chợ Đồng Xuân",
+        "optionC": "Chợ Đầm Nha Trang",
+        "optionD": "Chợ Nổi Cái Răng",
+        "correctOption": "A",
+        "explanation": "Chợ Bến Thành 🏛️ - Biểu tượng lịch sử văn hóa hơn 100 năm tuổi sầm uất bậc nhất TP. Hồ Chí Minh!",
+        "mode": "landmark-guess"
+      }
+    ]
+  },
+  {
+    "name": "🌏 Bộ 2: Kỳ Quan & Biểu Tượng Châu Á",
+    "topic": "🏛️ ĐOÁN ĐỊA DANH",
+    "fromFlag": "🌏",
+    "toFlag": "🏯",
+    "headerTitle": "ĐÂY LÀ ĐỊA DANH NÀO?",
+    "mode": "landmark-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=1200&q=80",
+        "optionA": "Vạn Lý Trường Thành",
+        "optionB": "Cố Cung Bắc Kinh",
+        "optionC": "Binh Mã Dũng Tây An",
+        "optionD": "Di Hòa Viên",
+        "correctOption": "A",
+        "explanation": "Vạn Lý Trường Thành 🇨🇳 - Kỳ quan quân sự vĩ đại dài hơn 21.000 km xây dựng qua nhiều triều đại Trung Hoa!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=1200&q=80",
+        "optionA": "Núi Seoraksan",
+        "optionB": "Núi Phú Sĩ",
+        "optionC": "Núi Kinabalu",
+        "optionD": "Núi lửa Bromo",
+        "correctOption": "B",
+        "explanation": "Núi Phú Sĩ 🇯🇵 - Ngọn núi lửa thiêng liêng cao nhất Nhật Bản với chóp tuyết trắng quanh năm huyền thoại!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1200&q=80",
+        "optionA": "Cung điện Hawa Mahal",
+        "optionB": "Pháo đài Đỏ Agra",
+        "optionC": "Lăng mộ Taj Mahal",
+        "optionD": "Đền Vàng Amritsar",
+        "correctOption": "C",
+        "explanation": "Taj Mahal 🇮🇳 - Kiệt tác lăng mộ cẩm thạch trắng tình yêu bất diệt lọt top 7 Kỳ quan Thế giới mới!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
+        "optionA": "Quần thể đền Angkor Wat",
+        "optionB": "Đền Borobudur",
+        "optionC": "Chùa Shwedagon",
+        "optionD": "Cung điện Hoàng gia Thái Lan",
+        "correctOption": "A",
+        "explanation": "Angkor Wat 🇰🇭 - Quần thể di tích tôn giáo lớn nhất thế giới, đỉnh cao kiến trúc Khmer cổ đại!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1200&q=80",
+        "optionA": "Tháp Taipei 101",
+        "optionB": "Tháp Tokyo Skytree",
+        "optionC": "Tòa nhà Landmark 81",
+        "optionD": "Tháp đôi Petronas",
+        "correctOption": "D",
+        "explanation": "Tháp đôi Petronas 🇲🇾 - Biểu tượng kiêu hãnh của Malaysia, từng giữ kỷ lục tòa tháp đôi cao nhất thế giới!",
+        "mode": "landmark-guess"
+      }
+    ]
+  },
+  {
+    "name": "🏰 Bộ 3: Biểu Tượng & Danh Thắng Châu Âu",
+    "topic": "🏛️ ĐOÁN ĐỊA DANH",
+    "fromFlag": "🏰",
+    "toFlag": "🇪🇺",
+    "headerTitle": "ĐÂY LÀ ĐỊA DANH NÀO?",
+    "mode": "landmark-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=1200&q=80",
+        "optionA": "Tháp Eiffel Paris",
+        "optionB": "Khải Hoàn Môn",
+        "optionC": "Tháp Berlin",
+        "optionD": "Tháp nghiêng Pisa",
+        "correctOption": "A",
+        "explanation": "Tháp Eiffel 🇫🇷 - Biểu tượng lãng mạn vĩnh cửu của kinh đô ánh sáng Paris và toàn nước Pháp!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200&q=80",
+        "optionA": "Đền Parthenon Hy Lạp",
+        "optionB": "Đấu trường La Mã Colosseum",
+        "optionC": "Quảng trường Thánh Peter",
+        "optionD": "Cung điện Alhambra",
+        "correctOption": "B",
+        "explanation": "Đấu trường Colosseum 🇮🇹 - Công trình đấu trường vòng cung cổ đại hoành tráng biểu tượng của đế chế La Mã!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1543429776-2782fc8e1acd?w=1200&q=80",
+        "optionA": "Tháp Big Ben",
+        "optionB": "Nhà thờ Sagrada Familia",
+        "optionC": "Tháp nghiêng Pisa",
+        "optionD": "Tháp chuông Giotto",
+        "correctOption": "C",
+        "explanation": "Tháp nghiêng Pisa 🇮🇹 - Tuyệt tác kiến trúc nghiêng 3.97 độ độc đáo nổi tiếng toàn cầu tại vùng Tuscany!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1529655683826-aba9b3e77383?w=1200&q=80",
+        "optionA": "Cầu Tháp London",
+        "optionB": "Vòng quay London Eye",
+        "optionC": "Lâu đài Windsor",
+        "optionD": "Tháp đồng hồ Big Ben",
+        "correctOption": "D",
+        "explanation": "Tháp Big Ben 🇬🇧 - Biểu tượng văn hóa đại diện cho nước Anh nằm bên bờ sông Thames thơ mộng!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1200&q=80",
+        "optionA": "Lâu đài Neuschwanstein",
+        "optionB": "Lâu đài Chambord",
+        "optionC": "Lâu đài Prague",
+        "optionD": "Lâu đài Edinburgh",
+        "correctOption": "A",
+        "explanation": "Lâu đài Neuschwanstein 🇩🇪 - Lâu đài cổ tích nước Đức tạo cảm hứng cho biểu tượng lâu đài Disney!",
+        "mode": "landmark-guess"
+      }
+    ]
+  },
+  {
+    "name": "🌎 Bộ 4: Kỳ Quan Châu Mỹ & Thế Giới",
+    "topic": "🏛️ ĐOÁN ĐỊA DANH",
+    "fromFlag": "🌎",
+    "toFlag": "🗽",
+    "headerTitle": "ĐÂY LÀ ĐỊA DANH NÀO?",
+    "mode": "landmark-guess",
+    "guessTime": 3,
+    "questions": [
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1605130284535-11dd9eedc58a?w=1200&q=80",
+        "optionA": "Tượng Nữ Thần Tự Do",
+        "optionB": "Tòa nhà Empire State",
+        "optionC": "Tượng Chúa Cứu Thế",
+        "optionD": "Cầu Cổng Vàng Golden Gate",
+        "correctOption": "A",
+        "explanation": "Tượng Nữ Thần Tự Do 🇺🇸 - Biểu tượng của nền tự do và hy vọng tại cảng New York nước Mỹ!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=1200&q=80",
+        "optionA": "Kim Tự Tháp Chichen Itza",
+        "optionB": "Thành cổ Machu Picchu",
+        "optionC": "Tàn tích Tikal",
+        "optionD": "Thung lũng Chết",
+        "correctOption": "B",
+        "explanation": "Machu Picchu 🇵🇪 - Thành phố trên mây bí ẩn của nền văn minh Inca cổ đại trên dãy núi Andes hùng vĩ!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=1200&q=80",
+        "optionA": "Đền Abu Simbel",
+        "optionB": "Thành phố đá Petra",
+        "optionC": "Quần thể Kim Tự Tháp Giza",
+        "optionD": "Đền Karnak",
+        "correctOption": "C",
+        "explanation": "Kim Tự Tháp Giza 🇪🇬 - Kỳ quan cổ đại duy nhất trong 7 Kỳ quan thế giới cổ đại còn tồn tại đến ngày nay!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=1200&q=80",
+        "optionA": "Cầu Cảng Sydney",
+        "optionB": "Tháp Sydney Tower",
+        "optionC": "Rạn san hô Great Barrier",
+        "optionD": "Nhà hát Opera Sydney",
+        "correctOption": "D",
+        "explanation": "Nhà hát Con Sò Opera Sydney 🇦🇺 - Kiệt tác kiến trúc hình cánh buồm đón gió giữa vịnh cảng nước Úc!",
+        "mode": "landmark-guess"
+      },
+      {
+        "question": "Đây là địa danh nào?",
+        "image": "https://images.unsplash.com/photo-1516306580124-7b77ae03fc6d?w=1200&q=80",
+        "optionA": "Tượng Chúa Cứu Thế Rio",
+        "optionB": "Tượng Phật Lạc Sơn",
+        "optionC": "Thác nước Iguazu",
+        "optionD": "Tượng Thần Mặt Trời",
+        "correctOption": "A",
+        "explanation": "Tượng Chúa Cứu Thế 🇧🇷 - Tượng đài Art Deco cao 30m sừng sững trên đỉnh núi Corcovado nhìn xuống Rio de Janeiro!",
+        "mode": "landmark-guess"
+      }
+    ]
+  }
+]
+
