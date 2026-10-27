@@ -672,6 +672,7 @@ textarea {
   .btn-sidebar-toggle.mobile-toggle {
     display: inline-flex;
   }
+
   .btn-sidebar-toggle.desktop-toggle {
     display: none;
   }
@@ -1549,8 +1550,15 @@ textarea {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .canvas-set-tabs {
@@ -2251,4 +2259,86 @@ textarea {
   color: #FFFFFF;
   font-weight: 800;
   box-shadow: 0 3px 10px rgba(22, 163, 74, 0.25);
+}
+
+/* Thêm vào file CSS chính của app (ví dụ App.css / index.css).
+   Nếu bạn đã có các class này rồi thì chỉ cần kiểm tra lại phần canvas ngang. */
+.orientation-toggle-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+}
+
+.orientation-label {
+  font-weight: 700;
+  font-size: .9rem;
+  opacity: .85;
+}
+
+.orientation-toggle-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.orientation-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, .18);
+  background: rgba(255, 255, 255, .05);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.orientation-btn.active {
+  border-color: #7C3AED;
+  background: rgba(124, 58, 237, .2);
+}
+
+.orientation-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.orient-icon {
+  font-size: 1.4rem;
+}
+
+.orient-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.orient-text small {
+  opacity: .7;
+  font-size: .72rem;
+}
+
+/* Khung xem trước: ngang thì rộng 16:9, dọc giữ nguyên như cũ */
+.canvas-wrapper.canvas-wrapper-landscape {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.preview-canvas.preview-canvas-landscape {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  max-height: none;
+  display: block;
+}
+
+.canvas-resolution-info {
+  text-align: center;
+  font-size: .8rem;
+  opacity: .75;
+  margin-top: 8px;
 }

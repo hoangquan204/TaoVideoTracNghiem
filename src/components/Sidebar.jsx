@@ -41,11 +41,11 @@ export default function Sidebar({ selectedPreset, onSelectPreset, collapsed, onC
 
   const filteredPresets = search.trim()
     ? MCQ_PRESETS.filter(p =>
-        ALLOWED_PRESET_IDS.has(p.id) && (
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          (p.badge && p.badge.toLowerCase().includes(search.toLowerCase()))
-        )
+      ALLOWED_PRESET_IDS.has(p.id) && (
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.badge && p.badge.toLowerCase().includes(search.toLowerCase()))
       )
+    )
     : null;
 
   const renderPresetItem = (preset) => {
@@ -160,14 +160,6 @@ export default function Sidebar({ selectedPreset, onSelectPreset, collapsed, onC
           })
         )}
       </nav>
-
-      {/* Footer hint */}
-      {!collapsed && (
-        <div className="sidebar-footer-hint">
-          <Zap size={12} />
-          <span>Chọn dạng video để bắt đầu</span>
-        </div>
-      )}
     </aside>
   );
 }

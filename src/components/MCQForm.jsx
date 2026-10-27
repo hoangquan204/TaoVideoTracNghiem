@@ -245,13 +245,6 @@ export default function MCQForm({
 
   return (
     <div className="card form-card">
-      <div className="card-header">
-        <h2>
-          <HelpCircle className="icon-gold" size={20} />
-          1. Nhập Dữ Liệu 4 Bộ Câu Hỏi Trắc Nghiệm / Từ Vựng / Đoán Cầu Thủ / Đố Cờ / Đoán Món / Đoán Địa Điểm
-        </h2>
-        <span className="count-badge">{questionSets.length} Bộ x {currentQuestions.length} Câu hỏi</span>
-      </div>
 
       {isLoadingFile && (
         <div className="file-loading-banner">
@@ -267,7 +260,6 @@ export default function MCQForm({
         </label>
         <div className="set-pills-grid">
           {questionSets.map((setObj, sIdx) => {
-            const themeNames = ['🟨 Comic Funky', '🔮 Cyberpunk Neon', '💖 Funky Pink', '🕶️ Dark Retro'];
             const setModeLabel = setObj.mode === 'vocab-lingobibi-mcq' ? '🎀 Từ Vựng Bibi' : (setObj.mode === 'player-guess' ? '⚽ Đoán Cầu Thủ' : (setObj.mode === 'landmark-guess' ? '🏰 Đoán Địa Điểm' : (setObj.mode === 'food-guess' ? '🍳 Đoán Món' : (setObj.mode === 'ca-dao-tuc-ngu' ? '🌾 Ca Dao' : (setObj.mode === 'lingobibi-flashcard' ? '🎴 Flashcard' : (setObj.mode === 'word-guess' ? '🔤 Đoán Từ' : (setObj.mode === 'flags' ? '🚩 Đố Cờ B1' : '🔘 Trắc nghiệm')))))));
             return (
               <button
@@ -278,7 +270,6 @@ export default function MCQForm({
               >
                 <span className="set-badge">BỘ #{sIdx + 1} ({setModeLabel})</span>
                 <span className="set-title">{setObj.name || `Bộ câu hỏi #${sIdx + 1}`}</span>
-                <span className="theme-tag">Theme: {themeNames[sIdx % 4]}</span>
               </button>
             );
           })}
@@ -288,12 +279,7 @@ export default function MCQForm({
       {/* File Import & Sample File Toolbar */}
       <div className="preset-section">
         <div className="toolbar-header">
-          <div className="toolbar-left-info">
-            <Sparkles size={16} className="icon-gold" />
-            <span className="section-label">
-              File Mẫu JSON cho dạng <strong>{activePresetObj?.name || 'Trắc nghiệm'}</strong>:
-            </span>
-          </div>
+
 
           <div className="file-actions">
             <input
@@ -337,63 +323,7 @@ export default function MCQForm({
         </div>
       </div>
 
-      {/* Set Configuration Card */}
-      <div className="set-config-card">
-        <div className="config-row-primary">
-          <div className="config-field">
-            <label>Tên Bộ Câu Hỏi #{activeSetIndex + 1}:</label>
-            <input
-              type="text"
-              value={questionSets[activeSetIndex]?.name || ''}
-              onChange={(e) => handleSetNameChange(e.target.value)}
-              placeholder={`Tên bộ câu hỏi #${activeSetIndex + 1}`}
-              maxLength={60}
-            />
-          </div>
 
-          <div className="config-field">
-            <label className="badge-label-red">🔴 Topic Badge (Đầu video):</label>
-            <input
-              type="text"
-              value={questionSets[activeSetIndex]?.topic || 'TỪ VỰNG B1'}
-              onChange={(e) => handleSetFieldChange('topic', e.target.value)}
-              placeholder="TỪ VỰNG B1"
-            />
-          </div>
-        </div>
-
-        <div className="config-row-secondary">
-          <div className="config-field">
-            <label>⚪ Tiêu Đề Phụ (Khung trắng):</label>
-            <input
-              type="text"
-              value={questionSets[activeSetIndex]?.headerTitle || 'TỪ NÀO CÓ NGHĨA LÀ'}
-              onChange={(e) => handleSetFieldChange('headerTitle', e.target.value)}
-              placeholder="TỪ NÀO CÓ NGHĨA LÀ"
-            />
-          </div>
-
-          <div className="flags-group">
-            <div className="config-field">
-              <label>Cờ Nguồn:</label>
-              <input
-                type="text"
-                value={questionSets[activeSetIndex]?.fromFlag || '🇻🇳'}
-                onChange={(e) => handleSetFieldChange('fromFlag', e.target.value)}
-              />
-            </div>
-
-            <div className="config-field">
-              <label>Cờ Đích:</label>
-              <input
-                type="text"
-                value={questionSets[activeSetIndex]?.toFlag || '🇺🇸'}
-                onChange={(e) => handleSetFieldChange('toFlag', e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Questions List for Active Set */}
       <div className="vocab-list">
@@ -401,7 +331,7 @@ export default function MCQForm({
           <div key={idx} className="vocab-item-card mcq-item-card">
             <div className="vocab-item-header">
               <span className="word-index">
-                # Bộ {activeSetIndex + 1} - Câu hỏi {idx + 1} {isPlayerGuessMode ? '(Đoán Cầu Thủ ⚽)' : (isLandmarkGuessMode ? '(Đoán Địa Điểm 🏰)' : (isFoodGuessMode ? '(Đoán Món Ăn 🍳)' : (isWordGuessMode ? '(Đoán Từ Vựng 🔤)' : '')))}
+                Câu  {idx + 1} {isPlayerGuessMode ? '(Đoán Cầu Thủ ⚽)' : (isLandmarkGuessMode ? '(Đoán Địa Điểm 🏰)' : (isFoodGuessMode ? '(Đoán Món Ăn 🍳)' : (isWordGuessMode ? '(Đoán Từ Vựng 🔤)' : '')))}
               </span>
               {currentQuestions.length > 1 && (
                 <button
@@ -418,7 +348,7 @@ export default function MCQForm({
             <div className="input-grid">
               {/* Question Text */}
               <div className="input-group full-width">
-                <label>Nội dung câu hỏi / Tiêu đề đố:</label>
+                <label>Câu hỏi:</label>
                 <input
                   type="text"
                   value={item.question || ''}
@@ -430,7 +360,7 @@ export default function MCQForm({
 
               {/* Image URL */}
               <div className="input-group full-width">
-                <label>🖼️ URL Hình ảnh minh họa {isPlayerGuessMode || isLandmarkGuessMode || isFoodGuessMode || isWordGuessMode ? '(Bắt buộc)' : '(Tùy chọn)'}:</label>
+                <label>URL Hình ảnh: {isPlayerGuessMode || isLandmarkGuessMode || isFoodGuessMode || isWordGuessMode ? '(Bắt buộc)' : '(Tùy chọn)'}:</label>
                 <input
                   type="text"
                   value={item.image || ''}
