@@ -283,7 +283,24 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     await Promise.all(promises);
   };
 
-  const activeSet = questionSets[activeSetIndex] || questionSets[0] || { questions: [] };
+  // Chế độ xem trước: 'single' (từng bộ câu hỏi) hoặc 'all' (toàn bộ các bộ gộp lại)
+  const [previewMode, setPreviewMode] = useState('single');
+  const [isExportingMerged, setIsExportingMerged] = useState(false);
+
+  useEffect(() => {
+    setPreviewMode('single');
+  }, [selectedMCQPreset]);
+
+  const totalAllQuestions = questionSets.reduce((sum, s) => sum + (s.questions?.length || 0), 0);
+  const allMergedQuestions = questionSets.flatMap(s => s.questions || []);
+  const isAllPreview = previewMode === 'all' && questionSets.length > 1;
+
+  const activeSet = isAllPreview ? {
+    ...questionSets[0],
+    name: `${(questionSets[0]?.name || selectedMCQPreset || 'Quiz').split('(')[0].trim()} (Gộp ${questionSets.length} bộ - ${allMergedQuestions.length} câu)`,
+    questions: allMergedQuestions
+  } : (questionSets[activeSetIndex] || questionSets[0] || { questions: [] });
+
   const questions = activeSet.questions || [];
 
   // State tiến trình xuất video của bộ đang chọn
@@ -298,6 +315,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       } catch (e) { }
     }
     setIsExporting(false);
+    setIsExportingMerged(false);
     setIsPlaying(true);
     setExportProgress(0);
   };
@@ -393,7 +411,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
   ];
 
   // Mỗi bộ câu hỏi tự động áp dụng 1 phong cách giao diện khác nhau
-  const currentTheme = THEME_LIST[activeSetIndex % THEME_LIST.length];
+  const currentTheme = THEME_LIST[(isAllPreview ? 0 : activeSetIndex) % THEME_LIST.length];
 
   // Canvas dimensions theo orientation
   const isLandscape = videoOrientation === 'landscape';
@@ -8225,7 +8243,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     return () => {
       if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
     };
-  }, [isPlaying, questionSets, activeSetIndex, settings, videoOrientation]);
+  }, [isPlaying, questionSets, activeSetIndex, settings, videoOrientation, previewMode]);
 
   // Initial draw when paused and not exporting
   useEffect(() => {
@@ -8240,7 +8258,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
         drawCanvasFrame(ctx, questions[0] || {}, 0, questions.length, 'guess', 0, 0, currentTheme);
       }
     }
-  }, [isPlaying, isExporting, questions, settings, currentTheme, videoOrientation]);
+  }, [isPlaying, isExporting, questions, settings, currentTheme, videoOrientation, previewMode]);
 
   // Mime type helper
   const getSupportedMimeTypeAndExt = () => {
@@ -8262,8 +8280,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     return { mime: 'video/mp4', ext: 'mp4' };
   };
 
-  // Helper render a SINGLE VIDEO and return Promise
-  const renderSingleVideo = (setObj, themeObj, setIndex) => {
+  // Helper render a SINGLE VIDEO or LONG MERGED VIDEO and return Promise
+  const renderSingleVideo = (setObj, themeObj, setIndex, isLongMerged = false) => {
     return new Promise(async (resolve, reject) => {
       const canvas = canvasRef.current;
       if (!canvas) return reject(new Error('Canvas reference unavailable'));
@@ -8380,7 +8398,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
 
         const cleanName = (setObj.name || `Bo_${setIndex + 1}`).replace(/[^a-zA-Z0-9_]/g, '_');
         const orientTag = isLandscape ? 'YouTube16x9' : 'Shorts9x16';
-        const fileName = `QuizMCQ_${orientTag}_${cleanName}_Theme${themeObj.id.toUpperCase()}.${selectedFormat.ext}`;
+        const prefix = isLongMerged ? 'VideoDai_TongHop' : 'QuizMCQ';
+        const fileName = `${prefix}_${orientTag}_${cleanName}_Theme${themeObj.id.toUpperCase()}.${selectedFormat.ext}`;
 
         recorder.onstop = () => {
           stopAllTracks();
@@ -8602,7 +8621,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     });
   };
 
-  // Export Video của Bộ đang chọn
+  // Export Video của Bộ đang chọn (hoặc toàn bộ nếu đang ở tab Tất cả các bộ)
   const handleExportSingleVideo = async () => {
     if (isExporting) return;
     isExportCancelledRef.current = false;
@@ -8611,14 +8630,50 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     setExportProgress(0);
     lastProgressRef.current = -1;
 
+    const isAllMode = isAllPreview;
+    if (isAllMode) {
+      setIsExportingMerged(true);
+    }
+
     try {
-      await renderSingleVideo(activeSet, currentTheme, activeSetIndex);
+      await renderSingleVideo(activeSet, currentTheme, activeSetIndex, isAllMode);
       setIsExporting(false);
+      setIsExportingMerged(false);
       setIsPlaying(true);
     } catch (e) {
       console.error('Video Export Error:', e);
       alert('Không thể xuất video.');
       setIsExporting(false);
+      setIsExportingMerged(false);
+    }
+  };
+
+  // Export Video Dài gộp toàn bộ các Bộ thành 1 video duy nhất
+  const handleExportMergedLongVideo = async () => {
+    if (isExporting) return;
+    isExportCancelledRef.current = false;
+    setIsExporting(true);
+    setIsExportingMerged(true);
+    setIsPlaying(false);
+    setExportProgress(0);
+    lastProgressRef.current = -1;
+
+    try {
+      const firstSet = questionSets[0] || {};
+      const mergedSet = {
+        ...firstSet,
+        name: `${(firstSet.name || selectedMCQPreset || 'Quiz').split('(')[0].trim()}_Gop_${questionSets.length}Bo`,
+        questions: allMergedQuestions
+      };
+      await renderSingleVideo(mergedSet, currentTheme, 0, true /* isLongMerged */);
+      setIsExporting(false);
+      setIsExportingMerged(false);
+      setIsPlaying(true);
+    } catch (e) {
+      console.error('Long Video Export Error:', e);
+      alert('Không thể xuất video dài gộp các bộ.');
+      setIsExporting(false);
+      setIsExportingMerged(false);
     }
   };
 
@@ -8627,7 +8682,10 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       <div className="card-header">
         <h2>
           <Film className="icon-pink" size={20} />
-          3. Xem Trước Video (Bộ #{activeSetIndex + 1})
+          {isAllPreview
+            ? `3. Xem Trước Video Dài (Gộp cả ${questionSets.length} bộ - ${allMergedQuestions.length} câu)`
+            : `3. Xem Trước Video (Bộ #${activeSetIndex + 1})`
+          }
         </h2>
         <span className="live-pill">🔴 LIVE MCQ PREVIEW</span>
       </div>
@@ -8677,13 +8735,33 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           <button
             key={idx}
             type="button"
-            className={`set-tab-btn ${activeSetIndex === idx ? 'active' : ''}`}
-            onClick={() => setActiveSetIndex(idx)}
+            className={`set-tab-btn ${!isAllPreview && activeSetIndex === idx ? 'active' : ''}`}
+            onClick={() => {
+              setPreviewMode('single');
+              setActiveSetIndex(idx);
+              startTimeRef.current = performance.now();
+              lastQIdxRef.current = -1;
+            }}
             disabled={isExporting}
           >
             Bộ {idx + 1}
           </button>
         ))}
+        {questionSets.length > 1 && (
+          <button
+            type="button"
+            className={`set-tab-btn btn-tab-all-sets ${isAllPreview ? 'active' : ''}`}
+            onClick={() => {
+              setPreviewMode('all');
+              startTimeRef.current = performance.now();
+              lastQIdxRef.current = -1;
+            }}
+            disabled={isExporting}
+            title={`Xem trước toàn bộ ${questionSets.length} bộ (${allMergedQuestions.length} câu) gộp thành 1 video dài`}
+          >
+            🌟 Tất cả {questionSets.length} bộ ({allMergedQuestions.length} câu)
+          </button>
+        )}
       </div>
 
       <div className={`canvas-wrapper ${isLandscape ? 'canvas-wrapper-landscape' : ''}`}>
@@ -8730,10 +8808,38 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           className="control-btn btn-export-single"
           onClick={handleExportSingleVideo}
           disabled={isExporting}
+          title={isAllPreview ? `Xuất video dài (${allMergedQuestions.length} câu)` : `Xuất video riêng cho Bộ ${activeSetIndex + 1}`}
         >
           <Download size={16} />
-          <span>{isExporting ? `Đang render (${exportProgress}%)...` : `Xuất video (Bộ ${activeSetIndex + 1})`}</span>
+          <span>
+            {isExporting && !isExportingMerged && !isAllPreview
+              ? `Đang render (${exportProgress}%)...`
+              : (isAllPreview || questionSets.length === 1
+                  ? `Xuất video (${questions.length} câu)`
+                  : `Xuất video (Bộ ${activeSetIndex + 1})`
+                )
+            }
+          </span>
         </button>
+
+        {/* Dedicated Long Video Export Button (Gộp cả 4 bộ) */}
+        {questionSets.length > 1 && (
+          <button
+            type="button"
+            className="control-btn btn-export-long-video"
+            onClick={handleExportMergedLongVideo}
+            disabled={isExporting}
+            title={`Gom tất cả ${questionSets.length} bộ (${allMergedQuestions.length} câu) thành 1 video dài đồng nhất`}
+          >
+            <Film size={16} />
+            <span>
+              {isExporting && (isExportingMerged || isAllPreview)
+                ? `Đang render video dài (${exportProgress}%)...`
+                : `🎬 Xuất video dài (Gộp cả ${questionSets.length} bộ)`
+              }
+            </span>
+          </button>
+        )}
       </div>
       <div className="canvas-resolution-info">
         {isLandscape
@@ -8748,7 +8854,12 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           <div className="inline-card-header">
             <div className="modal-title-group">
               <Sparkles className="spin-icon icon-cyan" size={20} />
-              <h3>Đang Ghi Hình & Render Video Bộ #{activeSetIndex + 1} ({exportProgress}%)</h3>
+              <h3>
+                {isExportingMerged || isAllPreview
+                  ? `Đang Ghi Hình & Render Video Dài (Gộp ${questionSets.length} bộ - ${allMergedQuestions.length} câu) (${exportProgress}%)`
+                  : `Đang Ghi Hình & Render Video Bộ #${activeSetIndex + 1} (${exportProgress}%)`
+                }
+              </h3>
             </div>
             <button
               type="button"
@@ -8767,6 +8878,13 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
               ></div>
             </div>
             <span className="v-progress-percent">{exportProgress}%</span>
+          </div>
+
+          <div className="v-progress-subtext" style={{ marginTop: '0.4rem', fontSize: '0.85rem', color: '#64748b' }}>
+            {isExportingMerged || isAllPreview
+              ? `Hệ thống đang ghép nối và render đồng nhất toàn bộ ${allMergedQuestions.length} câu hỏi thành 1 video dài hoàn chỉnh (${isLandscape ? '16:9 YouTube Full HD' : '9:16 Shorts/TikTok Full HD'})...`
+              : `Hệ thống đang tổng hợp âm thanh, hình ảnh và hoạt họa cho video Bộ #${activeSetIndex + 1}...`
+            }
           </div>
         </div>
       )}

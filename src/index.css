@@ -618,6 +618,53 @@ button, input, select, textarea {
   box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
 }
 
+.btn-merge-all-sets {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px dashed #3B82F6;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+  margin-left: auto;
+}
+
+.btn-merge-all-sets:hover {
+  background: #DBEAFE;
+  border-color: #2563EB;
+  color: #1E40AF;
+  transform: translateY(-1px);
+}
+
+.btn-restore-sets {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px dashed #F59E0B;
+  background: #FFFBEB;
+  color: #B45309;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+  margin-left: auto;
+}
+
+.btn-restore-sets:hover {
+  background: #FEF3C7;
+  border-color: #D97706;
+  color: #92400E;
+}
+
 /* Toolbar Actions Row */
 .form-toolbar-row {
   display: flex;
@@ -963,6 +1010,28 @@ button, input, select, textarea {
   font-weight: 700;
 }
 
+.set-tab-btn.btn-tab-all-sets {
+  background: #F0FDF4;
+  border-color: #BBF7D0;
+  color: #166534;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.set-tab-btn.btn-tab-all-sets:hover {
+  background: #DCFCE7;
+  border-color: #86EFAC;
+  color: #14532D;
+}
+
+.set-tab-btn.btn-tab-all-sets.active {
+  background: #16A34A;
+  border-color: #16A34A;
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(22, 163, 74, 0.3);
+}
+
 /* Canvas Wrapper */
 .canvas-wrapper {
   width: 100%;
@@ -1040,6 +1109,22 @@ button, input, select, textarea {
 
 .control-btn.btn-export-single:hover {
   background: #1E293B;
+}
+
+.control-btn.btn-export-long-video {
+  flex: 1;
+  min-width: 175px;
+  background: linear-gradient(135deg, #1D4ED8 0%, #7C3AED 100%);
+  border-color: #2563EB;
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.28);
+}
+
+.control-btn.btn-export-long-video:hover {
+  background: linear-gradient(135deg, #1E40AF 0%, #6D28D9 100%);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38);
+  transform: translateY(-1px);
 }
 
 .canvas-resolution-info {

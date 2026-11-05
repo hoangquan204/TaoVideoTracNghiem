@@ -3,7 +3,7 @@ import { MCQ_PRESETS } from '../utils/mcqPresets';
 import { parseMultiMCQFile } from '../utils/fileImporter';
 import {
   Upload, Download, Plus, Trash2, CheckCircle2,
-  Layers, Check, Loader2, Image as ImageIcon
+  Layers, Check, Loader2, Image as ImageIcon, RotateCcw
 } from 'lucide-react';
 
 export default function MCQForm({
@@ -18,6 +18,7 @@ export default function MCQForm({
 }) {
   const [isLoadingFile, setIsLoadingFile] = useState(false);
   const [loadingText, setLoadingText] = useState('');
+  const [backupSets, setBackupSets] = useState(null);
   const fileInputRef = useRef(null);
 
   const currentQuestions = questionSets[activeSetIndex]?.questions || [];
@@ -28,7 +29,48 @@ export default function MCQForm({
     Boolean(currentQuestions[0]?.word && !currentQuestions[0]?.optionB)
   );
 
+  const handleMergeAllSets = () => {
+    if (questionSets.length <= 1) return;
+    const totalQuestions = questionSets.reduce((acc, s) => acc + (s.questions?.length || 0), 0);
+    const confirmed = window.confirm(
+      `Bạn có chắc chắn muốn gom tất cả ${questionSets.length} bộ (${totalQuestions} câu hỏi) thành 1 bộ duy nhất không?\n\nSau khi gộp, bạn có thể chỉnh sửa toàn bộ các câu hỏi trong 1 danh sách và xuất 1 video dài đồng nhất!`
+    );
+    if (!confirmed) return;
+
+    setBackupSets([...questionSets]);
+
+    const allQuestions = questionSets.flatMap((s, sIdx) =>
+      (s.questions || []).map((q, qIdx) => ({
+        ...q,
+        id: q.id || `q-merged-${sIdx}-${qIdx}-${Date.now()}`
+      }))
+    );
+
+    const firstSet = questionSets[0] || {};
+    const baseName = (firstSet.name || 'Bộ câu hỏi').split('(')[0].trim();
+    const mergedName = `${baseName} (Tổng hợp ${allQuestions.length} câu)`;
+
+    setQuestionSets([{
+      ...firstSet,
+      name: mergedName,
+      questions: allQuestions
+    }]);
+    setActiveSetIndex(0);
+  };
+
+  const handleRestoreSets = () => {
+    if (!backupSets || backupSets.length <= 1) return;
+    const confirmed = window.confirm(
+      `Bạn có muốn khôi phục lại ${backupSets.length} bộ câu hỏi riêng lẻ như ban đầu không?`
+    );
+    if (!confirmed) return;
+    setQuestionSets(backupSets);
+    setBackupSets(null);
+    setActiveSetIndex(0);
+  };
+
   const handleSelectPreset = (presetId) => {
+    setBackupSets(null);
     if (onSelectPreset) {
       onSelectPreset(presetId);
       return;
@@ -151,6 +193,7 @@ export default function MCQForm({
             : 'dia-ly-van-hoa-viet-nam';
           const parsedSets = parseMultiMCQFile(content, lowerName, targetPreset);
           setQuestionSets(parsedSets);
+          setBackupSets(null);
           setSelectedPreset(targetPreset);
           setActiveSetIndex(0);
 
@@ -238,6 +281,30 @@ export default function MCQForm({
               Bộ {sIdx + 1}
             </button>
           ))}
+
+          {questionSets.length > 1 ? (
+            <button
+              type="button"
+              className="btn-merge-all-sets"
+              onClick={handleMergeAllSets}
+              title={`Gom toàn bộ ${questionSets.length} bộ (${questionSets.reduce((sum, s) => sum + (s.questions?.length || 0), 0)} câu) thành 1 bộ duy nhất`}
+            >
+              <Layers size={13} />
+              <span>Gộp {questionSets.length} bộ thành 1</span>
+            </button>
+          ) : (
+            backupSets && backupSets.length > 1 && (
+              <button
+                type="button"
+                className="btn-restore-sets"
+                onClick={handleRestoreSets}
+                title={`Khôi phục lại ${backupSets.length} bộ câu hỏi riêng ban đầu`}
+              >
+                <RotateCcw size={13} />
+                <span>Tách lại {backupSets.length} bộ riêng</span>
+              </button>
+            )
+          )}
         </div>
       </div>
 
