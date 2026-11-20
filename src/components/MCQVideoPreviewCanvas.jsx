@@ -37,6 +37,41 @@ const stripHeaderIcons = (text) => {
     .trim();
 };
 
+// CHỈ 2 dạng video được phát âm tiếng Anh: Ô chữ B1 và Trắc nghiệm từ vựng
+const isEnglishVocabPresetOrMode = (presetId = '', setObj = {}, qObj = {}) => {
+  const pId = String(presetId || '').toLowerCase();
+  const sId = String(setObj?.id || '').toLowerCase();
+  const sPresetId = String(setObj?.presetId || '').toLowerCase();
+  const sMode = String(setObj?.mode || '').toLowerCase();
+  const qMode = String(qObj?.mode || '').toLowerCase();
+
+  // 1. Ô chữ B1 (vocab-b1-word-guess, word-guess)
+  const isWordGuess = (
+    pId === 'vocab-b1-word-guess' ||
+    pId === 'vocab-image-word-guess' ||
+    pId === 'vocab-b1-word-guess-lingobibi' ||
+    sId === 'vocab-b1-word-guess' ||
+    sId === 'vocab-image-word-guess' ||
+    sId === 'vocab-b1-word-guess-lingobibi' ||
+    sPresetId === 'vocab-b1-word-guess' ||
+    sMode === 'word-guess' ||
+    qMode === 'word-guess' ||
+    Boolean(qObj && qObj.word && !qObj.optionB)
+  );
+
+  // 2. Trắc nghiệm từ vựng CEFR (english-vocab-cefr)
+  const isCefrVocab = (
+    pId === 'english-vocab-cefr' ||
+    sId === 'english-vocab-cefr' ||
+    sPresetId === 'english-vocab-cefr' ||
+    sMode === 'english-vocab-cefr' ||
+    qMode === 'english-vocab-cefr' ||
+    Boolean(qObj?.level || setObj?.level)
+  );
+
+  return isWordGuess || isCefrVocab;
+};
+
 const getEffectiveVoice = (voiceSetting, setObj = {}, qObj = {}) => {
   const isLingoBiBi = isLingoBiBiSetOrQ(setObj, qObj);
   if (isLingoBiBi) {
@@ -363,14 +398,25 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
         audioSynth.preloadWordList(qSpeechItems, effectiveVoice, settings.voiceSpeed || 1.25);
       }
 
-      if (settings.readAnswer !== false && activeSet?.mode !== 'player-guess' && activeSet?.mode !== 'landmark-guess' && activeSet?.mode !== 'food-guess' && activeSet?.mode !== 'animal-guess' && activeSet?.mode !== 'flags') {
+      // CHỈ 2 dạng video được phát âm tiếng Anh cho đáp án: Ô chữ B1 và Trắc nghiệm từ vựng
+      const isEnglishFormat = isEnglishVocabPresetOrMode(selectedMCQPreset, activeSet);
+      if (isEnglishFormat) {
         const ansSpeechItems = questions.map(q => {
           const correctKey = (q.correctOption || 'A').toUpperCase();
-          let ansText = q['option' + correctKey] || q.word || q.optionA || '';
+          let ansText = q.word || q['option' + correctKey] || q.optionA || '';
           return { question: ansText };
         }).filter(i => !!i.question);
         const enVoice = settings.voiceLang && settings.voiceLang.startsWith('en-') ? settings.voiceLang : 'en-US-AnaNeural';
         audioSynth.preloadWordList(ansSpeechItems, enVoice, settings.voiceSpeed || 1.25);
+      } else if (settings.readAnswer === true && activeSet?.mode !== 'player-guess' && activeSet?.mode !== 'landmark-guess' && activeSet?.mode !== 'food-guess' && activeSet?.mode !== 'animal-guess' && activeSet?.mode !== 'flags') {
+        // Tất cả các dạng còn lại: Tuyệt đối KHÔNG preload giọng tiếng Anh! Chỉ dùng giọng tiếng Việt nếu bật đọc đáp án
+        const ansSpeechItems = questions.map(q => {
+          const correctKey = (q.correctOption || 'A').toUpperCase();
+          let ansText = q['option' + correctKey] || q.optionA || '';
+          return { question: ansText };
+        }).filter(i => !!i.question);
+        const viVoice = settings.voiceLang && settings.voiceLang.startsWith('vi-') ? settings.voiceLang : 'vi-VN-HoaiMyNeural';
+        audioSynth.preloadWordList(ansSpeechItems, viVoice, settings.voiceSpeed || 1.25);
       }
     }
   }, [activeSetIndex, questions, settings]);
@@ -1208,37 +1254,36 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           (activeSet?.topic && (activeSet.topic.toUpperCase().includes('ĐỊA LÝ') || (activeSet.topic.toUpperCase().includes('VIỆT NAM') && !activeSet.topic.toUpperCase().includes('MÓN ĂN')))) ||
           (activeQ?.topic && (activeQ.topic.toUpperCase().includes('ĐỊA LÝ') || (activeQ.topic.toUpperCase().includes('VIỆT NAM') && !activeQ.topic.toUpperCase().includes('MÓN ĂN'))))
         );
-        const isLandmarkOrFoodMode = !isVietnamGeoActive && (activeSet?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess');
-        if ((settings.readAnswer || isLandmarkOrFoodMode || isLingoBiBi || isVocabCEFRLive) && !isImageGuessModeOnly && isPlayingRef.current && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
-          // Lấy đáp án đúng (Option A, B, C, D hoặc landmark / dish / word)
-          const correctKey = (activeQ.correctOption || 'A').toUpperCase();
-          let targetWord = activeQ.landmark || activeQ.dish || activeQ.word || '';
-          if (!targetWord) {
-            if (correctKey === 'A') targetWord = activeQ.optionA;
-            else if (correctKey === 'B') targetWord = activeQ.optionB;
-            else if (correctKey === 'C') targetWord = activeQ.optionC;
-            else if (correctKey === 'D') targetWord = activeQ.optionD;
+        const isEnglishFormatLive = isEnglishVocabPresetOrMode(selectedMCQPreset, activeSet, activeQ);
+        if (isEnglishFormatLive) {
+          // CHỈ 2 dạng video được phát âm tiếng Anh: Ô chữ B1 và Trắc nghiệm từ vựng
+          if (isPlayingRef.current && activeQ) {
+            const correctKey = (activeQ.correctOption || 'A').toUpperCase();
+            let targetWord = activeQ.word || activeQ['option' + correctKey] || activeQ.optionA || '';
+            targetWord = String(targetWord || '').trim();
+            if (targetWord) {
+              const enVoice = (settings.voiceLang && settings.voiceLang.startsWith('en-')) ? settings.voiceLang : 'en-US-AnaNeural';
+              TTSService.speak(targetWord, {
+                voice: enVoice,
+                rate: settings.voiceSpeed || 1.25
+              });
+            }
           }
-          if (!targetWord) {
-            targetWord = activeQ.optionA || '';
-          }
-
-          targetWord = (targetWord || '').trim();
-          if (targetWord) {
-            const isViText = isLandmarkOrFoodMode || (!isLingoBiBi && (
-              /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/i.test(targetWord) ||
-              (activeSet && (activeSet.topic === 'ĐỐ VUI B1' || activeSet.topic === 'TRẮC NGHIỆM B1')) ||
-              (activeQ && (activeQ.topic === 'ĐỐ VUI B1' || activeQ.topic === 'TRẮC NGHIỆM B1'))
-            ));
-
-            const answerVoice = (isLingoBiBi || !isViText)
-              ? (settings.voiceLang && settings.voiceLang.startsWith('en-') ? settings.voiceLang : 'en-US-AnaNeural')
-              : (settings.voiceLang && settings.voiceLang.startsWith('vi-') ? settings.voiceLang : 'vi-VN-HoaiMyNeural');
-
-            TTSService.speak(targetWord, {
-              voice: answerVoice,
-              rate: settings.voiceSpeed || 1.25
-            });
+        } else {
+          // TẤT CẢ các dạng còn lại: TUYỆT ĐỐI KHÔNG PHÁT GIỌNG TIẾNG ANH!
+          // Chỉ đọc đáp án bằng tiếng Việt nếu cài đặt readAnswer bật và không thuộc dạng đặc thù chỉ đoán ảnh/cờ
+          const isLandmarkOrFoodMode = !isVietnamGeoActive && (activeSet?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess');
+          if (settings.readAnswer && !isImageGuessModeOnly && isPlayingRef.current && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
+            const correctKey = (activeQ.correctOption || 'A').toUpperCase();
+            let targetWord = activeQ.landmark || activeQ.dish || activeQ['option' + correctKey] || activeQ.optionA || '';
+            targetWord = String(targetWord || '').trim();
+            if (targetWord) {
+              const viVoice = (settings.voiceLang && settings.voiceLang.startsWith('vi-')) ? settings.voiceLang : 'vi-VN-HoaiMyNeural';
+              TTSService.speak(targetWord, {
+                voice: viVoice,
+                rate: settings.voiceSpeed || 1.25
+              });
+            }
           }
         }
       }
@@ -7903,18 +7948,25 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
             await audioSynth.preloadWordList(qSpeechItems, effectiveVoice, settings.voiceSpeed || 1.25);
           }
 
-          if (settings.readAnswer !== false && setObj.mode !== 'player-guess' && setObj.mode !== 'landmark-guess' && setObj.mode !== 'food-guess' && setObj.mode !== 'flags') {
+          // CHỈ 2 dạng video được phát âm tiếng Anh cho đáp án: Ô chữ B1 và Trắc nghiệm từ vựng
+          const isEnglishFormatExport = isEnglishVocabPresetOrMode(selectedMCQPreset, setObj);
+          if (isEnglishFormatExport) {
             const ansSpeechItems = qList.map(q => {
               const correctKey = (q.correctOption || 'A').toUpperCase();
-              let ansText = q.optionA;
-              if (correctKey === 'B') ansText = q.optionB;
-              else if (correctKey === 'C') ansText = q.optionC;
-              else if (correctKey === 'D') ansText = q.optionD;
-              if (!ansText) ansText = q.word || q.optionA;
+              let ansText = q.word || q['option' + correctKey] || q.optionA || '';
               return { question: ansText };
             }).filter(item => !!item.question);
             const enVoice = settings.voiceLang && settings.voiceLang.startsWith('en-') ? settings.voiceLang : 'en-US-AnaNeural';
             await audioSynth.preloadWordList(ansSpeechItems, enVoice, settings.voiceSpeed || 1.25);
+          } else if (settings.readAnswer === true && setObj.mode !== 'player-guess' && setObj.mode !== 'landmark-guess' && setObj.mode !== 'food-guess' && setObj.mode !== 'flags') {
+            // Các dạng khác: Tuyệt đối KHÔNG preload giọng tiếng Anh! Chỉ dùng giọng tiếng Việt nếu bật đọc đáp án
+            const ansSpeechItems = qList.map(q => {
+              const correctKey = (q.correctOption || 'A').toUpperCase();
+              let ansText = q['option' + correctKey] || q.optionA || '';
+              return { question: ansText };
+            }).filter(item => !!item.question);
+            const viVoice = settings.voiceLang && settings.voiceLang.startsWith('vi-') ? settings.voiceLang : 'vi-VN-HoaiMyNeural';
+            await audioSynth.preloadWordList(ansSpeechItems, viVoice, settings.voiceSpeed || 1.25);
           }
           await preloadQuestionImages(qList);
         } catch (preloadErr) {
@@ -8137,38 +8189,40 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
                 (setObj?.topic && (setObj.topic.toUpperCase().includes('ĐỊA LÝ') || (setObj.topic.toUpperCase().includes('VIỆT NAM') && !setObj.topic.toUpperCase().includes('MÓN ĂN')))) ||
                 (activeQ?.topic && (activeQ.topic.toUpperCase().includes('ĐỊA LÝ') || (activeQ.topic.toUpperCase().includes('VIỆT NAM') && !activeQ.topic.toUpperCase().includes('MÓN ĂN'))))
               );
-              const isLandmarkOrFoodExport = !isVietnamGeoExport && (setObj?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess');
-              if ((settings.readAnswer || isLandmarkOrFoodExport || isLingoBiBi || isVocabCEFRExport) && !isImageGuessExportOnly && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
+              const isEnglishFormatExport = isEnglishVocabPresetOrMode(selectedMCQPreset, setObj, activeQ);
+              if (isEnglishFormatExport) {
+                // CHỈ 2 dạng video được phát âm tiếng Anh cho đáp án: Ô chữ B1 và Trắc nghiệm từ vựng
                 const correctKey = (activeQ.correctOption || 'A').toUpperCase();
-                let targetWord = activeQ.landmark || activeQ.dish || activeQ.word || '';
-                if (!targetWord) {
-                  if (correctKey === 'A') targetWord = activeQ.optionA;
-                  else if (correctKey === 'B') targetWord = activeQ.optionB;
-                  else if (correctKey === 'C') targetWord = activeQ.optionC;
-                  else if (correctKey === 'D') targetWord = activeQ.optionD;
-                }
-                if (!targetWord) {
-                  targetWord = activeQ.optionA || '';
-                }
-
+                let targetWord = activeQ.word || activeQ['option' + correctKey] || activeQ.optionA || '';
                 targetWord = String(targetWord || '').trim();
                 if (targetWord) {
-                  const isViText = isLandmarkOrFoodExport || (!isLingoBiBi && !isVocabCEFRExport && (
-                    /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/i.test(targetWord) ||
-                    (setObj && (setObj.topic === 'ĐỐ VUI B1' || setObj.topic === 'TRẮC NGHIỆM B1')) ||
-                    (activeQ && (activeQ.topic === 'ĐỐ VUI B1' || activeQ.topic === 'TRẮC NGHIỆM B1'))
-                  ));
-
-                  const answerVoice = (isLingoBiBi || isVocabCEFRExport || !isViText)
-                    ? (settings.voiceLang && settings.voiceLang.startsWith('en-') ? settings.voiceLang : 'en-US-AnaNeural')
-                    : (settings.voiceLang && settings.voiceLang.startsWith('vi-') ? settings.voiceLang : 'vi-VN-HoaiMyNeural');
-
+                  const enVoice = (settings.voiceLang && settings.voiceLang.startsWith('en-'))
+                    ? settings.voiceLang
+                    : 'en-US-AnaNeural';
                   audioSynth.playSpeech(
                     targetWord,
-                    answerVoice,
+                    enVoice,
                     dest,
                     { rate: settings.voiceSpeed || 1.25 }
                   );
+                }
+              } else {
+                // TẤT CẢ các dạng còn lại: TUYỆT ĐỐI KHÔNG PHÁT GIỌNG TIẾNG ANH!
+                if (settings.readAnswer && !isImageGuessExportOnly && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
+                  const correctKey = (activeQ.correctOption || 'A').toUpperCase();
+                  let targetWord = activeQ.landmark || activeQ.dish || activeQ['option' + correctKey] || activeQ.optionA || '';
+                  targetWord = String(targetWord || '').trim();
+                  if (targetWord) {
+                    const viVoice = (settings.voiceLang && settings.voiceLang.startsWith('vi-'))
+                      ? settings.voiceLang
+                      : 'vi-VN-HoaiMyNeural';
+                    audioSynth.playSpeech(
+                      targetWord,
+                      viVoice,
+                      dest,
+                      { rate: settings.voiceSpeed || 1.25 }
+                    );
+                  }
                 }
               }
             }

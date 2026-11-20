@@ -2440,6 +2440,7 @@ export const MCQ_PRESETS = [
     "badge": "Ô CHỮ B1",
     "mode": "word-guess",
     "guessTime": 3,
+    "readAnswer": true,
     "sampleFiles": [
       {
         "name": "mau_doan_tu_vung_word_guess.json",
