@@ -213,7 +213,7 @@ export default function SettingsPanel({ settings, setSettings }) {
                 checked={settings.readAnswer !== false}
                 onChange={e => handleChange('readAnswer', e.target.checked)}
               />
-              <span>Đọc giọng AI khi ra đáp án (Tắt = Chỉ phát tiếng bíp bíp 🔔)</span>
+              <span>Đọc giọng AI khi ra đáp án (Áp dụng cho Ô Chữ & Trắc Nghiệm Từ Vựng; các dạng khác chỉ đọc câu hỏi)</span>
             </label>
             <label className="checkbox-item">
               <input

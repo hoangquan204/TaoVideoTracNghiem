@@ -243,7 +243,7 @@ export default function MCQForm({
                 : (targetPreset === 'english-vocab-cefr' ? 'english-vocab-cefr' : 'vocab-b1-tiktok'),
               voiceLang: 'vi-VN-HoaiMyNeural',
               guessTime: 3,
-              readAnswer: true,
+              readAnswer: (targetPreset === 'vocab-b1-word-guess' || targetPreset === 'english-vocab-cefr'),
               selectedMCQPreset: targetPreset
             }));
           }
