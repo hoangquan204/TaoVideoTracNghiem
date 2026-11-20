@@ -201,6 +201,41 @@ const GUIDE_PRESETS = [
     }
   },
   {
+    id: 'english-vocab-cefr',
+    title: 'Trắc Nghiệm Từ Vựng Tiếng Anh (CEFR A1 - C2)',
+    badge: 'TỪ VỰNG TIẾNG ANH',
+    emoji: '📖',
+    desc: 'Trắc nghiệm đoán từ vựng tiếng Anh theo khung chuẩn Châu Âu CEFR 6 cấp độ (A1, A2, B1, B2, C1, C2). Câu hỏi là nghĩa tiếng Việt (VD: "Sức khỏe"), 4 lựa chọn A, B, C, D là các từ tiếng Anh. Phát âm câu hỏi tiếng Việt, đọc đáp án tiếng Anh chuẩn bản xứ kèm phiên âm IPA quốc tế.',
+    platforms: ['TikTok / Shorts 9:16', 'YouTube 16:9'],
+    sampleFile: 'mau_trac_nghiem_tu_vung_b1.json',
+    flow: [
+      { step: '1. Đọc câu hỏi tiếng Việt', text: 'Giọng Việt đọc to nghĩa từ tiếng Việt cần đố (VD: "Sức khỏe", "Bền vững").' },
+      { step: '2. Đếm ngược 3s', text: 'Thanh thời gian đếm ngược 3 giây cho khán giả chọn 1 trong 4 từ tiếng Anh A, B, C, D.' },
+      { step: '3. Công bố đáp án & Phát âm', text: 'Đáp án đúng chuyển màu xanh lá rực rỡ, giọng bản xứ phát âm từ vựng tiếng Anh chuẩn xác, hiện phiên âm IPA và giải thích nghĩa.' }
+    ],
+    fields: [
+      { name: 'question', type: 'String', desc: 'Nghĩa tiếng Việt cần đố (VD: Sức khỏe)' },
+      { name: 'optionA, B, C, D', type: 'String', desc: '4 phương án từ tiếng Anh (VD: Health, Wealth, Heart, Heal)' },
+      { name: 'correctOption', type: 'A | B | C | D', desc: 'Chữ cái đáp án chính xác' },
+      { name: 'ipa', type: 'String', desc: 'Phiên âm quốc tế IPA (VD: /helθ/)' },
+      { name: 'level', type: 'A1 | A2 | B1 | B2 | C1 | C2', desc: 'Trình độ theo khung CEFR Châu Âu' },
+      { name: 'image', type: 'URL', desc: 'Ảnh minh họa từ vựng sắc nét Unsplash' },
+      { name: 'explanation', type: 'String', desc: 'Từ loại, giải thích nghĩa và ví dụ sử dụng' }
+    ],
+    jsonSample: {
+      question: "Sức khỏe",
+      optionA: "Health",
+      optionB: "Wealth",
+      optionC: "Heart",
+      optionD: "Heal",
+      correctOption: "A",
+      ipa: "/helθ/",
+      level: "A2",
+      explanation: "Health (n): Sức khỏe, tình trạng thể chất và tinh thần tốt.",
+      image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&q=80"
+    }
+  },
+  {
     id: 'ca-dao-tuc-ngu',
     title: 'Đố Ca Dao Tục Ngữ Việt Nam',
     badge: 'CA DAO TỤC NGỮ',

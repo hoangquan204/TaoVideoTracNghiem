@@ -29,6 +29,29 @@ export default function MCQForm({
     Boolean(currentQuestions[0]?.word && !currentQuestions[0]?.optionB)
   );
 
+  const isCefrVocabMode = (
+    selectedPreset === 'english-vocab-cefr' ||
+    currentMode === 'english-vocab-cefr' ||
+    Boolean(questionSets[0]?.mode === 'english-vocab-cefr') ||
+    Boolean(currentQuestions[0]?.mode === 'english-vocab-cefr')
+  );
+
+  const activeLevel = (
+    questionSets[activeSetIndex]?.level ||
+    questionSets[0]?.level ||
+    questionSets[activeSetIndex]?.topic?.match(/[ABC][12]/)?.[0] ||
+    'B1'
+  ).toUpperCase();
+
+  const handleSelectCefrLevel = (levelKey) => {
+    const cefrPreset = MCQ_PRESETS.find(p => p.id === 'english-vocab-cefr');
+    if (!cefrPreset || !cefrPreset.cefrLevels || !cefrPreset.cefrLevels[levelKey]) return;
+    const newSets = JSON.parse(JSON.stringify(cefrPreset.cefrLevels[levelKey]));
+    setQuestionSets(newSets);
+    setBackupSets(null);
+    setActiveSetIndex(0);
+  };
+
   const handleMergeAllSets = () => {
     if (questionSets.length <= 1) return;
     const totalQuestions = questionSets.reduce((acc, s) => acc + (s.questions?.length || 0), 0);
@@ -128,10 +151,12 @@ export default function MCQForm({
 
   const handleAddQuestion = () => {
     const updatedSets = [...questionSets];
-    const curMode = questionSets[activeSetIndex]?.mode || 'vocab-b1-tiktok';
-    const defaultQuestion = curMode === 'animal-guess'
-      ? 'Đây là con gì?'
-      : (curMode === 'food-guess' ? 'Đây là món gì?' : (curMode === 'landmark-guess' ? 'Đây là địa danh nào?' : (curMode === 'flags' ? 'Đây là quốc kỳ của nước nào?' : 'Câu hỏi mới?')));
+    const curMode = questionSets[activeSetIndex]?.mode || (isCefrVocabMode ? 'english-vocab-cefr' : 'vocab-b1-tiktok');
+    const defaultQuestion = isCefrVocabMode
+      ? 'Sức khỏe'
+      : (curMode === 'animal-guess'
+        ? 'Đây là con gì?'
+        : (curMode === 'food-guess' ? 'Đây là món gì?' : (curMode === 'landmark-guess' ? 'Đây là địa danh nào?' : (curMode === 'flags' ? 'Đây là quốc kỳ của nước nào?' : 'Câu hỏi mới?'))));
 
     const newQuestion = isWordMode ? {
       id: `q-${Date.now()}`,
@@ -143,6 +168,19 @@ export default function MCQForm({
       correctOption: 'A',
       explanation: 'Balance (n/v): Cân bằng, sự thăng bằng',
       mode: 'word-guess'
+    } : (isCefrVocabMode ? {
+      id: `q-${Date.now()}`,
+      question: 'Sức khỏe',
+      optionA: 'Health',
+      optionB: 'Wealth',
+      optionC: 'Heart',
+      optionD: 'Heal',
+      correctOption: 'A',
+      ipa: '/helθ/',
+      explanation: 'Health (n): Sức khỏe, tình trạng thể chất tốt',
+      image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&q=80',
+      level: activeLevel,
+      mode: 'english-vocab-cefr'
     } : {
       id: `q-${Date.now()}`,
       question: defaultQuestion,
@@ -154,7 +192,7 @@ export default function MCQForm({
       correctOption: 'A',
       explanation: 'Giải thích cho đáp án đúng...',
       mode: curMode
-    };
+    });
 
     const updatedQs = [...currentQuestions, newQuestion];
     updatedSets[activeSetIndex] = {
@@ -190,7 +228,7 @@ export default function MCQForm({
           const lowerName = file.name.toLowerCase();
           const targetPreset = (selectedPreset && selectedPreset !== 'custom' && selectedPreset !== 'file')
             ? selectedPreset
-            : 'dia-ly-van-hoa-viet-nam';
+            : ((lowerName.includes('tu_vung') || lowerName.includes('cefr')) ? 'english-vocab-cefr' : 'dia-ly-van-hoa-viet-nam');
           const parsedSets = parseMultiMCQFile(content, lowerName, targetPreset);
           setQuestionSets(parsedSets);
           setBackupSets(null);
@@ -202,9 +240,10 @@ export default function MCQForm({
               ...prev,
               theme: (targetPreset === 'animal-guess' || targetPreset === 'food-guess' || targetPreset === 'landmark-guess' || targetPreset === 'flags')
                 ? targetPreset
-                : 'vocab-b1-tiktok',
+                : (targetPreset === 'english-vocab-cefr' ? 'english-vocab-cefr' : 'vocab-b1-tiktok'),
               voiceLang: 'vi-VN-HoaiMyNeural',
               guessTime: 3,
+              readAnswer: true,
               selectedMCQPreset: targetPreset
             }));
           }
@@ -256,6 +295,42 @@ export default function MCQForm({
         <div className="file-loading-banner">
           <Loader2 className="spin-icon" size={20} />
           <span>{loadingText}</span>
+        </div>
+      )}
+
+      {/* CEFR Level Selector Bar */}
+      {isCefrVocabMode && (
+        <div className="cefr-level-bar">
+          <div className="cefr-level-header">
+            <span className="section-label">
+              <span className="cefr-icon">🎯</span> Trình độ CEFR:
+            </span>
+            <span className="cefr-current-badge">
+              Trình độ {activeLevel}
+            </span>
+          </div>
+
+          <div className="cefr-pills-row">
+            {[
+              { id: 'A1', label: 'Cơ Bản' },
+              { id: 'A2', label: 'Sơ Cấp' },
+              { id: 'B1', label: 'Trung Cấp' },
+              { id: 'B2', label: 'Trên Trung Cấp' },
+              { id: 'C1', label: 'Cao Cấp' },
+              { id: 'C2', label: 'Thành Thạo' },
+            ].map(lvl => (
+              <button
+                key={lvl.id}
+                type="button"
+                className={`cefr-pill-btn ${activeLevel === lvl.id ? 'active' : ''}`}
+                onClick={() => handleSelectCefrLevel(lvl.id)}
+                title={`Chuyển sang 4 bộ từ vựng trình độ ${lvl.id} (${lvl.label})`}
+              >
+                <span className="cefr-pill-code">{lvl.id}</span>
+                <span className="cefr-pill-desc">{lvl.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -325,7 +400,32 @@ export default function MCQForm({
           <Upload size={14} /> Tải file lên
         </button>
 
-        {activePresetObj?.sampleFiles && activePresetObj.sampleFiles.length > 0 ? (
+        {isCefrVocabMode ? (
+          <div className="cefr-toolbar-downloads">
+            <button
+              type="button"
+              className="toolbar-btn btn-sample active-level-dl"
+              onClick={() => handleDownloadSampleFile(`mau_trac_nghiem_tu_vung_${activeLevel.toLowerCase()}.json`)}
+              title={`Tải file mẫu JSON cho Trình độ ${activeLevel}`}
+            >
+              <Download size={14} /> Tải file mẫu JSON ({activeLevel})
+            </button>
+            <div className="cefr-quick-download-pills">
+              <span className="quick-dl-label">Mẫu khác:</span>
+              {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].filter(l => l !== activeLevel).map(l => (
+                <button
+                  key={l}
+                  type="button"
+                  className="cefr-quick-dl-pill"
+                  onClick={() => handleDownloadSampleFile(`mau_trac_nghiem_tu_vung_${l.toLowerCase()}.json`)}
+                  title={`Tải file JSON mẫu trình độ ${l}`}
+                >
+                  <Download size={11} /> {l}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (activePresetObj?.sampleFiles && activePresetObj.sampleFiles.length > 0 ? (
           activePresetObj.sampleFiles.map((sFile, sIdx) => (
             <button
               key={sIdx}
@@ -346,7 +446,7 @@ export default function MCQForm({
           >
             <Download size={14} /> Tải file mẫu JSON
           </button>
-        )}
+        ))}
       </div>
 
       {/* Questions List */}
@@ -371,20 +471,22 @@ export default function MCQForm({
             <div className="question-fields-body">
               {/* Question Text */}
               <div className="form-field full-width">
-                <label className="field-label">{isWordMode ? 'Gợi ý nghĩa tiếng Việt (Câu hỏi):' : 'Câu hỏi:'}</label>
+                <label className="field-label">
+                  {isWordMode ? 'Gợi ý nghĩa tiếng Việt (Câu hỏi):' : (isCefrVocabMode ? 'Nghĩa tiếng Việt (Câu hỏi đố):' : 'Câu hỏi:')}
+                </label>
                 <input
                   type="text"
                   className="field-input"
                   value={item.question || ''}
                   onChange={(e) => handleQuestionChange(idx, 'question', e.target.value)}
-                  placeholder={isWordMode ? 'Nhập gợi ý nghĩa tiếng Việt (VD: Cân bằng)...' : 'Nhập nội dung câu hỏi...'}
+                  placeholder={isWordMode ? 'Nhập gợi ý nghĩa tiếng Việt (VD: Cân bằng)...' : (isCefrVocabMode ? 'VD: Sức khỏe, Cân bằng, Môi trường, Bền vững...' : 'Nhập nội dung câu hỏi...')}
                   maxLength={120}
                 />
               </div>
 
               {/* Image URL */}
               <div className="form-field full-width">
-                <label className="field-label">Hình ảnh (URL):</label>
+                <label className="field-label">Hình ảnh minh họa (URL):</label>
                 <div className="image-url-input-wrap">
                   <input
                     type="text"
@@ -442,49 +544,49 @@ export default function MCQForm({
                   {/* 4 Options Grid */}
                   <div className="options-grid">
                     <div className="form-field">
-                      <label className="field-label label-opt-a">Đáp án A:</label>
+                      <label className="field-label label-opt-a">{isCefrVocabMode ? 'Đáp án A (Tiếng Anh):' : 'Đáp án A:'}</label>
                       <input
                         type="text"
                         className="field-input"
                         value={item.optionA || ''}
                         onChange={(e) => handleQuestionChange(idx, 'optionA', e.target.value)}
-                        placeholder="Đáp án A"
+                        placeholder={isCefrVocabMode ? "VD: Health" : "Đáp án A"}
                         maxLength={60}
                       />
                     </div>
 
                     <div className="form-field">
-                      <label className="field-label label-opt-b">Đáp án B:</label>
+                      <label className="field-label label-opt-b">{isCefrVocabMode ? 'Đáp án B (Tiếng Anh):' : 'Đáp án B:'}</label>
                       <input
                         type="text"
                         className="field-input"
                         value={item.optionB || ''}
                         onChange={(e) => handleQuestionChange(idx, 'optionB', e.target.value)}
-                        placeholder="Đáp án B"
+                        placeholder={isCefrVocabMode ? "VD: Wealth" : "Đáp án B"}
                         maxLength={60}
                       />
                     </div>
 
                     <div className="form-field">
-                      <label className="field-label label-opt-c">Đáp án C:</label>
+                      <label className="field-label label-opt-c">{isCefrVocabMode ? 'Đáp án C (Tiếng Anh):' : 'Đáp án C:'}</label>
                       <input
                         type="text"
                         className="field-input"
                         value={item.optionC || ''}
                         onChange={(e) => handleQuestionChange(idx, 'optionC', e.target.value)}
-                        placeholder="Đáp án C"
+                        placeholder={isCefrVocabMode ? "VD: Heart" : "Đáp án C"}
                         maxLength={60}
                       />
                     </div>
 
                     <div className="form-field">
-                      <label className="field-label label-opt-d">Đáp án D:</label>
+                      <label className="field-label label-opt-d">{isCefrVocabMode ? 'Đáp án D (Tiếng Anh):' : 'Đáp án D:'}</label>
                       <input
                         type="text"
                         className="field-input"
                         value={item.optionD || ''}
                         onChange={(e) => handleQuestionChange(idx, 'optionD', e.target.value)}
-                        placeholder="Đáp án D"
+                        placeholder={isCefrVocabMode ? "VD: Heal" : "Đáp án D"}
                         maxLength={60}
                       />
                     </div>
@@ -514,6 +616,23 @@ export default function MCQForm({
                       })}
                     </div>
                   </div>
+
+                  {/* IPA Transcription input for CEFR vocabulary mode */}
+                  {isCefrVocabMode && (
+                    <div className="form-field full-width">
+                      <label className="field-label" style={{ color: '#00F0FF', fontWeight: 700 }}>
+                        🔊 Phiên âm IPA chuẩn quốc tế:
+                      </label>
+                      <input
+                        type="text"
+                        className="field-input"
+                        value={item.ipa || ''}
+                        onChange={(e) => handleQuestionChange(idx, 'ipa', e.target.value)}
+                        placeholder="VD: /helθ/, /ˈbæl.əns/, /səˈsteɪ.nə.bəl/..."
+                        maxLength={50}
+                      />
+                    </div>
+                  )}
                 </>
               )}
 

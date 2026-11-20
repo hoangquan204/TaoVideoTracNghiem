@@ -2324,3 +2324,156 @@ button, input, select, textarea {
     justify-content: center;
   }
 }
+
+/* ========================================================
+   CEFR LEVEL SELECTOR & DOWNLOAD STYLES (A1 - C2)
+   ======================================================== */
+.cefr-level-bar {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.85));
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.cefr-level-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cefr-current-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  color: #FFFFFF;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.cefr-pills-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .cefr-pills-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.cefr-pill-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #94A3B8;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.cefr-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #F8FAFC;
+  transform: translateY(-1px);
+}
+
+.cefr-pill-code {
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: #E2E8F0;
+}
+
+.cefr-pill-desc {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94A3B8;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.cefr-pill-btn.active {
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  border-color: #60A5FA;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+  transform: translateY(-2px);
+}
+
+.cefr-pill-btn.active .cefr-pill-code,
+.cefr-pill-btn.active .cefr-pill-desc {
+  color: #FFFFFF;
+}
+
+/* CEFR Toolbar Downloads */
+.cefr-toolbar-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.active-level-dl {
+  background: linear-gradient(135deg, #059669, #10B981) !important;
+  border-color: #34D399 !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3) !important;
+}
+
+.active-level-dl:hover {
+  background: linear-gradient(135deg, #047857, #059669) !important;
+  transform: translateY(-1px);
+}
+
+.cefr-quick-download-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.quick-dl-label {
+  font-size: 0.7rem;
+  color: #94A3B8;
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+.cefr-quick-dl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #E2E8F0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cefr-quick-dl-pill:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: #60A5FA;
+  color: #60A5FA;
+}

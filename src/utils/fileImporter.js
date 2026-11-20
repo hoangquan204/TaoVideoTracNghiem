@@ -86,11 +86,18 @@ export function parseMCQFile(fileContent, fileName) {
 export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
   let sets = [];
 
-  const isVietnamGeoContext = currentPreset === 'dia-ly-van-hoa-viet-nam' ||
+  const isVocabCefrContext = currentPreset === 'english-vocab-cefr' ||
+    fileName.includes('tu_vung') || fileName.includes('cefr') ||
+    (fileContent.includes('TỪ VỰNG') && (fileContent.includes('CEFR') || fileContent.includes('A1') || fileContent.includes('A2') || fileContent.includes('B1') || fileContent.includes('B2') || fileContent.includes('C1') || fileContent.includes('C2')));
+
+  const isVietnamGeoContext = !isVocabCefrContext && (
+    currentPreset === 'dia-ly-van-hoa-viet-nam' ||
     fileName.includes('dia_ly') || fileName.includes('dia-ly') ||
     fileName.includes('viet_nam') || fileName.includes('viet-nam') ||
-    fileName.includes('mau_trac_nghiem') ||
-    fileContent.includes('ĐỊA LÝ') || fileContent.includes('VIỆT NAM') || fileContent.includes('Địa Lý');
+    fileName.includes('mau_trac_nghiem_dia_ly') ||
+    (fileName.includes('mau_trac_nghiem') && !fileName.includes('tu_vung') && !fileName.includes('cefr')) ||
+    fileContent.includes('ĐỊA LÝ') || fileContent.includes('VIỆT NAM') || fileContent.includes('Địa Lý')
+  );
 
   const isAnimalContext = !isVietnamGeoContext && (currentPreset === 'animal-guess' ||
     fileName.includes('con_vat') || fileName.includes('con-vat') || fileName.includes('animal') ||
@@ -137,7 +144,7 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
       (item.question && String(item.question).toLowerCase().includes('đoán cầu thủ')) ||
       !!(item.player || item.cau_thu));
       
-    const defaultItemMode = isVietnamGeoContext ? 'vocab-b1-tiktok' : (isAnimalItem ? 'animal-guess' : (isFoodItem ? 'food-guess' : (isFlagsItem ? 'flags' : (isPlayerItem ? 'player-guess' : (isLandmarkItem ? 'landmark-guess' : (rawClues.length > 0 || rawCountry ? 'country-guess' : (rawWord ? 'word-guess' : 'mcq')))))));
+    const defaultItemMode = isVocabCefrContext ? 'english-vocab-cefr' : (isVietnamGeoContext ? 'vocab-b1-tiktok' : (isAnimalItem ? 'animal-guess' : (isFoodItem ? 'food-guess' : (isFlagsItem ? 'flags' : (isPlayerItem ? 'player-guess' : (isLandmarkItem ? 'landmark-guess' : (rawClues.length > 0 || rawCountry ? 'country-guess' : (rawWord ? 'word-guess' : 'mcq'))))))));
     const rawMode = item.mode || item.type || setMode || setObj.mode || defaultItemMode;
 
     const optA = item.optionA || item.option_a || item.dap_an_a || item.a || rawWord || (rawCountry || 'Đáp án A');
@@ -149,10 +156,10 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
     return {
       id: item.id || `q-${idx + 1}`,
       question: item.question || item.cau_hoi || item.q || (rawMode === 'animal-guess' ? 'Đây là con gì?' : (rawMode === 'food-guess' ? 'Đây là món gì?' : (rawMode === 'flags' ? 'Đây là quốc kỳ của nước nào?' : (rawMode === 'landmark-guess' ? 'Đây là địa danh nào?' : (rawCountry ? `Đoán Quốc Gia: ${rawCountry}` : item.word || `Câu hỏi ${idx + 1}?`))))),
-      topic: item.topic || item.category || item.level || setObj.topic || (isVietnamGeoContext ? 'ĐỊA LÝ & VĂN HÓA VN' : (rawMode === 'animal-guess' ? '🐾 ĐOÁN CON VẬT' : (rawMode === 'food-guess' ? '🍳 ĐOÁN MÓN ĂN' : (rawMode === 'flags' ? '🚩 ĐOÁN QUỐC KỲ' : (rawMode === 'landmark-guess' ? '🏛️ ĐOÁN ĐỊA DANH' : (rawMode === 'country-guess' ? '🌎 ĐOÁN QUỐC GIA' : 'TỪ VỰNG B1')))))),
-      fromFlag: item.fromFlag || item.from_flag || item.source_flag || setObj.fromFlag || (isVietnamGeoContext ? '🇻🇳' : (rawMode === 'animal-guess' ? '🐾' : (rawMode === 'food-guess' ? '🍳' : (rawMode === 'flags' ? '🚩' : (rawMode === 'landmark-guess' ? '🏛️' : (rawMode === 'country-guess' ? '🌎' : '🇻🇳')))))),
-      toFlag: item.toFlag || item.to_flag || item.target_flag || setObj.toFlag || (isVietnamGeoContext ? '🇻🇳' : (rawMode === 'animal-guess' ? '🦁' : (rawMode === 'food-guess' ? '🍽️' : (rawMode === 'flags' ? '🌏' : (rawMode === 'landmark-guess' ? '🌍' : (rawMode === 'country-guess' ? '🚩' : '🇺🇸')))))),
-      headerTitle: item.headerTitle || item.header_title || item.subHeader || setObj.headerTitle || (isVietnamGeoContext ? 'CHỌN ĐÁP ÁN ĐÚNG' : (rawMode === 'animal-guess' ? 'ĐÂY LÀ CON GÌ?' : (rawMode === 'food-guess' ? 'ĐÂY LÀ MÓN GÌ?' : (rawMode === 'flags' ? 'ĐÂY LÀ QUỐC KỲ CỦA NƯỚC NÀO?' : (rawMode === 'landmark-guess' ? 'ĐÂY LÀ ĐỊA DANH NÀO?' : (rawMode === 'country-guess' ? 'ĐOÁN QUỐC GIA QUA 5 GỢI Ý' : 'TỪ NÀO CÓ NGHĨA LÀ')))))),
+      topic: item.topic || item.category || (item.level ? `TỪ VỰNG ${item.level}` : '') || setObj.topic || (isVocabCefrContext ? 'TỪ VỰNG TIẾNG ANH' : (isVietnamGeoContext ? 'ĐỊA LÝ & VĂN HÓA VN' : (rawMode === 'animal-guess' ? '🐾 ĐOÁN CON VẬT' : (rawMode === 'food-guess' ? '🍳 ĐOÁN MÓN ĂN' : (rawMode === 'flags' ? '🚩 ĐOÁN QUỐC KỲ' : (rawMode === 'landmark-guess' ? '🏛️ ĐOÁN ĐỊA DANH' : (rawMode === 'country-guess' ? '🌎 ĐOÁN QUỐC GIA' : 'TỪ VỰNG B1'))))))),
+      fromFlag: item.fromFlag || item.from_flag || item.source_flag || setObj.fromFlag || (isVocabCefrContext ? '🇻🇳' : (isVietnamGeoContext ? '🇻🇳' : (rawMode === 'animal-guess' ? '🐾' : (rawMode === 'food-guess' ? '🍳' : (rawMode === 'flags' ? '🚩' : (rawMode === 'landmark-guess' ? '🏛️' : (rawMode === 'country-guess' ? '🌎' : '🇻🇳'))))))),
+      toFlag: item.toFlag || item.to_flag || item.target_flag || setObj.toFlag || (isVocabCefrContext ? '🇬🇧' : (isVietnamGeoContext ? '🇻🇳' : (rawMode === 'animal-guess' ? '🦁' : (rawMode === 'food-guess' ? '🍽️' : (rawMode === 'flags' ? '🌏' : (rawMode === 'landmark-guess' ? '🌍' : (rawMode === 'country-guess' ? '🚩' : '🇺🇸'))))))),
+      headerTitle: item.headerTitle || item.header_title || item.subHeader || setObj.headerTitle || (isVocabCefrContext ? 'CHỌN TỪ TIẾNG ANH ĐÚNG' : (isVietnamGeoContext ? 'CHỌN ĐÁP ÁN ĐÚNG' : (rawMode === 'animal-guess' ? 'ĐÂY LÀ CON GÌ?' : (rawMode === 'food-guess' ? 'ĐÂY LÀ MÓN GÌ?' : (rawMode === 'flags' ? 'ĐÂY LÀ QUỐC KỲ CỦA NƯỚC NÀO?' : (rawMode === 'landmark-guess' ? 'ĐÂY LÀ ĐỊA DANH NÀO?' : (rawMode === 'country-guess' ? 'ĐOÁN QUỐC GIA QUA 5 GỢI Ý' : 'TỪ NÀO CÓ NGHĨA LÀ'))))))),
       optionA: optA,
       optionB: optB,
       optionC: optC,
@@ -162,7 +169,8 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
       image: item.image || item.img || item.hinh_anh || item.bg || item.background || '',
       word: isVietnamGeoContext ? '' : (rawWord || (rawMode === 'word-guess' || rawMode === 'food-guess' || rawMode === 'landmark-guess' ? rawLandmarkWord : '')),
       ipa: item.ipa || item.phien_am || '',
-      mode: isVietnamGeoContext ? 'vocab-b1-tiktok' : rawMode,
+      level: item.level || setObj.level || (isVocabCefrContext ? (item.topic?.match(/[ABC][12]/)?.[0] || 'B1') : undefined),
+      mode: isVocabCefrContext ? 'english-vocab-cefr' : (isVietnamGeoContext ? 'vocab-b1-tiktok' : rawMode),
       country: rawCountry,
       flag: rawFlag,
       clues: (Array.isArray(rawClues) && rawClues.length > 0) ? rawClues : undefined
@@ -195,7 +203,7 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
           const isFoodSet = !isVietnamGeoContext && !isAnimalSet && !isFlagsSet && (s.mode === 'food-guess' || firstQ?.mode === 'food-guess' || isFoodContext || s.topic?.toLowerCase().includes('đoán món') || s.name?.toLowerCase().includes('đoán món'));
           const isLandmarkSet = !isVietnamGeoContext && !isAnimalSet && !isFlagsSet && !isFoodSet && (s.mode === 'landmark-guess' || s.mode === 'place-guess' || firstQ?.mode === 'landmark-guess' || s.topic?.toLowerCase().includes('đoán địa điểm') || s.name?.toLowerCase().includes('đoán địa điểm'));
           
-          const defaultSetMode = isVietnamGeoContext ? 'vocab-b1-tiktok' : (
+          const defaultSetMode = isVocabCefrContext ? 'english-vocab-cefr' : (isVietnamGeoContext ? 'vocab-b1-tiktok' : (
             isAnimalSet ? 'animal-guess' : (
               isFoodSet ? 'food-guess' : (
                 isFlagsSet ? 'flags' : (
@@ -207,12 +215,12 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
                 )
               )
             )
-          );
+          ));
           const setMode = s.mode || s.type || defaultSetMode;
           const chunkSize = setMode === 'country-guess' ? 4 : 5;
           const formattedQuestions = (s.questions || s.items || []).map((q, idx) => formatItem(q, idx, setMode, s));
 
-          const defaultSetTopic = isVietnamGeoContext ? 'ĐỊA LÝ & VĂN HÓA VN' : (
+          const defaultSetTopic = isVocabCefrContext ? (s.topic || 'TỪ VỰNG TIẾNG ANH') : (isVietnamGeoContext ? 'ĐỊA LÝ & VĂN HÓA VN' : (
             setMode === 'animal-guess' ? '🐾 ĐOÁN CON VẬT' : (
               setMode === 'food-guess' ? '🍳 ĐOÁN MÓN ĂN' : (
                 setMode === 'flags' ? '🚩 ĐOÁN QUỐC KỲ' : (
@@ -222,8 +230,8 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
                 )
               )
             )
-          );
-          const defaultFromFlag = isVietnamGeoContext ? '🇻🇳' : (
+          ));
+          const defaultFromFlag = isVocabCefrContext ? '🇻🇳' : (isVietnamGeoContext ? '🇻🇳' : (
             setMode === 'animal-guess' ? '🐾' : (
               setMode === 'food-guess' ? '🍳' : (
                 setMode === 'flags' ? '🚩' : (
@@ -233,8 +241,8 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
                 )
               )
             )
-          );
-          const defaultToFlag = isVietnamGeoContext ? '🇻🇳' : (
+          ));
+          const defaultToFlag = isVocabCefrContext ? '🇬🇧' : (isVietnamGeoContext ? '🇻🇳' : (
             setMode === 'animal-guess' ? '🦁' : (
               setMode === 'food-guess' ? '🍽️' : (
                 setMode === 'flags' ? '🌏' : (
@@ -244,8 +252,8 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
                 )
               )
             )
-          );
-          const defaultHeaderTitle = isVietnamGeoContext ? 'CHỌN ĐÁP ÁN ĐÚNG' : (
+          ));
+          const defaultHeaderTitle = isVocabCefrContext ? 'CHỌN TỪ TIẾNG ANH ĐÚNG' : (isVietnamGeoContext ? 'CHỌN ĐÁP ÁN ĐÚNG' : (
             setMode === 'animal-guess' ? 'ĐÂY LÀ CON GÌ?' : (
               setMode === 'food-guess' ? 'ĐÂY LÀ MÓN GÌ?' : (
                 setMode === 'flags' ? 'ĐÂY LÀ QUỐC KỲ CỦA NƯỚC NÀO?' : (
@@ -255,7 +263,7 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
                 )
               )
             )
-          );
+          ));
 
           // If set has more questions than chunkSize (e.g. > 5 questions), split into sub-sets
           if (formattedQuestions.length > chunkSize) {
@@ -264,27 +272,27 @@ export function parseMultiMCQFile(fileContent, fileName, currentPreset = '') {
               const partIndex = Math.floor(i / chunkSize) + 1;
               const setName = s.name || s.title || `Bộ câu hỏi #${sIdx + 1}`;
               rawSets.push({
-                id: isVietnamGeoContext ? 'dia-ly-van-hoa-viet-nam' : (s.id || `set-${sIdx + 1}-${partIndex}`),
-                presetId: isVietnamGeoContext ? 'dia-ly-van-hoa-viet-nam' : (s.presetId || setMode || ''),
+                id: isVocabCefrContext ? 'english-vocab-cefr' : (isVietnamGeoContext ? 'dia-ly-van-hoa-viet-nam' : (s.id || `set-${sIdx + 1}-${partIndex}`)),
+                presetId: isVocabCefrContext ? 'english-vocab-cefr' : (isVietnamGeoContext ? 'dia-ly-van-hoa-viet-nam' : (s.presetId || setMode || '')),
                 name: formattedQuestions.length > chunkSize ? `${setName} (Phần ${partIndex})` : setName,
                 topic: s.topic || s.category || defaultSetTopic,
                 fromFlag: s.fromFlag || s.from_flag || defaultFromFlag,
                 toFlag: s.toFlag || s.to_flag || defaultToFlag,
                 headerTitle: s.headerTitle || s.header_title || defaultHeaderTitle,
-                mode: isVietnamGeoContext ? 'vocab-b1-tiktok' : setMode,
+                mode: isVocabCefrContext ? 'english-vocab-cefr' : (isVietnamGeoContext ? 'vocab-b1-tiktok' : setMode),
                 questions: subQuestions
               });
             }
           } else {
             rawSets.push({
-              id: isVietnamGeoContext ? 'dia-ly-van-hoa-viet-nam' : (s.id || `set-${sIdx + 1}`),
-              presetId: isVietnamGeoContext ? 'dia-ly-van-hoa-viet-nam' : (s.presetId || setMode || ''),
+              id: isVocabCefrContext ? 'english-vocab-cefr' : (isVietnamGeoContext ? 'dia-ly-van-hoa-viet-nam' : (s.id || `set-${sIdx + 1}`)),
+              presetId: isVocabCefrContext ? 'english-vocab-cefr' : (isVietnamGeoContext ? 'dia-ly-van-hoa-viet-nam' : (s.presetId || setMode || '')),
               name: s.name || s.title || `Bộ câu hỏi #${sIdx + 1}`,
               topic: s.topic || s.category || defaultSetTopic,
               fromFlag: s.fromFlag || s.from_flag || defaultFromFlag,
               toFlag: s.toFlag || s.to_flag || defaultToFlag,
               headerTitle: s.headerTitle || s.header_title || defaultHeaderTitle,
-              mode: isVietnamGeoContext ? 'vocab-b1-tiktok' : setMode,
+              mode: isVocabCefrContext ? 'english-vocab-cefr' : (isVietnamGeoContext ? 'vocab-b1-tiktok' : setMode),
               questions: formattedQuestions
             });
           }

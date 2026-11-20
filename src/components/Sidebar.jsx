@@ -13,6 +13,7 @@ const PRESET_ICONS = {
   'landmark-guess': { icon: '🏛️', label: 'Đoán Địa Danh' },
   'flags': { icon: '🚩', label: 'Đoán Quốc Kỳ' },
   'vocab-b1-word-guess': { icon: '🔤', label: 'Đoán Ô Chữ B1' },
+  'english-vocab-cefr': { icon: '📖', label: 'Trắc Nghiệm Từ Vựng' },
 };
 
 // Presets allowed in the sidebar (ordered directly without category header texts)
@@ -24,6 +25,7 @@ const SIDEBAR_PRESET_IDS = [
   'landmark-guess',
   'flags',
   'vocab-b1-word-guess',
+  'english-vocab-cefr',
 ];
 
 const ALLOWED_PRESET_SET = new Set(SIDEBAR_PRESET_IDS);

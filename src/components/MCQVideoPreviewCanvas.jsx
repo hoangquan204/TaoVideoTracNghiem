@@ -386,7 +386,14 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     activeSet?.id === 'vocab-b1-word-guess' || activeSet?.id === 'vocab-image-word-guess' || activeSet?.mode === 'word-guess' ||
     (questions.length > 0 && (questions[0]?.mode === 'word-guess' || (questions[0]?.word && !questions[0]?.optionB)))
   );
-  const isVietnamGeoActive = !isImageGuessActive && !isWordGuessActive && (
+  const isVocabCEFRActive = (
+    selectedMCQPreset === 'english-vocab-cefr' ||
+    settings?.selectedMCQPreset === 'english-vocab-cefr' ||
+    activeSet?.mode === 'english-vocab-cefr' ||
+    activeSet?.id === 'english-vocab-cefr' ||
+    (questions.length > 0 && questions[0]?.mode === 'english-vocab-cefr')
+  );
+  const isVietnamGeoActive = !isImageGuessActive && !isWordGuessActive && !isVocabCEFRActive && (
     selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
     settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
     activeSet?.id === 'dia-ly-van-hoa-viet-nam' ||
@@ -1184,7 +1191,14 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           activeSet?.id === 'vocab-b1-word-guess' || activeSet?.mode === 'word-guess' ||
           activeQ?.mode === 'word-guess' || !!(activeQ && activeQ.word && !activeQ.optionB)
         );
-        const isVietnamGeoActive = !isImageGuessModeOnly && !isWordGuessLive && (
+        const isVocabCEFRLive = (
+          selectedMCQPreset === 'english-vocab-cefr' ||
+          settings?.selectedMCQPreset === 'english-vocab-cefr' ||
+          activeSet?.mode === 'english-vocab-cefr' ||
+          activeSet?.id === 'english-vocab-cefr' ||
+          activeQ?.mode === 'english-vocab-cefr'
+        );
+        const isVietnamGeoActive = !isImageGuessModeOnly && !isWordGuessLive && !isVocabCEFRLive && (
           selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
           settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
           activeSet?.id === 'dia-ly-van-hoa-viet-nam' ||
@@ -1195,7 +1209,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           (activeQ?.topic && (activeQ.topic.toUpperCase().includes('ĐỊA LÝ') || (activeQ.topic.toUpperCase().includes('VIỆT NAM') && !activeQ.topic.toUpperCase().includes('MÓN ĂN'))))
         );
         const isLandmarkOrFoodMode = !isVietnamGeoActive && (activeSet?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess');
-        if ((settings.readAnswer || isLandmarkOrFoodMode || isLingoBiBi) && !isImageGuessModeOnly && isPlayingRef.current && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
+        if ((settings.readAnswer || isLandmarkOrFoodMode || isLingoBiBi || isVocabCEFRLive) && !isImageGuessModeOnly && isPlayingRef.current && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
           // Lấy đáp án đúng (Option A, B, C, D hoặc landmark / dish / word)
           const correctKey = (activeQ.correctOption || 'A').toUpperCase();
           let targetWord = activeQ.landmark || activeQ.dish || activeQ.word || '';
@@ -1661,56 +1675,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       ctx.restore();
 
     } else if (stage === 'reveal') {
-      const revealElapsed = stageProgress * REVEAL_TIME;
-      const ctaAlpha = Math.min(1, Math.max(0, (revealElapsed - 0.3) / 0.4));
-      ctx.save();
-      ctx.globalAlpha = ctaAlpha;
-      drawIconThumbsUp(ctx, 400, 1615, 18, '#FFFFFF');
-      drawIconHeart(ctx, 680, 1615, 16, '#FF3366');
-      ctx.fillStyle = '#FFFFFF';
-      const ctaText = 'NHỚ LIKE & THEO DÕI ĐỂ HỌC NHIỀU TỪ MỚI!';
-      ctx.font = getFitFont(ctx, ctaText, 'bold', '"Be Vietnam Pro", sans-serif', 800, 34, 20);
-      ctx.textAlign = 'center';
-      ctx.fillText(ctaText, 540, 1615);
-      ctx.restore();
+      // reveal stage
     }
-
-    // 8. DYNAMIC FOOTER BADGE
-    const pulseFactor = Math.sin(timeInQ * 4) * 0.5 + 0.5;
-    ctx.save();
-    ctx.shadowColor = 'rgba(0, 240, 255, ' + (0.4 + pulseFactor * 0.4) + ')';
-    ctx.shadowBlur = 15 + pulseFactor * 15;
-    ctx.shadowOffsetY = 6;
-
-    const footerGrad = ctx.createLinearGradient(60, 1720, 1020, 1840);
-    footerGrad.addColorStop(0, 'rgba(24, 20, 44, 0.95)');
-    footerGrad.addColorStop(1, 'rgba(16, 14, 30, 0.95)');
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, 60, 1720, 960, 120, 60);
-    ctx.fill();
-
-    ctx.lineWidth = 4 + pulseFactor * 2;
-    const ringGrad = ctx.createLinearGradient(60, 1720, 1020, 1840);
-    ringGrad.addColorStop(0, theme.accent2 || '#FFDE59');
-    ringGrad.addColorStop(0.5, '#00F0FF');
-    ringGrad.addColorStop(1, theme.accent || '#FF3366');
-    ctx.strokeStyle = ringGrad;
-    ctx.stroke();
-    ctx.restore();
-
-    drawIconThumbsUp(ctx, 175, 1780, 20, '#FFFFFF');
-    drawIconHeart(ctx, 920, 1780, 18, '#FF3366');
-
-    const footerText = 'Nhớ LIKE & THEO DÕI để học thêm nhiều từ vựng mới!';
-    ctx.save();
-    ctx.font = getFitFont(ctx, footerText, 'bold', '"Be Vietnam Pro", sans-serif', 700, 36, 22);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText(footerText, 540, 1780);
-    ctx.restore();
 
     drawVignette(ctx);
   };
@@ -2449,8 +2415,19 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.stroke();
     ctx.restore();
 
-    // 2. TOP LEFT BADGE: "LINGO BIBI" / "TỪ VỰNG B1"
-    const topicText = (safeQObj.topic || targetSet.topic || (isLingoBiBi ? 'LINGO BIBI' : 'TỪ VỰNG B1')).toUpperCase();
+    // 2. TOP LEFT BADGE: "LINGO BIBI" / "TỪ VỰNG B1" / "TỪ VỰNG · B1"
+    const isCEFR = (
+      safeQObj.level ||
+      targetSet.level ||
+      safeQObj.mode === 'english-vocab-cefr' ||
+      targetSet.mode === 'english-vocab-cefr' ||
+      selectedMCQPreset === 'english-vocab-cefr'
+    );
+    const cefrLevel = safeQObj.level || targetSet.level || (safeQObj.topic && safeQObj.topic.match(/[ABC][12]/)?.[0]) || 'B1';
+    const topicText = (isCEFR
+      ? `TỪ VỰNG · ${cefrLevel}`
+      : (safeQObj.topic || targetSet.topic || (isLingoBiBi ? 'LINGO BIBI' : 'TỪ VỰNG B1'))
+    ).toUpperCase();
 
     // Tự động điều chỉnh font chữ & kích thước badge để không bao giờ bị tràn chữ hoặc tràn viền canvas
     let fontPx = 40;
@@ -2477,7 +2454,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.translate(badgeX, badgeY);
     ctx.rotate(-0.03); // Nghiêng nhẹ tạo điểm nhấn năng động
 
-    ctx.shadowColor = isLingoBiBi ? 'rgba(255, 42, 133, 0.55)' : 'rgba(0, 70, 200, 0.45)';
+    ctx.shadowColor = isLingoBiBi ? 'rgba(255, 42, 133, 0.55)' : (isCEFR ? 'rgba(0, 120, 255, 0.45)' : 'rgba(0, 70, 200, 0.45)');
     ctx.shadowBlur = 24;
     ctx.shadowOffsetY = 8;
 
@@ -2485,6 +2462,18 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     if (isLingoBiBi) {
       badgeGrad.addColorStop(0, '#FF2A85');
       badgeGrad.addColorStop(1, '#C71585');
+    } else if (isCEFR) {
+      const lvl = String(cefrLevel).toUpperCase();
+      if (lvl.startsWith('A')) {
+        badgeGrad.addColorStop(0, '#059669');
+        badgeGrad.addColorStop(1, '#10B981');
+      } else if (lvl.startsWith('C')) {
+        badgeGrad.addColorStop(0, '#7C3AED');
+        badgeGrad.addColorStop(1, '#9333EA');
+      } else {
+        badgeGrad.addColorStop(0, '#1D61F2');
+        badgeGrad.addColorStop(1, '#0284C7');
+      }
     } else {
       badgeGrad.addColorStop(0, '#1D61F2');
       badgeGrad.addColorStop(1, '#0052E0');
@@ -2505,7 +2494,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     // (Dự án tách riêng: không hiển thị logo)
 
     // 4. SUB-HEADER PILL: "ĐIỀN CHỮ CÁI CÒN THIẾU ➔"
-    const headerTitleText = (safeQObj.headerTitle || targetSet.headerTitle || 'TỪ NÀO CÓ NGHĨA LÀ').toUpperCase();
+    const headerTitleText = (safeQObj.headerTitle || targetSet.headerTitle || (isCEFR ? 'CHỌN TỪ TIẾNG ANH ĐÚNG' : 'TỪ NÀO CÓ NGHĨA LÀ')).toUpperCase();
     let subFontPx = 26;
     ctx.font = `900 ${subFontPx}px "Be Vietnam Pro", sans-serif`;
     let subMeasuredW = ctx.measureText(headerTitleText).width;
@@ -2993,101 +2982,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
         ctx.restore();
       }
     }
-
-    // 9. BOTTOM CTA FOOTER BANNER: "NHỚ LIKE & SUBSCRIBE kênh Lingo BiBi để học bài mới!"
-    const footerW = 920;
-    const footerH = 110;
-    const footerX = 540 - footerW / 2;
-    const footerY = 1720;
-
-    // Vạch vàng trang trí 2 bên footer
-    drawDecorationTicks(ctx, footerX - 25, footerY + footerH / 2, '#FFDE59', 1.2, -0.3);
-    drawDecorationTicks(ctx, footerX + footerW + 25, footerY + footerH / 2, '#FFDE59', 1.2, 0.3);
-
-    const pulseFactor = Math.sin(globalT * 3.5) * 0.5 + 0.5;
-
-    ctx.save();
-    ctx.shadowColor = isLingoBiBi
-      ? 'rgba(255, 42, 133, ' + (0.35 + pulseFactor * 0.35) + ')'
-      : 'rgba(0, 80, 220, ' + (0.35 + pulseFactor * 0.35) + ')';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 6;
-
-    // Nền pill hồng / xanh rực rỡ
-    const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
-    if (isLingoBiBi) {
-      footerGrad.addColorStop(0, '#FF2A85');
-      footerGrad.addColorStop(1, '#D81B60');
-    } else {
-      footerGrad.addColorStop(0, '#005BEA');
-      footerGrad.addColorStop(1, '#0043C6');
-    }
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, footerX, footerY, footerW, footerH, 55);
-    ctx.fill();
-
-    // Viền ngọc / hồng sáng
-    ctx.lineWidth = 3.5;
-    ctx.strokeStyle = isLingoBiBi ? '#FF80BF' : '#00C0FF';
-    ctx.stroke();
-    ctx.restore();
-
-    // Icon Like bên trái trong nút tròn trắng
-    ctx.save();
-    const iconCircleX = footerX + 65;
-    const iconCircleY = footerY + footerH / 2;
-
-    drawIconThumbsUp(ctx, iconCircleX, iconCircleY, 24, '#FFFFFF');
-
-    // Dấu gạch đứng phân cách |
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.fillRect(footerX + 130, footerY + 25, 3, footerH - 50);
-
-    // Kiểm tra xem có phải dạng video Địa Lý & Văn Hóa Việt Nam hay không
-    const isVietnamGeo = !isLingoBiBi && (
-      selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
-      settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
-      targetSet.id === 'dia-ly-van-hoa-viet-nam' ||
-      targetSet.presetId === 'dia-ly-van-hoa-viet-nam' ||
-      safeQObj.id === 'dia-ly-van-hoa-viet-nam' ||
-      (targetSet.topic && (targetSet.topic.toUpperCase().includes('ĐỊA LÝ') || targetSet.topic.toUpperCase().includes('VIỆT NAM') || targetSet.topic.toUpperCase().includes('VN'))) ||
-      (safeQObj.topic && (safeQObj.topic.toUpperCase().includes('ĐỊA LÝ') || safeQObj.topic.toUpperCase().includes('VIỆT NAM') || safeQObj.topic.toUpperCase().includes('VN'))) ||
-      (targetSet.name && (targetSet.name.toUpperCase().includes('ĐỊA LÝ') || targetSet.name.toUpperCase().includes('VIỆT NAM')))
-    );
-
-    // Text thông điệp Footer
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-
-    const maxLineW = footerW - 245;
-
-    if (isVietnamGeo) {
-      // Dạng video Địa Lý & Văn Hóa Việt Nam: CTA truy cập web và icon nút Play
-      const line1 = 'Nhấn Theo dõi để biết thêm';
-      const line2 = 'nhiều kiến thức mới';
-
-      ctx.font = getFitFont(ctx, line1, '800', '"Be Vietnam Pro", sans-serif', maxLineW, 25, 17);
-      ctx.fillText(line1, footerX + 155, footerY + footerH / 2 - 14);
-
-      ctx.font = getFitFont(ctx, line2, '700', '"Be Vietnam Pro", sans-serif', maxLineW, 22, 15);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-      ctx.fillText(line2, footerX + 155, footerY + footerH / 2 + 18);
-
-      // Icon nút Play bên phải của chữ
-      drawIconPlay(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
-    } else {
-      ctx.font = '900 28px "Be Vietnam Pro", sans-serif';
-      ctx.fillText('NHỚ LIKE & SUBSCRIBE', footerX + 160, footerY + footerH / 2 - 14);
-
-      ctx.font = '700 23px "Be Vietnam Pro", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.fillText(isLingoBiBi ? 'kênh Lingo BiBi để học bài mới!' : 'kênh để học bài mới!', footerX + 160, footerY + footerH / 2 + 18);
-
-      // Icon Heart trái tim màu trắng bên phía phải
-      drawIconHeart(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
-    }
-    ctx.restore();
   };
 
   // Dedicated Canvas Renderer for Lingo BiBi 2-Sided Image Flashcard Format (Việt -> Anh)
@@ -3518,50 +3412,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     }
 
     ctx.restore(); // Restore 3D Flip Matrix Transformation
-
-    // 8. BOTTOM FOOTER CTA BANNER: "🎀 BẤM THEO DÕI LINGO BIBI ĐỂ HỌC TỪ VỰNG MỖI NGÀY 💖"
-    const footerW = 920;
-    const footerH = 110;
-    const footerX = 540 - footerW / 2;
-    const footerY = 1720;
-
-    const pulseFactor = Math.sin(globalT * 3.5) * 0.5 + 0.5;
-
-    ctx.save();
-    ctx.shadowColor = 'rgba(255, 42, 133, ' + (0.4 + pulseFactor * 0.4) + ')';
-    ctx.shadowBlur = 24;
-    ctx.shadowOffsetY = 6;
-
-    const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
-    footerGrad.addColorStop(0, '#FF2A85');
-    footerGrad.addColorStop(1, '#D81B60');
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, footerX, footerY, footerW, footerH, 55);
-    ctx.fill();
-
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = '#FF80BF';
-    ctx.stroke();
-    ctx.restore();
-
-    drawIconThumbsUp(ctx, footerX + 65, footerY + footerH / 2, 24, '#FFFFFF');
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.fillRect(footerX + 130, footerY + 25, 3, footerH - 50);
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.font = '900 28px "Be Vietnam Pro", sans-serif';
-    ctx.fillText('NHỚ LIKE & THEO DÕI', footerX + 160, footerY + footerH / 2 - 14);
-
-    ctx.font = '700 23px "Be Vietnam Pro", sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fillText('kênh Lingo BiBi để học nhiều từ vựng mới! 💖', footerX + 160, footerY + footerH / 2 + 18);
-
-    drawIconHeart(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
-    ctx.restore();
 
     // Vignette Finish
     drawVignette(ctx);
@@ -4363,34 +4213,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       ctx.restore();
     }
 
-    // 8. FOOTER BANNER: "🌾 NHỚ LIKE & THEO DÕI ĐỂ HỌC THÊM NHIỀU CA DAO TỤC NGỮ!"
-    const footerW = 920;
-    const footerH = 110;
-    const footerX = 540 - footerW / 2;
-    const footerY = 1720;
-
-    const pulseFactor = Math.sin(globalT * 3.5) * 0.5 + 0.5;
-
-    ctx.save();
-    ctx.shadowColor = 'rgba(245, 158, 11, ' + (0.4 + pulseFactor * 0.4) + ')';
-    ctx.shadowBlur = 24;
-    ctx.shadowOffsetY = 6;
-
-    const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
-    footerGrad.addColorStop(0, '#D97706');
-    footerGrad.addColorStop(1, '#B45309');
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, footerX, footerY, footerW, footerH, 55);
-    ctx.fill();
-
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = '#FBBF24';
-    ctx.stroke();
-    ctx.restore();
-
-    drawIconHeart(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
-    ctx.restore();
-
     drawVignette(ctx);
   };
 
@@ -4767,53 +4589,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       });
       ctx.restore();
     }
-
-    // 9. BOTTOM FOOTER CTA BANNER (Y: 1720)
-    const footerW = 920;
-    const footerH = 110;
-    const footerX = 540 - footerW / 2;
-    const footerY = 1720;
-
-    drawDecorationTicks(ctx, footerX - 25, footerY + footerH / 2, '#FFE082', 1.2, -0.3);
-    drawDecorationTicks(ctx, footerX + footerW + 25, footerY + footerH / 2, '#FFE082', 1.2, 0.3);
-
-    const pulseFactor = Math.sin(globalT * 3.5) * 0.5 + 0.5;
-
-    ctx.save();
-    ctx.shadowColor = 'rgba(230, 81, 0, ' + (0.35 + pulseFactor * 0.35) + ')';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 6;
-
-    const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
-    footerGrad.addColorStop(0, '#E65100');
-    footerGrad.addColorStop(1, '#BF360C');
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, footerX, footerY, footerW, footerH, 55);
-    ctx.fill();
-
-    ctx.lineWidth = 3.5;
-    ctx.strokeStyle = '#FFE082';
-    ctx.stroke();
-    ctx.restore();
-
-    drawIconThumbsUp(ctx, footerX + 65, footerY + footerH / 2, 24, '#FFFFFF');
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.fillRect(footerX + 130, footerY + 25, 3, footerH - 50);
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.font = '900 26px "Be Vietnam Pro", sans-serif';
-    ctx.fillText('NHỚ LIKE & THEO DÕI', footerX + 160, footerY + footerH / 2 - 14);
-
-    ctx.font = '700 22px "Be Vietnam Pro", sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fillText('để khám phá thêm nhiều món ăn ngon! 🍳', footerX + 160, footerY + footerH / 2 + 18);
-
-    drawIconHeart(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
-    ctx.restore();
 
     drawVignette(ctx);
   };
@@ -5192,53 +4967,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       ctx.restore();
     }
 
-    // 9. BOTTOM FOOTER CTA BANNER (Y: 1720)
-    const footerW = 920;
-    const footerH = 110;
-    const footerX = 540 - footerW / 2;
-    const footerY = 1720;
-
-    drawDecorationTicks(ctx, footerX - 25, footerY + footerH / 2, '#FDE68A', 1.2, -0.3);
-    drawDecorationTicks(ctx, footerX + footerW + 25, footerY + footerH / 2, '#FDE68A', 1.2, 0.3);
-
-    const pulseFactor = Math.sin(globalT * 3.5) * 0.5 + 0.5;
-
-    ctx.save();
-    ctx.shadowColor = 'rgba(16, 185, 129, ' + (0.35 + pulseFactor * 0.35) + ')';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 6;
-
-    const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
-    footerGrad.addColorStop(0, '#047857');
-    footerGrad.addColorStop(1, '#065F46');
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, footerX, footerY, footerW, footerH, 55);
-    ctx.fill();
-
-    ctx.lineWidth = 3.5;
-    ctx.strokeStyle = '#34D399';
-    ctx.stroke();
-    ctx.restore();
-
-    drawIconThumbsUp(ctx, footerX + 65, footerY + footerH / 2, 24, '#FFFFFF');
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.fillRect(footerX + 130, footerY + 25, 3, footerH - 50);
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.font = '900 26px "Be Vietnam Pro", sans-serif';
-    ctx.fillText('NHỚ LIKE & THEO DÕI', footerX + 160, footerY + footerH / 2 - 14);
-
-    ctx.font = '700 22px "Be Vietnam Pro", sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fillText('để cùng khám phá thế giới động vật kỳ thú! 🐾', footerX + 160, footerY + footerH / 2 + 18);
-
-    drawIconHeart(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
-    ctx.restore();
-
     drawVignette(ctx);
   };
 
@@ -5616,53 +5344,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       ctx.restore();
     }
 
-    // 9. BOTTOM FOOTER CTA BANNER (Y: 1720)
-    const footerW = 920;
-    const footerH = 110;
-    const footerX = 540 - footerW / 2;
-    const footerY = 1720;
-
-    drawDecorationTicks(ctx, footerX - 25, footerY + footerH / 2, '#38BDF8', 1.2, -0.3);
-    drawDecorationTicks(ctx, footerX + footerW + 25, footerY + footerH / 2, '#38BDF8', 1.2, 0.3);
-
-    const pulseFactor = Math.sin(globalT * 3.5) * 0.5 + 0.5;
-
-    ctx.save();
-    ctx.shadowColor = 'rgba(2, 132, 199, ' + (0.35 + pulseFactor * 0.35) + ')';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 6;
-
-    const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
-    footerGrad.addColorStop(0, '#0284C7');
-    footerGrad.addColorStop(1, '#0369A1');
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, footerX, footerY, footerW, footerH, 55);
-    ctx.fill();
-
-    ctx.lineWidth = 3.5;
-    ctx.strokeStyle = '#38BDF8';
-    ctx.stroke();
-    ctx.restore();
-
-    drawIconThumbsUp(ctx, footerX + 65, footerY + footerH / 2, 24, '#FFFFFF');
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.fillRect(footerX + 130, footerY + 25, 3, footerH - 50);
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.font = '900 26px "Be Vietnam Pro", sans-serif';
-    ctx.fillText('NHỚ LIKE & THEO DÕI', footerX + 160, footerY + footerH / 2 - 14);
-
-    ctx.font = '700 22px "Be Vietnam Pro", sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fillText('để khám phá thêm nhiều địa danh tuyệt đẹp! 🏛️', footerX + 160, footerY + footerH / 2 + 18);
-
-    drawIconHeart(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
-    ctx.restore();
-
     drawVignette(ctx);
   };
 
@@ -6036,53 +5717,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       });
       ctx.restore();
     }
-    ctx.restore();
-
-    // 8. BOTTOM FOOTER CTA BANNER
-    const footerW = 920;
-    const footerH = 110;
-    const footerX = 540 - footerW / 2;
-    const footerY = 1720;
-
-    drawDecorationTicks(ctx, footerX - 25, footerY + footerH / 2, '#FFD700', 1.2, -0.3);
-    drawDecorationTicks(ctx, footerX + footerW + 25, footerY + footerH / 2, '#FFD700', 1.2, 0.3);
-
-    const pulseFactor = Math.sin(globalT * 4) * 0.5 + 0.5;
-
-    ctx.save();
-    ctx.shadowColor = 'rgba(0, 230, 118, ' + (0.35 + pulseFactor * 0.35) + ')';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 6;
-
-    const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
-    footerGrad.addColorStop(0, '#00C853');
-    footerGrad.addColorStop(1, '#047857');
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, footerX, footerY, footerW, footerH, 55);
-    ctx.fill();
-
-    ctx.lineWidth = 3.5;
-    ctx.strokeStyle = '#69F0AE';
-    ctx.stroke();
-    ctx.restore();
-
-    drawIconThumbsUp(ctx, footerX + 65, footerY + footerH / 2, 24, '#FFFFFF');
-
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.fillRect(footerX + 130, footerY + 25, 3, footerH - 50);
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.font = '900 26px "Be Vietnam Pro", sans-serif';
-    ctx.fillText('NHỚ LIKE & THEO DÕI', footerX + 160, footerY + footerH / 2 - 14);
-
-    ctx.font = '700 22px "Be Vietnam Pro", sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fillText('để khám phá thêm nhiều siêu sao bóng đá! ⚽', footerX + 160, footerY + footerH / 2 + 18);
-
-    drawIconHeart(ctx, footerX + footerW - 65, footerY + footerH / 2, 22, '#FFFFFF');
     ctx.restore();
 
     drawVignette(ctx);
@@ -6514,73 +6148,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       ctx.restore();
     }
 
-    // 9. BOTTOM FOOTER BANNER: "NHỚ LIKE & SUBSCRIBE kênh để học bài mới!" (Y: 1735 - 1840)
-    const footerW = 900;
-    const footerH = 105;
-    const footerX = 540 - footerW / 2;
-    const footerY = 1735;
-
-    // Yellow Spark Ticks around Bottom Footer Banner
-    drawDecorationTicks(ctx, footerX - 15, footerY + footerH / 2, '#FFEB3B', 1.2, -0.4);
-    drawDecorationTicks(ctx, footerX + footerW + 15, footerY + footerH / 2, '#FFEB3B', 1.2, 0.4);
-
-    ctx.save();
-    ctx.shadowColor = 'rgba(255, 45, 117, 0.5)';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 6;
-
-    const footerGrad = ctx.createLinearGradient(footerX, footerY, footerX + footerW, footerY + footerH);
-    footerGrad.addColorStop(0, '#FF2D75');
-    footerGrad.addColorStop(1, '#D81B60');
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, footerX, footerY, footerW, footerH, 52);
-    ctx.fill();
-
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#FF80AB';
-    ctx.stroke();
-    ctx.restore();
-
-    // Subscribe/Video icon box on left of footer
-    ctx.save();
-    const iconBoxW = 56;
-    const iconBoxH = 56;
-    const iconBoxX = footerX + 30;
-    const iconBoxY = footerY + (footerH - iconBoxH) / 2;
-    ctx.fillStyle = '#0066FF'; // Blue Video / Sub Icon Box like in reference image
-    drawRoundRect(ctx, iconBoxX, iconBoxY, iconBoxW, iconBoxH, 16);
-    ctx.fill();
-
-    // Play/Video Icon
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.moveTo(iconBoxX + 22, iconBoxY + 16);
-    ctx.lineTo(iconBoxX + 40, iconBoxY + 28);
-    ctx.lineTo(iconBoxX + 22, iconBoxY + 40);
-    ctx.closePath();
-    ctx.fill();
-
-    // Vertical Divider
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-    ctx.fillRect(footerX + 105, footerY + 24, 3, footerH - 48);
-
-    // Text inside Footer Banner
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.font = '900 25px "Be Vietnam Pro", sans-serif';
-    ctx.fillText('NHỚ LIKE & SUBSCRIBE', footerX + 125, footerY + footerH / 2 - 14);
-
-    ctx.font = '700 20px "Be Vietnam Pro", sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.fillText('kênh để học bài mới!', footerX + 125, footerY + footerH / 2 + 16);
-
-    // Right side Heart Icon ♥
-    ctx.font = '30px "Segoe UI Emoji", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('♥', footerX + footerW - 50, footerY + footerH / 2);
-    ctx.restore();
-
     drawVignette(ctx);
   };
 
@@ -6692,13 +6259,22 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       !!(q && q.word && !q.optionB)
     );
 
+    const isVocabCEFRLandscape = (
+      selectedMCQPreset === 'english-vocab-cefr' ||
+      settings?.selectedMCQPreset === 'english-vocab-cefr' ||
+      targetSet?.mode === 'english-vocab-cefr' ||
+      targetSet?.id === 'english-vocab-cefr' ||
+      q?.mode === 'english-vocab-cefr' ||
+      Boolean(q?.level || targetSet?.level)
+    );
+
     // Kiểm tra xem có phải dạng video Địa Lý & Văn Hóa Việt Nam hay không
-    const isVietnamGeo = isExplicitVietnamGeo || (!isImageGuessPreset && !isCountry && !isWord && !isLingoBiBiSetOrQ(targetSet, q) && (
+    const isVietnamGeo = !isVocabCEFRLandscape && (isExplicitVietnamGeo || (!isImageGuessPreset && !isCountry && !isWord && !isLingoBiBiSetOrQ(targetSet, q) && (
       ((setMode === 'vocab-b1-tiktok' || qMode === 'vocab-b1-tiktok') && targetSet?.id !== 'vocab-b1-word-guess' && !q.word) ||
       (targetSet?.topic && (targetSet.topic.toUpperCase().includes('ĐỊA LÝ') || (targetSet.topic.toUpperCase().includes('VIỆT NAM') && !targetSet.topic.toUpperCase().includes('MÓN ĂN')))) ||
       (q?.topic && (q.topic.toUpperCase().includes('ĐỊA LÝ') || (q.topic.toUpperCase().includes('VIỆT NAM') && !q.topic.toUpperCase().includes('MÓN ĂN')))) ||
       (targetSet?.name && targetSet.name.toUpperCase().includes('ĐỊA LÝ'))
-    ));
+    )));
 
     const isPlayer = !isVietnamGeo && !isCountry && !isWord && hasMode('player-guess', 'player');
     const isLandmark = !isVietnamGeo && !isCountry && !isWord && hasMode('landmark-guess', 'place-guess');
@@ -6790,17 +6366,33 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, W, headerH);
 
-    const topicText = isVietnamGeo
-      ? String(q.topic || targetSet?.topic || 'ĐỊA LÝ & VĂN HÓA VN').toUpperCase()
-      : isWord
-        ? String(q.topic || targetSet?.topic || '🔤 ĐỐ TỪ VỰNG TIẾNG ANH B1').toUpperCase()
-        : (isAnimal || isFood || isLandmark)
-          ? stripHeaderIcons(String(q.topic || targetSet?.topic || (isAnimal ? 'ĐOÁN CON VẬT' : isFood ? 'ĐOÁN MÓN ĂN' : 'ĐOÁN ĐỊA DANH'))).toUpperCase()
-          : String(q.topic || targetSet?.topic || (isFlags ? '🚩 ĐOÁN QUỐC KỲ' : 'ĐỐ VUI')).toUpperCase();
+    const topicText = isVocabCEFRLandscape
+      ? String(q.level ? `📖 TỪ VỰNG CEFR · ${q.level}` : (q.topic || targetSet?.topic || 'TỪ VỰNG TIẾNG ANH')).toUpperCase()
+      : (isVietnamGeo
+        ? String(q.topic || targetSet?.topic || 'ĐỊA LÝ & VĂN HÓA VN').toUpperCase()
+        : isWord
+          ? String(q.topic || targetSet?.topic || '🔤 ĐỐ TỪ VỰNG TIẾNG ANH B1').toUpperCase()
+          : (isAnimal || isFood || isLandmark)
+            ? stripHeaderIcons(String(q.topic || targetSet?.topic || (isAnimal ? 'ĐOÁN CON VẬT' : isFood ? 'ĐOÁN MÓN ĂN' : 'ĐOÁN ĐỊA DANH'))).toUpperCase()
+            : String(q.topic || targetSet?.topic || (isFlags ? '🚩 ĐOÁN QUỐC KỲ' : 'ĐỐ VUI')).toUpperCase());
     ctx.save();
     ctx.font = `900 28px ${FONT_FAMILY}`;
     const badgeW = Math.min(620, ctx.measureText(topicText).width + 64);
-    if (isVietnamGeo) {
+    if (isVocabCEFRLandscape) {
+      const bGrad = ctx.createLinearGradient(30, 16, 30 + badgeW, 16);
+      const lvlStr = String(q.level || targetSet?.level || '').toUpperCase();
+      if (lvlStr.startsWith('A')) {
+        bGrad.addColorStop(0, '#059669');
+        bGrad.addColorStop(1, '#10B981');
+      } else if (lvlStr.startsWith('C')) {
+        bGrad.addColorStop(0, '#7C3AED');
+        bGrad.addColorStop(1, '#9333EA');
+      } else {
+        bGrad.addColorStop(0, '#1D61F2');
+        bGrad.addColorStop(1, '#0284C7');
+      }
+      ctx.fillStyle = bGrad;
+    } else if (isVietnamGeo) {
       const bGrad = ctx.createLinearGradient(30, 16, 30 + badgeW, 16);
       bGrad.addColorStop(0, '#DC2626');
       bGrad.addColorStop(1, '#991B1B');
@@ -6872,8 +6464,8 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
 
     // ---------- vùng nội dung ----------
     const contentY = headerH + 8 + 26;
-    const ctaH = 64;
-    const contentH = H - contentY - ctaH - 22;
+    const ctaH = 0;
+    const contentH = H - contentY - 26;
     const enter = easeOutCubic(Math.min(1, timeInQ / 0.35));
 
     ctx.save();
@@ -7390,6 +6982,32 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           drawCenteredLines(fitA.lines, imgX + imgW / 2, bY + bH / 2 + 2, fitA.size);
           ctx.restore();
         }
+
+        // Khi lộ đáp án Trắc Nghiệm Từ Vựng CEFR: Hiện thẻ phiên âm IPA & giải thích chi tiết
+        if (isReveal && isVocabCEFRLandscape && (q.ipa || q.explanation || answerText)) {
+          const pr = easeOutCubic(Math.min(1, stageProgress * 4));
+          const bH = 138, bY = imgY + imgH - bH - 24 + (1 - pr) * 40;
+          ctx.save();
+          ctx.globalAlpha = pr;
+          ctx.fillStyle = 'rgba(10, 20, 45, 0.94)';
+          drawRoundRect(ctx, imgX + 24, bY, imgW - 48, bH, 20);
+          ctx.fill();
+          ctx.strokeStyle = '#22C55E'; ctx.lineWidth = 3.5; ctx.stroke();
+
+          ctx.fillStyle = '#22C55E';
+          ctx.font = `900 28px ${FONT_FAMILY}`;
+          ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+          const ipaText = q.ipa ? `🔊 ${q.ipa}  •  ${answerText}` : `✓ ${answerText}`;
+          ctx.fillText(ipaText, imgX + 44, bY + 36);
+
+          if (q.explanation) {
+            ctx.fillStyle = '#FFDE59';
+            const expFit = fitWrapped(q.explanation, imgW - 88, 22, 16, 2, '700');
+            ctx.font = `700 ${expFit.size}px ${FONT_FAMILY}`;
+            drawCenteredLines(expFit.lines, imgX + 44, bY + 88, expFit.size, 'left');
+          }
+          ctx.restore();
+        }
       }
 
       // --- Thẻ câu hỏi ---
@@ -7406,7 +7024,10 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       const questionRaw = q.question ||
         (isLandmark ? 'Đây là địa điểm nào?' : isFood ? 'Đây là món gì?' : isAnimal ? 'Đây là con gì?' : isPlayer ? 'Đây là cầu thủ nào?' :
           isFlags ? 'Đây là quốc kỳ của nước nào?' : 'Câu hỏi?');
-      const qFit = fitWrapped(questionRaw, rightW - 80, hasImage ? 50 : 64, 28, 3, '900');
+      const questionDisplay = isVocabCEFRLandscape
+        ? `Từ nào có nghĩa là: “${questionRaw.replace(/^[“"']+|[”"']+$|\?+$/g, '')}”?`
+        : questionRaw;
+      const qFit = fitWrapped(questionDisplay, rightW - 80, hasImage ? 50 : 64, 28, 3, '900');
       ctx.fillStyle = '#FFFFFF';
       ctx.font = `900 ${qFit.size}px ${FONT_FAMILY}`;
       drawCenteredLines(qFit.lines, rightX + rightW / 2, contentY + qCardH / 2, qFit.size);
@@ -7486,21 +7107,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
         });
     }
     ctx.restore(); // kết thúc hiệu ứng vào cảnh
-
-    // 8. THANH KÊU GỌI HÀNH ĐỘNG
-    ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.65)';
-    ctx.fillRect(0, H - ctaH, W, ctaH);
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = `700 26px ${FONT_FAMILY}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    if (isVietnamGeo) {
-      ctx.fillText('🔔 Nhấn Theo dõi để biết thêm nhiều kiến thức mới  •  Vietnam GeoQuiz', W / 2, H - ctaH / 2 + 1);
-    } else {
-      ctx.fillText('👍 Thích  •  💬 Bình luận đáp án của bạn  •  🔔 Đăng ký kênh để xem tiếp', W / 2, H - ctaH / 2 + 1);
-    }
-    ctx.restore();
 
     // Vignette cho khung ngang
     const vg = ctx.createRadialGradient(W / 2, H / 2, 620, W / 2, H / 2, 1250);
@@ -7619,8 +7225,24 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       return;
     }
 
+    // Chế độ Trắc Nghiệm Từ Vựng CEFR (A1 - C2)
+    const isVocabCEFRCanvas = (
+      selectedMCQPreset === 'english-vocab-cefr' ||
+      settings?.selectedMCQPreset === 'english-vocab-cefr' ||
+      targetSet?.id === 'english-vocab-cefr' ||
+      targetSet?.mode === 'english-vocab-cefr' ||
+      qObj?.mode === 'english-vocab-cefr' ||
+      Boolean(qObj?.level || targetSet?.level)
+    );
+
+    if (isVocabCEFRCanvas) {
+      drawVocabTikTokCanvasFrame(ctx, qObj, qIdx, totalQ, stage, timeInQ, stageProgress, theme, currentSet);
+      ctx.restore();
+      return;
+    }
+
     // Chế độ Địa lý & Văn hóa Việt Nam
-    const isVietnamGeoCanvas = !isLingoBiBiSetOrQ(targetSet, qObj) && (
+    const isVietnamGeoCanvas = !isVocabCEFRCanvas && !isLingoBiBiSetOrQ(targetSet, qObj) && (
       selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
       settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
       targetSet?.id === 'dia-ly-van-hoa-viet-nam' ||
@@ -8165,58 +7787,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
 
       // Chùm confetti bay lên khi hiện đáp án - vẽ trực tiếp lên canvas
       drawCanvasConfettiBurst(ctx, qIdx, revealElapsed, theme);
-
-      const ctaAlpha = Math.min(1, Math.max(0, (revealElapsed - 0.5) / 0.4));
-      ctx.save();
-      ctx.globalAlpha = ctaAlpha;
-      drawIconThumbsUp(ctx, 400, 1615, 18, '#FFFFFF');
-      drawIconHeart(ctx, 680, 1615, 16, '#FF3366');
-      ctx.fillStyle = '#FFFFFF';
-      const ctaText = 'NHỚ LIKE & THEO DÕI ĐỂ HỌC NHIỀU BÀI MỚI!';
-      ctx.font = getFitFont(ctx, ctaText, 'bold', '"Be Vietnam Pro", sans-serif', 800, 34, 20);
-      ctx.textAlign = 'center';
-      ctx.fillText(ctaText, 540, 1615);
-      ctx.restore();
     }
-
-    // 8. DYNAMIC FOOTER BADGE
-    const pulseFactor = Math.sin(timeInQ * 4) * 0.5 + 0.5;
-    const glowBlur = 15 + pulseFactor * 15;
-
-    ctx.save();
-    ctx.shadowColor = 'rgba(0, 240, 255, ' + (0.4 + pulseFactor * 0.4) + ')';
-    ctx.shadowBlur = glowBlur;
-    ctx.shadowOffsetY = 6;
-
-    const footerGrad = ctx.createLinearGradient(60, 1720, 1020, 1840);
-    footerGrad.addColorStop(0, 'rgba(24, 20, 44, 0.95)');
-    footerGrad.addColorStop(1, 'rgba(16, 14, 30, 0.95)');
-    ctx.fillStyle = footerGrad;
-    drawRoundRect(ctx, 60, 1720, 960, 120, 60);
-    ctx.fill();
-
-    ctx.lineWidth = 4 + pulseFactor * 2;
-    const ringGrad = ctx.createLinearGradient(60, 1720, 1020, 1840);
-    ringGrad.addColorStop(0, theme.accent2 || '#FFDE59');
-    ringGrad.addColorStop(0.5, '#00F0FF');
-    ringGrad.addColorStop(1, theme.accent || '#FF3366');
-    ctx.strokeStyle = ringGrad;
-    ctx.stroke();
-    ctx.restore();
-
-    drawIconThumbsUp(ctx, 175, 1780, 20, '#FFFFFF');
-    drawIconHeart(ctx, 920, 1780, 18, '#FF3366');
-
-    const footerText = 'Nhớ LIKE & THEO DÕI để học thêm nhiều kiến thức mới!';
-    ctx.save();
-    ctx.font = getFitFont(ctx, footerText, 'bold', '"Be Vietnam Pro", sans-serif', 700, 36, 22);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText(footerText, 540, 1780);
-    ctx.restore();
 
     // Vignette điện ảnh cuối cùng để tăng chiều sâu tổng thể khung hình
     drawVignette(ctx);
@@ -8549,7 +8120,14 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
                 setObj?.id === 'vocab-b1-word-guess' || setObj?.mode === 'word-guess' ||
                 activeQ?.mode === 'word-guess' || !!(activeQ && activeQ.word && !activeQ.optionB)
               );
-              const isVietnamGeoExport = !isImageGuessExportOnly && !isWordGuessExport && (
+              const isVocabCEFRExport = (
+                selectedMCQPreset === 'english-vocab-cefr' ||
+                settings?.selectedMCQPreset === 'english-vocab-cefr' ||
+                setObj?.id === 'english-vocab-cefr' ||
+                setObj?.mode === 'english-vocab-cefr' ||
+                activeQ?.mode === 'english-vocab-cefr'
+              );
+              const isVietnamGeoExport = !isImageGuessExportOnly && !isWordGuessExport && !isVocabCEFRExport && (
                 selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
                 settings?.selectedMCQPreset === 'dia-ly-van-hoa-viet-nam' ||
                 setObj?.id === 'dia-ly-van-hoa-viet-nam' ||
@@ -8560,7 +8138,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
                 (activeQ?.topic && (activeQ.topic.toUpperCase().includes('ĐỊA LÝ') || (activeQ.topic.toUpperCase().includes('VIỆT NAM') && !activeQ.topic.toUpperCase().includes('MÓN ĂN'))))
               );
               const isLandmarkOrFoodExport = !isVietnamGeoExport && (setObj?.mode === 'landmark-guess' || activeQ?.mode === 'landmark-guess');
-              if ((settings.readAnswer || isLandmarkOrFoodExport || isLingoBiBi) && !isImageGuessExportOnly && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
+              if ((settings.readAnswer || isLandmarkOrFoodExport || isLingoBiBi || isVocabCEFRExport) && !isImageGuessExportOnly && activeQ && !isCaDaoMode && !isFlagsOrCountryMode) {
                 const correctKey = (activeQ.correctOption || 'A').toUpperCase();
                 let targetWord = activeQ.landmark || activeQ.dish || activeQ.word || '';
                 if (!targetWord) {
@@ -8575,13 +8153,13 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
 
                 targetWord = String(targetWord || '').trim();
                 if (targetWord) {
-                  const isViText = isLandmarkOrFoodExport || (!isLingoBiBi && (
+                  const isViText = isLandmarkOrFoodExport || (!isLingoBiBi && !isVocabCEFRExport && (
                     /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/i.test(targetWord) ||
                     (setObj && (setObj.topic === 'ĐỐ VUI B1' || setObj.topic === 'TRẮC NGHIỆM B1')) ||
                     (activeQ && (activeQ.topic === 'ĐỐ VUI B1' || activeQ.topic === 'TRẮC NGHIỆM B1'))
                   ));
 
-                  const answerVoice = (isLingoBiBi || !isViText)
+                  const answerVoice = (isLingoBiBi || isVocabCEFRExport || !isViText)
                     ? (settings.voiceLang && settings.voiceLang.startsWith('en-') ? settings.voiceLang : 'en-US-AnaNeural')
                     : (settings.voiceLang && settings.voiceLang.startsWith('vi-') ? settings.voiceLang : 'vi-VN-HoaiMyNeural');
 
