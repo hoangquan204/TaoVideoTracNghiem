@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import MCQForm from './components/MCQForm';
 import MCQVideoPreviewCanvas from './components/MCQVideoPreviewCanvas';
 import UserGuidePage from './components/UserGuidePage';
+import LoginPage from './components/LoginPage';
 import { MCQ_PRESETS } from './utils/mcqPresets';
 import { FileText, Play } from 'lucide-react';
 
@@ -39,6 +40,14 @@ function getInitialStateForPreset(presetId) {
 }
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try {
+      return localStorage.getItem('geoquiz_admin_auth') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
   const [selectedMCQPreset, setSelectedMCQPreset] = useState(DEFAULT_PRESET_ID);
   const [activeSetIndex, setActiveSetIndex] = useState(0);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -49,6 +58,26 @@ export default function App() {
   const initState = getInitialStateForPreset(DEFAULT_PRESET_ID);
   const [questionSets, setQuestionSets] = useState(initState.sets);
   const [settings, setSettings] = useState(initState.settings);
+
+  const handleLogin = useCallback(() => {
+    try {
+      localStorage.setItem('geoquiz_admin_auth', 'true');
+      localStorage.setItem('geoquiz_admin_user', 'admin');
+    } catch (e) {
+      console.warn('LocalStorage save error:', e);
+    }
+    setIsAuthenticated(true);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    try {
+      localStorage.removeItem('geoquiz_admin_auth');
+      localStorage.removeItem('geoquiz_admin_user');
+    } catch (e) {
+      console.warn('LocalStorage remove error:', e);
+    }
+    setIsAuthenticated(false);
+  }, []);
 
   const handleSelectPreset = useCallback((presetId) => {
     const { sets, settings: newSettings } = getInitialStateForPreset(presetId);
@@ -62,6 +91,10 @@ export default function App() {
 
   const currentPreset = MCQ_PRESETS.find(p => p.id === selectedMCQPreset);
 
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   return (
     <div className="app-root">
       <Header
@@ -71,6 +104,7 @@ export default function App() {
         onToggleMobileSidebar={() => setMobileSidebarOpen(prev => !prev)}
         currentView={currentView}
         onToggleGuide={() => setCurrentView(prev => prev === 'guide' ? 'editor' : 'guide')}
+        onLogout={handleLogout}
       />
 
       <div className="app-body">

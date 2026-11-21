@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, BookOpen, ArrowLeft } from 'lucide-react';
+import { Menu, BookOpen, ArrowLeft, LogOut } from 'lucide-react';
 
 const PRESET_DISPLAY = {
   'dia-ly-van-hoa-viet-nam': { emoji: '🇻🇳', name: 'Địa Lý & Văn Hóa VN' },
@@ -16,7 +16,8 @@ export default function Header({
   selectedPreset,
   onToggleMobileSidebar,
   currentView,
-  onToggleGuide
+  onToggleGuide,
+  onLogout
 }) {
   const activeId = selectedMCQPreset || selectedPreset || 'dia-ly-van-hoa-viet-nam';
   const display = PRESET_DISPLAY[activeId] || PRESET_DISPLAY['dia-ly-van-hoa-viet-nam'];
@@ -66,6 +67,19 @@ export default function Header({
             ) : null}
             <span className="mode-pill-name">{isGuide ? 'Hướng Dẫn' : display.name}</span>
           </div>
+
+          {onLogout && (
+            <button
+              type="button"
+              className="header-logout-btn"
+              onClick={onLogout}
+              title="Đăng xuất khỏi tài khoản admin"
+              aria-label="Đăng xuất"
+            >
+              <LogOut size={14} />
+              <span className="logout-btn-text">Đăng xuất</span>
+            </button>
+          )}
         </div>
       </div>
     </header>
