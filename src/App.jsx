@@ -59,13 +59,22 @@ export default function App() {
   const [questionSets, setQuestionSets] = useState(initState.sets);
   const [settings, setSettings] = useState(initState.settings);
 
-  const handleLogin = useCallback(() => {
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      return localStorage.getItem('geoquiz_admin_user') || 'admin';
+    } catch {
+      return 'admin';
+    }
+  });
+
+  const handleLogin = useCallback((user = 'admin') => {
     try {
       localStorage.setItem('geoquiz_admin_auth', 'true');
-      localStorage.setItem('geoquiz_admin_user', 'admin');
+      localStorage.setItem('geoquiz_admin_user', user);
     } catch (e) {
       console.warn('LocalStorage save error:', e);
     }
+    setCurrentUser(user);
     setIsAuthenticated(true);
   }, []);
 
@@ -105,6 +114,7 @@ export default function App() {
         currentView={currentView}
         onToggleGuide={() => setCurrentView(prev => prev === 'guide' ? 'editor' : 'guide')}
         onLogout={handleLogout}
+        currentUser={currentUser}
       />
 
       <div className="app-body">

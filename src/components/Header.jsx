@@ -17,7 +17,8 @@ export default function Header({
   onToggleMobileSidebar,
   currentView,
   onToggleGuide,
-  onLogout
+  onLogout,
+  currentUser
 }) {
   const activeId = selectedMCQPreset || selectedPreset || 'dia-ly-van-hoa-viet-nam';
   const display = PRESET_DISPLAY[activeId] || PRESET_DISPLAY['dia-ly-van-hoa-viet-nam'];
@@ -73,11 +74,11 @@ export default function Header({
               type="button"
               className="header-logout-btn"
               onClick={onLogout}
-              title="Đăng xuất khỏi tài khoản admin"
+              title={`Đăng xuất (${currentUser || 'quản trị'})`}
               aria-label="Đăng xuất"
             >
               <LogOut size={14} />
-              <span className="logout-btn-text">Đăng xuất</span>
+              <span className="logout-btn-text">Đăng xuất ({currentUser || 'admin'})</span>
             </button>
           )}
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, User, Eye, EyeOff, LogIn, AlertCircle, ShieldCheck } from 'lucide-react';
+import { authenticateUser } from '../utils/auth';
 
 export default function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -18,10 +19,10 @@ export default function LoginPage({ onLogin }) {
       return;
     }
 
-    if (trimmedUser === 'admin' && password === 'admin') {
+    if (authenticateUser(trimmedUser, password)) {
       setIsLoading(true);
       setTimeout(() => {
-        onLogin();
+        onLogin(trimmedUser);
       }, 300);
     } else {
       setError('Tên đăng nhập hoặc mật khẩu không chính xác! Vui lòng thử lại.');
