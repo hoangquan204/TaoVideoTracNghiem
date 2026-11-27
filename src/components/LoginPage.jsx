@@ -22,7 +22,7 @@ export default function LoginPage({ onLogin }) {
     if (authenticateUser(trimmedUser, password)) {
       setIsLoading(true);
       setTimeout(() => {
-        onLogin(trimmedUser);
+        onLogin(trimmedUser, password);
       }, 300);
     } else {
       setError('Tên đăng nhập hoặc mật khẩu không chính xác! Vui lòng thử lại.');

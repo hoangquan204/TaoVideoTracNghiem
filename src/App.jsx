@@ -5,6 +5,7 @@ import MCQForm from './components/MCQForm';
 import MCQVideoPreviewCanvas from './components/MCQVideoPreviewCanvas';
 import UserGuidePage from './components/UserGuidePage';
 import LoginPage from './components/LoginPage';
+import { validateSessionToken, generateToken, clearSession } from './utils/auth';
 import { MCQ_PRESETS } from './utils/mcqPresets';
 import { FileText, Play } from 'lucide-react';
 
@@ -41,11 +42,7 @@ function getInitialStateForPreset(presetId) {
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    try {
-      return localStorage.getItem('geoquiz_admin_auth') === 'true';
-    } catch {
-      return false;
-    }
+    return validateSessionToken();
   });
 
   const [selectedMCQPreset, setSelectedMCQPreset] = useState(DEFAULT_PRESET_ID);
@@ -67,10 +64,11 @@ export default function App() {
     }
   });
 
-  const handleLogin = useCallback((user = 'admin') => {
+  const handleLogin = useCallback((user = 'admin', pass = '') => {
     try {
       localStorage.setItem('geoquiz_admin_auth', 'true');
       localStorage.setItem('geoquiz_admin_user', user);
+      localStorage.setItem('geoquiz_auth_token', generateToken(user, pass));
     } catch (e) {
       console.warn('LocalStorage save error:', e);
     }
@@ -79,12 +77,7 @@ export default function App() {
   }, []);
 
   const handleLogout = useCallback(() => {
-    try {
-      localStorage.removeItem('geoquiz_admin_auth');
-      localStorage.removeItem('geoquiz_admin_user');
-    } catch (e) {
-      console.warn('LocalStorage remove error:', e);
-    }
+    clearSession();
     setIsAuthenticated(false);
   }, []);
 
