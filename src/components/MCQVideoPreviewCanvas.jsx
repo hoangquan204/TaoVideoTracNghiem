@@ -1299,9 +1299,13 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
         const isLingoBiBi = isLingoBiBiSetOrQ(activeSet, activeQ);
         const isCaDaoMode = (activeSet?.mode === 'ca-dao-tuc-ngu' || activeQ?.mode === 'ca-dao-tuc-ngu' || activeSet?.id === 'ca-dao-tuc-ngu');
         const isFlagsOrCountryMode = (activeSet?.mode === 'flags' || activeQ?.mode === 'flags' || activeSet?.id === 'flags' || activeSet?.mode === 'country-guess' || activeQ?.mode === 'country-guess' || activeSet?.id === 'country-guess-5-clues' || selectedMCQPreset === 'flags');
+        const isEnglishFormatLive = isEnglishVocabPresetOrMode(selectedMCQPreset, activeSet, activeQ);
         if (isPlayingRef.current && !isFlashcardMode && !isLingoBiBi) {
           triggerConfetti();
-          audioSynth.playSuccessFanfare(0.65);
+          // Loại bỏ âm thanh chúc mừng (fanfare) ở dạng Ô chữ B1 và Trắc nghiệm từ vựng để không đè lên phát âm Tiếng Anh
+          if (!isEnglishFormatLive) {
+            audioSynth.playSuccessFanfare(0.65);
+          }
         }
         const isImageGuessModeOnly = (
           activeSet?.mode === 'food-guess' || activeQ?.mode === 'food-guess' || selectedMCQPreset === 'food-guess' ||
@@ -1331,7 +1335,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           (activeSet?.topic && (activeSet.topic.toUpperCase().includes('ĐỊA LÝ') || (activeSet.topic.toUpperCase().includes('VIỆT NAM') && !activeSet.topic.toUpperCase().includes('MÓN ĂN')))) ||
           (activeQ?.topic && (activeQ.topic.toUpperCase().includes('ĐỊA LÝ') || (activeQ.topic.toUpperCase().includes('VIỆT NAM') && !activeQ.topic.toUpperCase().includes('MÓN ĂN'))))
         );
-        const isEnglishFormatLive = isEnglishVocabPresetOrMode(selectedMCQPreset, activeSet, activeQ);
         if (isEnglishFormatLive && settings.readAnswer !== false) {
           // CHỈ 2 dạng video được phát giọng đọc đáp án: Ô chữ B1 và Trắc nghiệm từ vựng
           if (isPlayingRef.current && activeQ) {
@@ -8212,7 +8215,9 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
               const isLingoBiBi = isLingoBiBiSetOrQ(setObj, activeQ);
               const isCaDaoMode = (setObj?.mode === 'ca-dao-tuc-ngu' || activeQ?.mode === 'ca-dao-tuc-ngu' || setObj?.id === 'ca-dao-tuc-ngu');
               const isFlagsOrCountryMode = (setObj?.mode === 'flags' || activeQ?.mode === 'flags' || setObj?.id === 'flags' || setObj?.mode === 'country-guess' || activeQ?.mode === 'country-guess' || setObj?.id === 'country-guess-5-clues' || selectedMCQPreset === 'flags');
-              if (!isFlashcardMode && !isLingoBiBi) {
+              const isEnglishFormatExport = isEnglishVocabPresetOrMode(selectedMCQPreset, setObj, activeQ);
+              // Loại bỏ âm thanh chúc mừng (fanfare) ở dạng Ô chữ B1 và Trắc nghiệm từ vựng để nghe rõ phát âm tiếng Anh
+              if (!isFlashcardMode && !isLingoBiBi && !isEnglishFormatExport) {
                 audioSynth.playSuccessFanfare(0.65, dest);
               }
               const isImageGuessExportOnly = (
@@ -8243,7 +8248,6 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
                 (setObj?.topic && (setObj.topic.toUpperCase().includes('ĐỊA LÝ') || (setObj.topic.toUpperCase().includes('VIỆT NAM') && !setObj.topic.toUpperCase().includes('MÓN ĂN')))) ||
                 (activeQ?.topic && (activeQ.topic.toUpperCase().includes('ĐỊA LÝ') || (activeQ.topic.toUpperCase().includes('VIỆT NAM') && !activeQ.topic.toUpperCase().includes('MÓN ĂN'))))
               );
-              const isEnglishFormatExport = isEnglishVocabPresetOrMode(selectedMCQPreset, setObj, activeQ);
               if (isEnglishFormatExport && settings.readAnswer !== false) {
                 // CHỈ 2 dạng video được phát giọng đọc đáp án: Ô chữ B1 và Trắc nghiệm từ vựng
                 const correctKey = (activeQ.correctOption || 'A').toUpperCase();
