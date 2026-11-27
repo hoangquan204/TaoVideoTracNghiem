@@ -99,34 +99,24 @@ const getQuestionReadTime = (qObj, setObj = {}, voiceSetting = '', speedSetting 
   const text = getTTSQuestionText(rawText, mode);
   if (!text) return isShortGuessMode ? 0.9 : 1.5;
 
-  const isVietnamGeo = (
-    setObj?.id === 'dia-ly-van-hoa-viet-nam' ||
-    setObj?.presetId === 'dia-ly-van-hoa-viet-nam' ||
-    (setObj?.mode === 'vocab-b1-tiktok' && setObj?.id !== 'vocab-b1-word-guess') ||
-    (setObj?.topic && (setObj.topic.toUpperCase().includes('ĐỊA LÝ') || (setObj.topic.toUpperCase().includes('VIỆT NAM') && !setObj.topic.toUpperCase().includes('MÓN ĂN')))) ||
-    (setObj?.name && setObj.name.toUpperCase().includes('ĐỊA LÝ')) ||
-    (qObj?.topic && (qObj.topic.toUpperCase().includes('ĐỊA LÝ') || (qObj.topic.toUpperCase().includes('VIỆT NAM') && !qObj.topic.toUpperCase().includes('MÓN ĂN'))))
-  );
-
   const effectiveVoice = getEffectiveVoice(voiceSetting, setObj, qObj);
   const rate = speedSetting || 1.25;
   const cacheKey = `${text}_${effectiveVoice}_${rate}`;
   const buffer = audioSynth.audioCache.get(cacheKey);
 
-  const maxReadCap = isVietnamGeo ? 3.0 : 4.5;
-
+  // Đợi đọc xong câu hỏi trọn vẹn theo độ dài audio buffer thực tế
   if (buffer && buffer.duration > 0) {
-    const trailingSilence = isShortGuessMode ? 0.05 : (isVietnamGeo ? 0.1 : 0.25);
-    return Math.min(maxReadCap, buffer.duration + trailingSilence);
+    const trailingSilence = isShortGuessMode ? 0.05 : 0.25;
+    return buffer.duration + trailingSilence;
   }
 
   const cleanText = text.replace(/\[\[BREAK_1S\]\]/g, ' ');
   const words = cleanText.trim().split(/\s+/).filter(Boolean).length;
   const hasBreak = text.includes('[[BREAK_1S]]');
-  const minSec = isShortGuessMode ? 0.9 : (isVietnamGeo ? 2.2 : 1.5);
-  const trailingPad = isShortGuessMode ? 0.1 : (isVietnamGeo ? 0.15 : 0.4);
-  const estimatedSec = Math.max(minSec, (words * (isVietnamGeo ? 0.25 : 0.3)) / (rate / 1.25) + (hasBreak ? 1.4 : trailingPad));
-  return Math.min(maxReadCap, estimatedSec);
+  const minSec = isShortGuessMode ? 0.9 : 1.5;
+  const trailingPad = isShortGuessMode ? 0.1 : 0.4;
+  const estimatedSec = Math.max(minSec, (words * 0.32) / (rate / 1.25) + (hasBreak ? 1.4 : trailingPad));
+  return Math.min(8.0, estimatedSec);
 };
 
 const getAnswerReadTime = (qObj, setObj = {}, voiceSetting = '', speedSetting = 1.25) => {
@@ -197,10 +187,7 @@ const getQuestionTimings = (qList, setObj, settingsObj) => {
   let cumulativeTime = 0;
 
   (qList || []).forEach((q) => {
-    let readTime = getQuestionReadTime(q, setObj, settingsObj?.voiceLang, settingsObj?.voiceSpeed);
-    if (isVietnamGeoTimings) {
-      readTime = Math.min(3.0, Math.max(2.2, readTime));
-    }
+    const readTime = getQuestionReadTime(q, setObj, settingsObj?.voiceLang, settingsObj?.voiceSpeed);
     let questionRevealTime = isCountryGuess ? 6.0 : 2.0;
     const qTotalTime = readTime + GUESS_TIME + questionRevealTime;
     timings.push({
