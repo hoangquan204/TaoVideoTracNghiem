@@ -515,11 +515,6 @@ export const MCQ_PRESETS = [
         "name": "mau_doan_quoc_gia_5_goi_y.json",
         "label": "🌎 Mẫu JSON Đoán Quốc Gia 5 Gợi Ý",
         "type": "json"
-      },
-      {
-        "name": "mau_nhin_co_doan_quoc_gia.json",
-        "label": "🚩 Mẫu JSON Nhìn Cờ Đoán Quốc Gia",
-        "type": "json"
       }
     ],
     "sets": [
@@ -3975,11 +3970,6 @@ export const MCQ_PRESETS = [
       {
         "name": "mau_nhin_co_doan_quoc_gia.json",
         "label": "🚩 Mẫu JSON Nhìn Cờ Đoán Quốc Gia",
-        "type": "json"
-      },
-      {
-        "name": "mau_doan_quoc_gia_5_goi_y.json",
-        "label": "🌎 Mẫu JSON Đoán Quốc Gia 5 Gợi Ý",
         "type": "json"
       }
     ],

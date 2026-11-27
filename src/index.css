@@ -2817,3 +2817,421 @@ button, input, select, textarea {
     display: none;
   }
 }
+
+/* ==========================================================================
+   MERGE SETS MODAL & CUSTOM MERGE STYLES
+   ========================================================================== */
+
+.set-tab-btn.btn-tab-custom-merge {
+  background: #F5F3FF;
+  border-color: #DDD6FE;
+  color: #6D28D9;
+  font-weight: 600;
+}
+
+.set-tab-btn.btn-tab-custom-merge:hover {
+  background: #EDE9FE;
+  border-color: #C4B5FD;
+  color: #5B21B6;
+}
+
+.set-tab-btn.btn-tab-custom-merge.active {
+  background: #7C3AED;
+  border-color: #7C3AED;
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(124, 58, 237, 0.35);
+}
+
+.merge-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: mergeOverlayFadeIn 0.2s ease-out;
+}
+
+@keyframes mergeOverlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.merge-modal-card {
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: mergeCardZoomIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes mergeCardZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.merge-modal-header {
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #F8FAFC;
+}
+
+.merge-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.merge-modal-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.merge-modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.merge-modal-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0.15rem 0 0 0;
+}
+
+.merge-modal-close-btn {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.merge-modal-close-btn:hover {
+  background: #E2E8F0;
+  color: var(--text-primary);
+}
+
+/* Toolbar: Chọn tất cả / Bỏ chọn */
+.merge-modal-toolbar {
+  padding: 0.65rem 1.25rem;
+  background: #F1F5F9;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.toolbar-badge {
+  font-size: 0.725rem;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbar-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.toolbar-btn:hover {
+  text-decoration: underline;
+}
+
+.toolbar-btn.text-muted {
+  color: var(--text-muted);
+}
+
+.toolbar-btn.text-muted:hover {
+  color: var(--danger);
+}
+
+.toolbar-divider {
+  color: var(--border-default);
+  font-size: 0.75rem;
+}
+
+/* Sets List */
+.merge-sets-list {
+  padding: 0.85rem 1.25rem;
+  overflow-y: auto;
+  max-height: 42vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.merge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+}
+
+.merge-row:hover {
+  border-color: #93C5FD;
+  background: #F8FAFC;
+}
+
+.merge-row.active {
+  border-color: var(--primary);
+  background: #EFF6FF;
+}
+
+.merge-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 2px solid var(--border-default);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.merge-checkbox.checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #FFFFFF;
+}
+
+.merge-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.merge-row-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.merge-row-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #E2E8F0;
+  color: var(--text-secondary);
+}
+
+.merge-row.active .merge-row-badge {
+  background: #DBEAFE;
+  color: #1D4ED8;
+}
+
+.merge-row-qcount {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.merge-row-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Summary Footer Bar */
+.merge-modal-summary {
+  padding: 0.65rem 1.25rem;
+  background: #F8FAFC;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.825rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-hint-warning {
+  color: #B45309;
+  font-weight: 600;
+}
+
+.summary-hint-ready {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #1E293B;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.summary-hint-ready strong {
+  color: #2563EB;
+}
+
+.summary-dot {
+  color: var(--text-muted);
+}
+
+/* Footer Actions */
+.merge-modal-footer {
+  padding: 0.85rem 1.25rem;
+  background: #F8FAFC;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.merge-btn-secondary {
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.merge-btn-secondary:hover {
+  background: #E2E8F0;
+  color: var(--text-primary);
+}
+
+.merge-btn-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: var(--radius-md);
+  background: #EFF6FF;
+  border: 1.5px solid #BFDBFE;
+  color: var(--primary);
+  font-size: 0.825rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.merge-btn-preview:hover:not(:disabled) {
+  background: #DBEAFE;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.merge-btn-preview:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.merge-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  border: none;
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+  transition: var(--transition);
+}
+
+.merge-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+.merge-btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .merge-modal-card {
+    max-height: 95vh;
+  }
+  .merge-modal-footer {
+    justify-content: stretch;
+  }
+  .merge-modal-footer button {
+    flex: 1;
+    justify-content: center;
+  }
+}

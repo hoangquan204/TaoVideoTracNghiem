@@ -3,7 +3,8 @@ import confetti from 'canvas-confetti';
 import { audioSynth } from '../utils/audioSynth';
 import { TTSService } from '../utils/ttsService';
 import { THEMES } from './SettingsPanel';
-import { Play, Pause, RotateCcw, Download, Sparkles, Film, Zap, AlertOctagon, Smartphone, Monitor } from 'lucide-react';
+import MergeSetsModal from './MergeSetsModal';
+import { Play, Pause, RotateCcw, Download, Sparkles, Film, Zap, AlertOctagon, Smartphone, Monitor, Layers } from 'lucide-react';
 
 const FONT_FAMILY = '"Be Vietnam Pro", "Segoe UI", Tahoma, sans-serif';
 
@@ -318,9 +319,11 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     await Promise.all(promises);
   };
 
-  // Chế độ xem trước: 'single' (từng bộ câu hỏi) hoặc 'all' (toàn bộ các bộ gộp lại)
+  // Chế độ xem trước: 'single' (từng bộ câu hỏi), 'all' (toàn bộ các bộ gộp lại), hoặc 'custom' (gộp tùy chọn)
   const [previewMode, setPreviewMode] = useState('single');
   const [isExportingMerged, setIsExportingMerged] = useState(false);
+  const [selectedMergeSetIndices, setSelectedMergeSetIndices] = useState([0, 1]);
+  const [showMergeModal, setShowMergeModal] = useState(false);
 
   useEffect(() => {
     setPreviewMode('single');
@@ -329,14 +332,95 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
   const totalAllQuestions = questionSets.reduce((sum, s) => sum + (s.questions?.length || 0), 0);
   const allMergedQuestions = questionSets.flatMap(s => s.questions || []);
   const isAllPreview = previewMode === 'all' && questionSets.length > 1;
+  const isCustomPreview = previewMode === 'custom' && questionSets.length > 1;
+  const isMergedPreview = isAllPreview || isCustomPreview;
+
+  const validMergeIndices = selectedMergeSetIndices
+    .filter(idx => idx >= 0 && idx < questionSets.length)
+    .sort((a, b) => a - b);
+  const customMergedSets = validMergeIndices.map(idx => questionSets[idx]);
+  const customMergedQuestions = customMergedSets.flatMap(s => s?.questions || []);
+  const customMergeLabel = validMergeIndices.map(i => `Bộ ${i + 1}`).join(' + ');
 
   const activeSet = isAllPreview ? {
     ...questionSets[0],
     name: `${(questionSets[0]?.name || selectedMCQPreset || 'Quiz').split('(')[0].trim()} (Gộp ${questionSets.length} bộ - ${allMergedQuestions.length} câu)`,
     questions: allMergedQuestions
+  } : isCustomPreview ? {
+    ...questionSets[validMergeIndices[0] || 0],
+    name: `${(questionSets[validMergeIndices[0] || 0]?.name || selectedMCQPreset || 'Quiz').split('(')[0].trim()} (Gộp ${customMergeLabel} - ${customMergedQuestions.length} câu)`,
+    questions: customMergedQuestions
   } : (questionSets[activeSetIndex] || questionSets[0] || { questions: [] });
 
   const questions = activeSet.questions || [];
+
+  const handleToggleMergeIndex = (idx) => {
+    setSelectedMergeSetIndices(prev => {
+      if (prev.includes(idx)) {
+        return prev.filter(i => i !== idx);
+      } else {
+        return [...prev, idx].sort((a, b) => a - b);
+      }
+    });
+  };
+
+  const handlePreviewMergedSets = (indices) => {
+    setSelectedMergeSetIndices(indices);
+    setPreviewMode('custom');
+    setShowMergeModal(false);
+    startTimeRef.current = performance.now();
+    lastQIdxRef.current = -1;
+    setIsPlaying(true);
+  };
+
+  const handleExportCustomMergedVideo = async (indicesToExport) => {
+    if (isExporting) return;
+    const targetIndices = (indicesToExport || validMergeIndices)
+      .filter(idx => idx >= 0 && idx < questionSets.length)
+      .sort((a, b) => a - b);
+
+    if (targetIndices.length < 2) {
+      alert('Vui lòng chọn ít nhất 2 bộ câu hỏi để gộp thành 1 video dài!');
+      return;
+    }
+
+    const targetSets = targetIndices.map(idx => questionSets[idx]);
+    const targetQuestions = targetSets.flatMap(s => s?.questions || []);
+    if (targetQuestions.length === 0) {
+      alert('Các bộ đã chọn không có câu hỏi nào để xuất!');
+      return;
+    }
+
+    const labelFile = targetIndices.map(i => `Bo${i + 1}`).join('_');
+    const firstSet = targetSets[0] || {};
+    const mergedSet = {
+      ...firstSet,
+      name: `${(firstSet.name || selectedMCQPreset || 'Quiz').split('(')[0].trim()}_Gop_${labelFile}`,
+      questions: targetQuestions
+    };
+
+    setSelectedMergeSetIndices(targetIndices);
+    setPreviewMode('custom');
+    setShowMergeModal(false);
+    isExportCancelledRef.current = false;
+    setIsExporting(true);
+    setIsExportingMerged(true);
+    setIsPlaying(false);
+    setExportProgress(0);
+    lastProgressRef.current = -1;
+
+    try {
+      await renderSingleVideo(mergedSet, currentTheme, 0, true /* isLongMerged */);
+      setIsExporting(false);
+      setIsExportingMerged(false);
+      setIsPlaying(true);
+    } catch (e) {
+      console.error('Custom Merge Export Error:', e);
+      alert('Không thể xuất video gộp các bộ.');
+      setIsExporting(false);
+      setIsExportingMerged(false);
+    }
+  };
 
   // State tiến trình xuất video của bộ đang chọn
   const [exportProgress, setExportProgress] = useState(0);
@@ -7058,75 +7142,75 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
       const areaH = contentH - qCardH - 24;
 
       // --- 4 đáp án (lưới 2x2) ---
-        const opts = ['A', 'B', 'C', 'D'].map(k => ({ key: k, text: optMap[k] || '' })).filter(o => o.text);
-        const cols = 2;
-        const rows = Math.max(1, Math.ceil(opts.length / cols));
-        const optGap = 20;
-        const optW = (rightW - optGap * (cols - 1)) / cols;
-        const optH = Math.min(220, (areaH - optGap * (rows - 1)) / rows);
-        const gridH = optH * rows + optGap * (rows - 1);
-        const gridY = areaY + (areaH - gridH) / 2;
-        const keyColors = { A: '#22C55E', B: '#3B82F6', C: '#F59E0B', D: '#EF4444' };
-        const keyDark = { A: '#14532D', B: '#1E3A8A', C: '#78350F', D: '#7F1D1D' };
+      const opts = ['A', 'B', 'C', 'D'].map(k => ({ key: k, text: optMap[k] || '' })).filter(o => o.text);
+      const cols = 2;
+      const rows = Math.max(1, Math.ceil(opts.length / cols));
+      const optGap = 20;
+      const optW = (rightW - optGap * (cols - 1)) / cols;
+      const optH = Math.min(220, (areaH - optGap * (rows - 1)) / rows);
+      const gridH = optH * rows + optGap * (rows - 1);
+      const gridY = areaY + (areaH - gridH) / 2;
+      const keyColors = { A: '#22C55E', B: '#3B82F6', C: '#F59E0B', D: '#EF4444' };
+      const keyDark = { A: '#14532D', B: '#1E3A8A', C: '#78350F', D: '#7F1D1D' };
 
-        opts.forEach((opt, oi) => {
-          const col = oi % cols, row = Math.floor(oi / cols);
-          const ox = rightX + col * (optW + optGap);
-          const oy = gridY + row * (optH + optGap);
-          const isCorrect = opt.key === correctKey;
-          const kc = keyColors[opt.key];
+      opts.forEach((opt, oi) => {
+        const col = oi % cols, row = Math.floor(oi / cols);
+        const ox = rightX + col * (optW + optGap);
+        const oy = gridY + row * (optH + optGap);
+        const isCorrect = opt.key === correctKey;
+        const kc = keyColors[opt.key];
 
-          ctx.save();
-          if (isReveal && isCorrect) {
-            const pulse = 0.5 + Math.sin(globalT * 5) * 0.5;
-            ctx.shadowColor = rgba(kc, 0.55 + pulse * 0.3);
-            ctx.shadowBlur = 22 + pulse * 14;
-            const grad = ctx.createLinearGradient(ox, oy, ox + optW, oy + optH);
-            grad.addColorStop(0, rgba(kc, 0.95));
-            grad.addColorStop(1, rgba(keyDark[opt.key], 0.9));
-            ctx.fillStyle = grad;
-          } else if (isReveal) {
-            ctx.globalAlpha = 0.4;
-            ctx.fillStyle = 'rgba(30,30,30,0.85)';
-          } else {
-            ctx.fillStyle = 'rgba(255,255,255,0.09)';
-            ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 10;
-          }
-          drawRoundRect(ctx, ox, oy, optW, optH, 22);
-          ctx.fill();
-          ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
-          if (!isReveal || isCorrect) {
-            ctx.strokeStyle = isReveal ? 'rgba(255,255,255,0.5)' : rgba(kc, 0.55);
-            ctx.lineWidth = 3;
-            ctx.stroke();
-          }
+        ctx.save();
+        if (isReveal && isCorrect) {
+          const pulse = 0.5 + Math.sin(globalT * 5) * 0.5;
+          ctx.shadowColor = rgba(kc, 0.55 + pulse * 0.3);
+          ctx.shadowBlur = 22 + pulse * 14;
+          const grad = ctx.createLinearGradient(ox, oy, ox + optW, oy + optH);
+          grad.addColorStop(0, rgba(kc, 0.95));
+          grad.addColorStop(1, rgba(keyDark[opt.key], 0.9));
+          ctx.fillStyle = grad;
+        } else if (isReveal) {
+          ctx.globalAlpha = 0.4;
+          ctx.fillStyle = 'rgba(30,30,30,0.85)';
+        } else {
+          ctx.fillStyle = 'rgba(255,255,255,0.09)';
+          ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 10;
+        }
+        drawRoundRect(ctx, ox, oy, optW, optH, 22);
+        ctx.fill();
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+        if (!isReveal || isCorrect) {
+          ctx.strokeStyle = isReveal ? 'rgba(255,255,255,0.5)' : rgba(kc, 0.55);
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
 
-          // Ô chữ cái A/B/C/D
-          const kb = Math.min(64, optH * 0.42);
-          ctx.fillStyle = isReveal && isCorrect ? 'rgba(255,255,255,0.28)' : rgba(kc, 0.25);
-          drawRoundRect(ctx, ox + 18, oy + optH / 2 - kb / 2, kb, kb, 14);
-          ctx.fill();
-          ctx.fillStyle = isReveal && isCorrect ? '#FFFFFF' : kc;
-          ctx.font = `900 ${Math.round(kb * 0.6)}px ${FONT_FAMILY}`;
-          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText(opt.key, ox + 18 + kb / 2, oy + optH / 2 + 2);
+        // Ô chữ cái A/B/C/D
+        const kb = Math.min(64, optH * 0.42);
+        ctx.fillStyle = isReveal && isCorrect ? 'rgba(255,255,255,0.28)' : rgba(kc, 0.25);
+        drawRoundRect(ctx, ox + 18, oy + optH / 2 - kb / 2, kb, kb, 14);
+        ctx.fill();
+        ctx.fillStyle = isReveal && isCorrect ? '#FFFFFF' : kc;
+        ctx.font = `900 ${Math.round(kb * 0.6)}px ${FONT_FAMILY}`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(opt.key, ox + 18 + kb / 2, oy + optH / 2 + 2);
 
-          // Nội dung đáp án
-          const tX = ox + 18 + kb + 22;
-          const tW = optW - (tX - ox) - (isReveal && isCorrect ? 70 : 24);
-          const oFit = fitWrapped(opt.text, tW, optH >= 150 ? 40 : 32, 20, 2, '800');
-          ctx.fillStyle = isReveal && !isCorrect ? 'rgba(255,255,255,0.55)' : '#FFFFFF';
-          ctx.font = `800 ${oFit.size}px ${FONT_FAMILY}`;
-          drawCenteredLines(oFit.lines, tX, oy + optH / 2 + 1, oFit.size, 'left');
+        // Nội dung đáp án
+        const tX = ox + 18 + kb + 22;
+        const tW = optW - (tX - ox) - (isReveal && isCorrect ? 70 : 24);
+        const oFit = fitWrapped(opt.text, tW, optH >= 150 ? 40 : 32, 20, 2, '800');
+        ctx.fillStyle = isReveal && !isCorrect ? 'rgba(255,255,255,0.55)' : '#FFFFFF';
+        ctx.font = `800 ${oFit.size}px ${FONT_FAMILY}`;
+        drawCenteredLines(oFit.lines, tX, oy + optH / 2 + 1, oFit.size, 'left');
 
-          if (isReveal && isCorrect) {
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = `900 ${Math.round(optH * 0.32)}px ${FONT_FAMILY}`;
-            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-            ctx.fillText('✓', ox + optW - 22, oy + optH / 2 + 2);
-          }
-          ctx.restore();
-        });
+        if (isReveal && isCorrect) {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = `900 ${Math.round(optH * 0.32)}px ${FONT_FAMILY}`;
+          ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+          ctx.fillText('✓', ox + optW - 22, oy + optH / 2 + 2);
+        }
+        ctx.restore();
+      });
     }
     ctx.restore(); // kết thúc hiệu ứng vào cảnh
 
@@ -8214,7 +8298,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
     setExportProgress(0);
     lastProgressRef.current = -1;
 
-    const isAllMode = isAllPreview;
+    const isAllMode = isAllPreview || isCustomPreview;
     if (isAllMode) {
       setIsExportingMerged(true);
     }
@@ -8268,7 +8352,9 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           <Film className="icon-pink" size={20} />
           {isAllPreview
             ? `3. Xem Trước Video Dài (Gộp cả ${questionSets.length} bộ - ${allMergedQuestions.length} câu)`
-            : `3. Xem Trước Video (Bộ #${activeSetIndex + 1})`
+            : isCustomPreview
+              ? `3. Xem Trước Video Gộp (${customMergeLabel} - ${customMergedQuestions.length} câu)`
+              : `3. Xem Trước Video (Bộ #${activeSetIndex + 1})`
           }
         </h2>
         <span className="live-pill">🔴 LIVE MCQ PREVIEW</span>
@@ -8319,7 +8405,7 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           <button
             key={idx}
             type="button"
-            className={`set-tab-btn ${!isAllPreview && activeSetIndex === idx ? 'active' : ''}`}
+            className={`set-tab-btn ${!isMergedPreview && activeSetIndex === idx ? 'active' : ''}`}
             onClick={() => {
               setPreviewMode('single');
               setActiveSetIndex(idx);
@@ -8344,6 +8430,19 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
             title={`Xem trước toàn bộ ${questionSets.length} bộ (${allMergedQuestions.length} câu) gộp thành 1 video dài`}
           >
             🌟 Tất cả {questionSets.length} bộ ({allMergedQuestions.length} câu)
+          </button>
+        )}
+        {questionSets.length > 1 && (
+          <button
+            type="button"
+            className={`set-tab-btn btn-tab-custom-merge ${isCustomPreview ? 'active' : ''}`}
+            onClick={() => {
+              setShowMergeModal(true);
+            }}
+            disabled={isExporting}
+            title="Tùy chọn gộp các bộ video (ví dụ: Bộ 1+2, Bộ 2+4, Bộ 1+3+4...)"
+          >
+            🧩 {isCustomPreview ? `Đang gộp: ${customMergeLabel} (${customMergedQuestions.length} câu)` : 'Gộp tùy chọn...'}
           </button>
         )}
       </div>
@@ -8392,34 +8491,44 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           className="control-btn btn-export-single"
           onClick={handleExportSingleVideo}
           disabled={isExporting}
-          title={isAllPreview ? `Xuất video dài (${allMergedQuestions.length} câu)` : `Xuất video riêng cho Bộ ${activeSetIndex + 1}`}
+          title={isAllPreview
+            ? `Xuất video dài (${allMergedQuestions.length} câu)`
+            : isCustomPreview
+              ? `Xuất 1 file video gộp (${customMergeLabel} - ${customMergedQuestions.length} câu)`
+              : `Xuất video riêng cho Bộ ${activeSetIndex + 1}`
+          }
         >
           <Download size={16} />
           <span>
-            {isExporting && !isExportingMerged && !isAllPreview
+            {isExporting && !isExportingMerged && !isMergedPreview
               ? `Đang render (${exportProgress}%)...`
-              : (isAllPreview || questionSets.length === 1
-                  ? `Xuất video (${questions.length} câu)`
-                  : `Xuất video (Bộ ${activeSetIndex + 1})`
-                )
+              : (isAllPreview
+                ? `Xuất video (${questions.length} câu)`
+                : isCustomPreview
+                  ? `Xuất video (${customMergeLabel} - ${questions.length} câu)`
+                  : (questionSets.length === 1
+                    ? `Xuất video (${questions.length} câu)`
+                    : `Xuất video (Bộ ${activeSetIndex + 1})`
+                  )
+              )
             }
           </span>
         </button>
 
-        {/* Dedicated Long Video Export Button (Gộp cả 4 bộ) */}
+        {/* Dedicated Long Video Merge Button */}
         {questionSets.length > 1 && (
           <button
             type="button"
             className="control-btn btn-export-long-video"
-            onClick={handleExportMergedLongVideo}
+            onClick={() => setShowMergeModal(true)}
             disabled={isExporting}
-            title={`Gom tất cả ${questionSets.length} bộ (${allMergedQuestions.length} câu) thành 1 video dài đồng nhất`}
+            title="Mở bảng chọn gộp bất kỳ các bộ video nào (ví dụ: Bộ 1+2, Bộ 2+4, Bộ 1+3+4...) để xuất thành 1 file duy nhất"
           >
-            <Film size={16} />
+            <Layers size={16} />
             <span>
-              {isExporting && (isExportingMerged || isAllPreview)
-                ? `Đang render video dài (${exportProgress}%)...`
-                : `🎬 Xuất video dài (Gộp cả ${questionSets.length} bộ)`
+              {isExporting && (isExportingMerged || isMergedPreview)
+                ? `Đang render video gộp (${exportProgress}%)...`
+                : `🎬 Gộp các bộ`
               }
             </span>
           </button>
@@ -8439,9 +8548,11 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
             <div className="modal-title-group">
               <Sparkles className="spin-icon icon-cyan" size={20} />
               <h3>
-                {isExportingMerged || isAllPreview
+                {isAllPreview
                   ? `Đang Ghi Hình & Render Video Dài (Gộp ${questionSets.length} bộ - ${allMergedQuestions.length} câu) (${exportProgress}%)`
-                  : `Đang Ghi Hình & Render Video Bộ #${activeSetIndex + 1} (${exportProgress}%)`
+                  : isCustomPreview
+                    ? `Đang Ghi Hình & Render Video Gộp (${customMergeLabel} - ${customMergedQuestions.length} câu) (${exportProgress}%)`
+                    : `Đang Ghi Hình & Render Video Bộ #${activeSetIndex + 1} (${exportProgress}%)`
                 }
               </h3>
             </div>
@@ -8465,13 +8576,27 @@ export default function MCQVideoPreviewCanvas({ questionSets, activeSetIndex, se
           </div>
 
           <div className="v-progress-subtext" style={{ marginTop: '0.4rem', fontSize: '0.85rem', color: '#64748b' }}>
-            {isExportingMerged || isAllPreview
-              ? `Hệ thống đang ghép nối và render đồng nhất toàn bộ ${allMergedQuestions.length} câu hỏi thành 1 video dài hoàn chỉnh (${isLandscape ? '16:9 YouTube Full HD' : '9:16 Shorts/TikTok Full HD'})...`
+            {isAllPreview || isCustomPreview
+              ? `Hệ thống đang ghép nối và render đồng nhất toàn bộ ${questions.length} câu hỏi thành 1 video dài hoàn chỉnh (${isLandscape ? '16:9 YouTube Full HD' : '9:16 Shorts/TikTok Full HD'})...`
               : `Hệ thống đang tổng hợp âm thanh, hình ảnh và hoạt họa cho video Bộ #${activeSetIndex + 1}...`
             }
           </div>
         </div>
       )}
+
+      {/* Modal Chọn & Gộp Các Bộ Video */}
+      <MergeSetsModal
+        isOpen={showMergeModal}
+        onClose={() => setShowMergeModal(false)}
+        questionSets={questionSets}
+        selectedIndices={selectedMergeSetIndices}
+        onToggleIndex={handleToggleMergeIndex}
+        onSetIndices={setSelectedMergeSetIndices}
+        onPreviewMerged={handlePreviewMergedSets}
+        onExportMerged={handleExportCustomMergedVideo}
+        isExporting={isExporting}
+        isLandscape={isLandscape}
+      />
     </div>
   );
 }

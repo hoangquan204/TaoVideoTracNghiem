@@ -583,7 +583,7 @@ export default function UserGuidePage({ onSelectPreset, onBack }) {
                 Bấm <strong>"Xem Video"</strong> để kiểm tra chuyển động, giọng đọc và hiệu ứng. Bạn có thể xuất video riêng cho từng bộ (5 câu) hoặc bấm <strong>"🎬 Xuất video dài (Gộp cả 4 bộ)"</strong> để kết xuất toàn bộ 20 câu hỏi thành 1 video đồng nhất hoàn chỉnh (Shorts 9:16 hoặc YouTube 16:9)!
               </p>
               <div className="workflow-tip">
-                💡 <strong>Tính năng Video Dài:</strong> Bấm <em>"Gộp 4 bộ thành 1"</em> tại bảng câu hỏi hoặc bấm <em>"🎬 Xuất video dài (Gộp cả 4 bộ)"</em> để xuất ngay 1 file video hoàn chỉnh 20 câu không cần ghép nối bên ngoài.
+                💡 <strong>Tính năng Gộp Video:</strong> Bấm nút <em>"🎬 Gộp các bộ xuất 1 file..."</em> tại khung xem trước để tùy chọn bất kỳ các bộ video nào cần ghép nối (ví dụ: Bộ 1+2, Bộ 2+4, Bộ 1+3+4...) và xuất ngay 1 file video hoàn chỉnh.
               </div>
             </div>
           </div>
@@ -838,13 +838,11 @@ export default function UserGuidePage({ onSelectPreset, onBack }) {
             </div>
 
             <div className="faq-item">
-              <h4 className="faq-question">6. Làm thế nào để gom 4 bộ video thành 1 video dài đồng nhất?</h4>
+              <h4 className="faq-question">6. Làm thế nào để gom và gộp các bộ video thành 1 video dài đồng nhất?</h4>
               <p className="faq-answer">
-                Bạn có thể gom và xuất video dài theo 2 cách cực kỳ thuận tiện:
+                Tại bảng xem trước video bên phải, bấm nút <strong>"🎬 Gộp các bộ xuất 1 file..."</strong>.
                 <br />
-                • <strong>Cách 1 (Nhanh nhất):</strong> Tại bảng xem trước video bên phải, bấm trực tiếp nút <strong>"🎬 Xuất video dài (Gộp cả 4 bộ)"</strong>. Hệ thống sẽ kết xuất tự động toàn bộ 20 câu hỏi liên tiếp thành 1 file MP4 hoàn chỉnh.
-                <br />
-                • <strong>Cách 2:</strong> Tại thanh chọn Bộ câu hỏi bên trái, bấm nút <strong>"Gộp 4 bộ thành 1"</strong> để nối toàn bộ câu hỏi vào 1 danh sách, sau đó bạn có thể duyệt qua từng câu hoặc tách lại các bộ ban đầu bất cứ lúc nào.
+                Hệ thống mở bảng chọn cho phép bạn tích chọn bất kỳ các bộ nào cần ghép nối (ví dụ: Bộ 1 + Bộ 2, Bộ 2 + Bộ 4, Bộ 1 + Bộ 3 + Bộ 4...) và bấm <strong>"Xuất video gộp"</strong> để kết xuất tự động toàn bộ câu hỏi liên tiếp thành 1 file MP4 hoàn chỉnh.
               </p>
             </div>
           </div>
